@@ -1,0 +1,10 @@
+
+build/*
+
+# some bothering files
+.directory
+*.swp
+
+# don't want everyone to use tweak mode
+sketch.properties
+
