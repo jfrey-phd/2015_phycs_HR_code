@@ -16,6 +16,8 @@ void setup() {
   eye = loadShape("eye_M_1.svg");
   mouth = loadShape("mouth_M_1.svg");
   heart = loadShape("heart.svg");
+  // init for TTS
+  AgentSpeak_setup();
 }
 
 void draw() {
@@ -27,10 +29,19 @@ void draw() {
   draw_eyes();
   draw_mouth();
   draw_heart();
+
+  // animate mouth if needed
+  if (Speak.isPlaying() != 0) {
+    mouth_animation = true;
+  }
+  else {
+    mouth_animation = false;
+  }
 }
 
 // trigger different action for debug
 void keyPressed() {
+  // debug animation
   if (key == 'b') {
     //scale = 1;
     eye_blink = true;
@@ -40,6 +51,10 @@ void keyPressed() {
   }
   else if (key == 'h') {
     heart_animation = true;
+  }
+  // debug TTS
+  else if (key == 's') {
+    thread("speak");
   }
 }
 
