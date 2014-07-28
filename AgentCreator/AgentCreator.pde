@@ -1,10 +1,11 @@
 
 // at the moment our agent is disassembled
-PShape head, eye, mouth;
+PShape head, eye, mouth, heart;
 
 // flag to make eye blink
 boolean eye_blink = false;
 boolean mouth_animation = false;
+boolean heart_animation = false;
 
 // remember animation state for the eye
 boolean eye_blinking = false; // currently blinking
@@ -16,6 +17,11 @@ boolean mouth_speaking = false; // currently speaking
 boolean mouth_closing = false; // mouth closing
 float mouth_scale = 1.0; // current Y scale
 
+// remember animation state for the heart
+boolean heart_beating = false; // currently beating
+int heart_anim_step = 0; // 1: growing, 2: shrinking, 3: bak to default, 0: resting
+float heart_scale = 1.0; // current Y scale
+
 void setup() {
   // using 2D backend as we won't venture in 3D realm
   size(1000, 1000, P2D);
@@ -24,6 +30,7 @@ void setup() {
   head = loadShape("head_M_1.svg");
   eye = loadShape("eye_M_1.svg");
   mouth = loadShape("mouth_M_1.svg");
+  heart = loadShape("heart.svg");
 }
 
 void draw() {
@@ -34,6 +41,8 @@ void draw() {
   // deals with blinking also
   draw_eyes();
   draw_mouth();
+
+  draw_heart();
 }
 
 void draw_eyes() {
@@ -121,6 +130,62 @@ void draw_mouth() {
   shape(mouth, 150, 475);
 }
 
+void draw_heart() {
+  // the svg is a bit big for a start
+  float heart_default_scale = 0.75;
+
+  // influence blink speed;
+  float anim_step = 0.05;
+
+  // if a blinks happens and not already blinking, we have initiate scale
+  if (heart_animation && !heart_beating) {
+    heart_animation = false;
+    heart_beating = true;
+    heart_anim_step = 1;
+    heart_scale = 1;
+  }
+
+  // scale according to animation tate
+  switch(heart_anim_step) {
+    // grows
+  case 1:
+    heart_scale += anim_step;
+    if (heart_scale >= 1.2) {
+      heart_scale = 1.2;
+      heart_anim_step = 2;
+    }
+    break;
+    // shrinks
+  case 2:
+    heart_scale -= anim_step;
+    if (heart_scale <= 0.8) {
+      heart_scale = 0.8;
+      heart_anim_step = 3;
+    }
+    break;
+    // back to resting
+  case 3:
+    heart_scale += anim_step;
+    if (heart_scale >= 1) {
+      heart_scale = 1;
+      heart_anim_step = 0;
+      heart_beating = false;
+    }
+    break;
+    // resting
+  default:
+    break;
+  }
+
+  heart.resetMatrix();
+  // one for default, one for animation
+  heart.scale(heart_default_scale, heart_default_scale);
+  heart.scale(heart_scale, heart_scale);
+
+  shapeMode(CENTER);
+  shape(heart, 800, 800);
+  shapeMode(CORNER);
+}
 
 // trigger different action for debug
 void keyPressed() {
@@ -131,8 +196,8 @@ void keyPressed() {
   else if (key == 'm') {
     mouth_animation = true;
   }
-  //  else if (key == 'h') {
-  //    pulse();
-  //  }
+  else if (key == 'h') {
+    heart_animation = true;
+  }
 }
 
