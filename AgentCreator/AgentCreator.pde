@@ -31,7 +31,7 @@ void draw() {
   draw_heart();
 
   // animate mouth if needed
-  if (Speak.isPlaying() != 0) {
+  if (isSpeaking()) {
     mouth_animation = true;
   }
   else {
