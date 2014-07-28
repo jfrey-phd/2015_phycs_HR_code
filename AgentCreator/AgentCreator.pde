@@ -56,5 +56,8 @@ void keyPressed() {
   else if (key == 's') {
     thread("speak");
   }
+  else if (key == '1') {
+    
+  }
 }
 

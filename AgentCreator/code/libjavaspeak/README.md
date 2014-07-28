@@ -190,7 +190,7 @@ and C#.
 
 4. Compile the *speak.c* and *speak_wrap.c* files using gcc
 
-        $ gcc -fpic -c Speak.c Speak_wrap.c -I $JAVA_HOME/include -I $JAVA_HOME/include/linux/
+        $ gcc -fpic -c speak.c speak_wrap.c -I $JAVA_HOME/include -I $JAVA_HOME/include/linux/
 
     Note: **$JAVA_HOME** is the path to the java installation directory, *eg* for ubuntu:
 
@@ -198,7 +198,7 @@ and C#.
 
 5. Create a shared library by linking the object codes to espeak's shared library:
 
-        $ gcc -shared Speak.o Speak_wrap.o -lespeak -o libjavaSpeak.so
+        $ gcc -shared speak.o speak_wrap.o -lespeak -o libjavaspeak.so
 
 Note: this creates a new shared library named libjavaSpeak.so which we will use in our java
 program.

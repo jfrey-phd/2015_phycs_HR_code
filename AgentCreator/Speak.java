@@ -20,8 +20,8 @@ public class Speak {
     return SpeakJNI.setPitchRange(value);
   }
 
-  public static int initialise() {
-    return SpeakJNI.initialise();
+  public static int initialise(String voice, int MBROLA_voice) {
+    return SpeakJNI.initialise(voice, MBROLA_voice);
   }
 
   public static int espeak(String arr) {
@@ -38,6 +38,10 @@ public class Speak {
 
   public static int terminate() {
     return SpeakJNI.terminate();
+  }
+
+  public static int setVoice(String voice) {
+    return SpeakJNI.setVoice(voice);
   }
 
 }
