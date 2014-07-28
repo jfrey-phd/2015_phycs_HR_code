@@ -4,11 +4,17 @@ PShape head, eye, mouth;
 
 // flag to make eye blink
 boolean eye_blink = false;
+boolean mouth_animation = false;
 
 // remember animation state for the eye
-boolean blinking = false; // currently blinking
-boolean closing = false; // eyes are closing
-float scale = 1.0; // current Y scale
+boolean eye_blinking = false; // currently blinking
+boolean eye_closing = false; // eyes are closing
+float eye_scale = 1.0; // current Y scale
+
+// remember animation state for the mouth
+boolean mouth_speaking = false; // currently speaking
+boolean mouth_closing = false; // mouth closing
+float mouth_scale = 1.0; // current Y scale
 
 void setup() {
   // using 2D backend as we won't venture in 3D realm
@@ -23,67 +29,98 @@ void setup() {
 void draw() {
   // reset display
   background(255);
-
-  // manual blink and speak
-  mouth.resetMatrix();
-  float eye_scale = 1.0;
-  if (eye_scale < 0.1) {
-    eye_scale = 0.1;
-  }
-  if (eye_scale > 1) {
-    eye_scale = 1;
-  }
-
-  mouth.scale(1.0, eye_scale);
-
   // draw every part
   shape(head, 0, 0);
   // deals with blinking also
   draw_eyes();
-  shape(mouth, 150, 475);
+  draw_mouth();
 }
 
 void draw_eyes() {
   // influence blink speed;
-  float blink_step = 0.04;
+  float anim_step = 0.04;
 
   // if a blinks happens and not already blinking, we have initiate scale
-  if (eye_blink && !blinking) {
+  if (eye_blink && !eye_blinking) {
     eye_blink = false;
-    blinking = true;
-    closing = true;
-    scale = 1;
+    eye_blinking = true;
+    eye_closing = true;
+    eye_scale = 1;
   }
 
   // scale according to blinking state
-  if (blinking) {
+  if (eye_blinking) {
     // shrinking while closing
-    if (closing) {
-      scale -= blink_step;
+    if (eye_closing) {
+      eye_scale -= anim_step;
     }
     else {
-      scale += blink_step;
+      eye_scale += anim_step;
     }
     // once we reached a bottom point, opening again
-    if (scale <= 0) {
-      scale = 0.01;
-      closing = false;
+    if (eye_scale <= 0) {
+      eye_scale = 0.01;
+      eye_closing = false;
     }
     // once opened, finished animation
-    if (scale >= 1) {
-      scale = 1;
-      blinking = false;
+    if (eye_scale >= 1) {
+      eye_scale = 1;
+      eye_blinking = false;
     }
   }
 
   // before drawing, reset transformation to eyes and apply current scale
   eye.resetMatrix();
-  eye.scale(1.0, scale);
+  eye.scale(1.0, eye_scale);
 
   // two of the same eye...
-  shape(eye, 400, 75);
-  shape(eye, 150, 75);
+  // blinks renders better if they stay centered...
+  shapeMode(CENTER);
+  shape(eye, 500, 240);
+  shape(eye, 250, 240);
+  shapeMode(CORNER);
 }
+
+void draw_mouth() {
+  // influence blink speed;
+  float anim_step = 0.08;
+
+  // if a blinks happens and not already blinking, we have initiate scale
+  if (mouth_animation && !mouth_speaking) {
+    mouth_animation = false;
+    mouth_speaking = true;
+    mouth_closing = true;
+    mouth_scale = 1;
+  }
+
+  // scale according to blinking state
+  if (mouth_speaking) {
+    // shrinking while closing
+    if (mouth_closing) {
+      mouth_scale -= anim_step;
+    }
+    else {
+      mouth_scale += anim_step;
+    }
+    // once we reached a bottom point, opening again
+    if (mouth_scale <= 0) {
+      mouth_scale = 0.01;
+      mouth_closing = false;
+    }
+    // once opened, finished animation
+    if (mouth_scale >= 1) {
+      mouth_scale = 1;
+      mouth_speaking = false;
+    }
+  }
+
+  // before drawing, reset transformation to eyes and apply current scale
+  mouth.resetMatrix();
+  mouth.scale(1.0, mouth_scale);
+
+  shape(mouth, 150, 475);
+}
+
 
 // trigger different action for debug
 void keyPressed() {
@@ -91,9 +128,9 @@ void keyPressed() {
     //scale = 1;
     eye_blink = true;
   }
-  //  else if (key == 'm') {
-  //    speak();
-  //  }
+  else if (key == 'm') {
+    mouth_animation = true;
+  }
   //  else if (key == 'h') {
   //    pulse();
   //  }
