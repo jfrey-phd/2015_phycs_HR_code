@@ -59,6 +59,32 @@ int setPitchRange(int value) {
   return 0 ;
 }
 
+int setRate(int value) {
+  if (initFlag == 0 ) {
+    printf("espeak Not initialised\n call initialise() first") ;
+    return -1 ;
+  }
+
+  if (value > 450) value = 450 ;
+  else if (value < 80) value = 80 ;
+
+  espeak_SetParameter(espeakRATE, value, 0) ;
+
+  return 0 ;
+}
+
+// units of 10ms
+int setWordgap(int value) {
+  if (initFlag == 0 ) {
+    printf("espeak Not initialised\n call initialise() first") ;
+    return -1 ;
+  }
+
+  espeak_SetParameter(espeakWORDGAP, value, 0) ;
+
+  return 0 ;
+}
+
 // voice: select voice name (eg: "default" without MBOROLA)
 // MBROLA_voice: 0 for espeak voices, 1 for MBROLA voices
 int initialise(const char *voice, int MBROLA_voice) {
@@ -85,6 +111,13 @@ int initialise(const char *voice, int MBROLA_voice) {
     printf("\nEE_BUFFER_FULL | EE_INTERNAL_ERROR occured inside espeak_SetVoiceByName() in initialise()") ;
     return -1 ;
   }
+  
+    espeak_VOICE *voice_spec = espeak_GetCurrentVoice(); 
+  //voice_spec->gender=2;
+//   if (espeak_SetVoiceByProperties(voice_spec) != EE_OK ) {
+//     printf("\nEE_BUFFER_FULL | EE_INTERNAL_ERROR occured inside espeak_SetVoiceByProperties in initialise()") ;
+//     return -1 ;
+//   }
 
   initFlag = 1 ; 
 

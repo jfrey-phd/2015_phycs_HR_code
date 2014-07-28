@@ -20,6 +20,14 @@ public class Speak {
     return SpeakJNI.setPitchRange(value);
   }
 
+  public static int setRate(int value) {
+    return SpeakJNI.setRate(value);
+  }
+
+  public static int setWordgap(int value) {
+    return SpeakJNI.setWordgap(value);
+  }
+
   public static int initialise(String voice, int MBROLA_voice) {
     return SpeakJNI.initialise(voice, MBROLA_voice);
   }
