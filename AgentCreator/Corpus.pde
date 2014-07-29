@@ -2,22 +2,10 @@
 // corpus from Bestgen 2004
 // Careful, headers have to be id/random/valence/sd/text
 Table soir95;
-Table soir95_sad;
-Table soir95_neutral;
-Table soir95_happy;
-
-// create an empty table with soir95 headers
-// TODO: clone them from soir95
-Table Corpus_createEmptyCorpus() {
-  Table corpus = new Table();
-  // cf csv file for order
-  corpus.addColumn("id");
-  corpus.addColumn("random");
-  corpus.addColumn("valence");
-  corpus.addColumn("sd");
-  corpus.addColumn("text");
-  return corpus;
-}
+// 3 lists of indexes for 3 different type of valence contained in soir95
+IntList soir95_sad;
+IntList soir95_neutral;
+IntList soir95_happy;
 
 void Corpus_setup() {
   // load soir95, got headers, fields separated by tabs
@@ -25,42 +13,43 @@ void Corpus_setup() {
   println("Loaded soir95, nb rows: " + soir95.getRowCount());
 
   // split corpus depending on valence
-  soir95_sad = Corpus_createEmptyCorpus();
-  soir95_neutral = Corpus_createEmptyCorpus();
-  soir95_happy = Corpus_createEmptyCorpus();
+  soir95_sad = new IntList();
+  soir95_neutral = new IntList();
+  soir95_happy = new IntList();
   // FIXME: ugly way to do it, can't simply select values with operators??
-  for (TableRow row : soir95.rows()) {
+  for (int i = 0; i < soir95.getRowCount(); i++) {
+    TableRow row = soir95.getRow(i);
     float val = row.getFloat("valence");
     // in [-3 ; -1[ sad
     if (val < -1) {
-      soir95_sad.addRow(row);
+      soir95_sad.append(i);
     }
     // in ]1 ; 3] happy
     else if (val > 1) {
-      soir95_happy.addRow(row);
+      soir95_happy.append(i);
     }
     // in [-1 ; 1] neutral
     else {
-      soir95_neutral.addRow(row);
+      soir95_neutral.append(i);
     }
   }
-  println("There is " +  soir95_sad.getRowCount() + " sad stories, " + soir95_happy.getRowCount() + " happy ones and " + soir95_neutral.getRowCount() + " not that much exciting.");
+  println("There is " +  soir95_sad.size() + " sad stories, " + soir95_happy.size() + " happy ones and " + soir95_neutral.size() + " not that much exciting.");
 }
 
-// randomly select one row, remove it from the table and return it (null if table is empty)
-// TODO: check that it could retrieve every rows
-TableRow Corpus_randomPop(Table table) {
+// randomly select an item, remove it from the list and return the corresponding row from main table (null if list is empty)
+TableRow Corpus_randomPop(IntList  list) {
   // randomly select a row
-  int nbRows = table.getRowCount();
-  println("nb rows left: " +  nbRows);
-  if (nbRows == 0) {
+  int nbItems = list.size();
+  println("nb items left: " +  nbItems);
+  if (nbItems == 0) {
     return null;
   }
-  int rowID = round(random(0, nbRows-1));
-  println("random id: " + rowID);
-  TableRow row = table.getRow(rowID);
+  int itemID = round(random(0, nbItems-1));
+  int rowID = list.get(itemID);
+  println("random id: " + itemID + ", corresponds to row: " + rowID);
+  TableRow row = soir95.getRow(rowID);
   // remove from source (so we can't have duplicates) and return
-  table.removeRow(rowID);
+  list.remove(itemID);
   return row;
 }
 
