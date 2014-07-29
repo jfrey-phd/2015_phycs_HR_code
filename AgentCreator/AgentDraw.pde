@@ -5,6 +5,13 @@
 boolean eye_blinking = false; // currently blinking
 boolean eye_closing = false; // eyes are closing
 float eye_scale = 1.0; // current Y scale
+float eye_BPM = 10;
+int eye_last_beat = 0;
+// if != 0, a noise will be added to BPM to avoid too constant beats
+float eye_BPM_variability = 5;
+// variability is computed once per beat -- otherwise mixes up too much computations, small BPM more likely to appear
+// NB: careful if too close to BPM : could lead to very slow beat
+float eye_next_BPM = eye_BPM;
 
 // remember animation state for the mouth
 boolean mouth_speaking = false; // currently speaking
@@ -14,12 +21,37 @@ float mouth_scale = 1.0; // current Y scale
 // remember animation state for the heart
 boolean heart_beating = false; // currently beating
 int heart_anim_step = 0; // 1: growing, 2: shrinking, 3: bak to default, 0: resting
-float heart_scale = 1.0; // current Y scale 
+float heart_scale = 1.0; // current Y scale
+float heart_BPM = 60;
+int heart_last_beat = 0; 
 
+void AgentDraw_setup() {
+  // load the different parts of the agent
+  head = loadShape("head_M_1.svg");
+  eye = loadShape("eye_M_1.svg");
+  mouth = loadShape("mouth_M_1.svg");
+  heart = loadShape("heart.svg");
+  heart_last_beat = millis();
+  eye_last_beat = millis();
+}
 
 void draw_eyes() {
+  // check if new beat must be initiated
+  int tick = millis();
+  if (eye_next_BPM > 0 && tick > eye_last_beat + 60000/eye_next_BPM) {
+    eye_blink = true;
+    eye_last_beat = tick;
+    // adjust BPM with variability
+    eye_next_BPM = eye_BPM + random(-eye_BPM_variability, eye_BPM_variability);
+    // avoid blocking if poor choice of variability leads to death
+    if (eye_next_BPM < 0) {
+      eye_next_BPM = eye_BPM;
+    }
+    println(eye_next_BPM );
+  }
+
   // influence blink speed;
-  float anim_step = 0.04;
+  float anim_step = 0.08;
 
   // if a blinks happens and not already blinking, we have initiate scale
   if (eye_blink && !eye_blinking) {
@@ -84,8 +116,8 @@ void draw_mouth() {
       mouth_scale += anim_step;
     }
     // once we reached a bottom point, opening again
-    if (mouth_scale <= 0) {
-      mouth_scale = 0.01;
+    if (mouth_scale <= 0.5) {
+      mouth_scale = 0.5;
       mouth_closing = false;
     }
     // once opened, finished animation
@@ -103,6 +135,13 @@ void draw_mouth() {
 }
 
 void draw_heart() {
+  // check if new beat must be initiated
+  int tick = millis();
+  if (heart_BPM > 0 && tick > heart_last_beat + 60000/heart_BPM) {
+    heart_animation = true;
+    heart_last_beat = tick;
+  }
+
   // the svg is a bit big for a start
   float heart_default_scale = 0.75;
 

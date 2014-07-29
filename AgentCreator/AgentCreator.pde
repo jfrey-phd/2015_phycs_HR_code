@@ -11,11 +11,8 @@ void setup() {
   // using 2D backend as we won't venture in 3D realm
   size(1000, 1000, P2D);
   smooth();
-  // load the different parts of the agent
-  head = loadShape("head_M_1.svg");
-  eye = loadShape("eye_M_1.svg");
-  mouth = loadShape("mouth_M_1.svg");
-  heart = loadShape("heart.svg");
+  // init for drawing / BPM
+  AgentDraw_setup();
   // init for TTS
   AgentSpeak_setup();
 }
@@ -57,7 +54,6 @@ void keyPressed() {
     thread("speak");
   }
   else if (key == '1') {
-    
   }
 }
 
