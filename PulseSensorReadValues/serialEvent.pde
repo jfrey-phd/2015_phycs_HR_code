@@ -11,7 +11,7 @@ void serialEvent(Serial port) {
   }
   inData = trim(inData);                 // cut off white space (carriage return)
 
-  println("[" + inData + "] -- size: " + inData.length()) ;
+  println("[" + inData + "] -- size: " + inData.length() + ", time: " + millis()) ;
 
   // not better if we had empty characters
   if (inData.length() == 0) {
