@@ -2,6 +2,9 @@
 // currently speaking
 boolean speaking = false;
 
+// text to be spoken next
+String agentText = "Bonjour tout le monde.";
+
 String TTS_script_cmd = "";
 // to be called in setup()
 void AgentSpeak_setup() {
@@ -12,8 +15,7 @@ void AgentSpeak_setup() {
 // will interrupt program if not called with thread()
 // NB: only one at a time, should check isSpeaking() before calling this method
 void speak() {
-  String mes = "Bonjour tout le monde et bonjour et bonjour !";
-  println("Will say: [" + mes + "].");
+  println("Will say: [" + agentText + "].");
   // Agent has only one mouth
   if (speaking) {
     println("Already speaking, skip this one.");
@@ -25,7 +27,7 @@ void speak() {
   // forge command: script + message
   String[] cmd = {
     TTS_script_cmd, 
-    mes
+    agentText
   };
 
   Process powershell = exec(cmd);
@@ -45,5 +47,9 @@ void speak() {
 
 boolean isSpeaking() {
   return speaking;
+}
+
+void agentSetText(String text) {
+  agentText = text;
 }
 

@@ -15,6 +15,8 @@ void setup() {
   AgentDraw_setup();
   // init for TTS
   AgentSpeak_setup();
+  // load sententes
+  Corpus_setup();
 }
 
 void draw() {
@@ -51,9 +53,24 @@ void keyPressed() {
   }
   // debug TTS
   else if (key == 's') {
+    String mes = "Bonjour tout le monde et bonjour et bonjour !";
+    agentSetText(mes);
     thread("speak");
   }
+  // speak sad
   else if (key == '1') {
+    agentSetText(Corpus_drawText(-1));
+    thread("speak");
+  }
+  // speak neutral
+  else if (key == '2') {
+    agentSetText(Corpus_drawText(0));
+    thread("speak");
+  }
+  // speak happy
+  else if (key == '3') {
+    agentSetText(Corpus_drawText(1));
+    thread("speak");
   }
 }
 
