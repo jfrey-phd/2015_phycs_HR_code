@@ -1,5 +1,6 @@
 
 import socket, traceback, numpy
+from scipy.interpolate import interp1d
 
 BUFFER_SIZE = 2048
 # in seconds, how long do we wait between two connection attempts
@@ -79,14 +80,55 @@ class MyOVBox(OVBox):
     print "buffer size: " + str(len(self.buffer))
     # the chunk we gonna fill
     chunkBuffer = numpy.zeros(self.epochSampleCount);
-    print "chunk size: " + str(len(chunkBuffer))
+    print "chunk size: " + str(self.epochSampleCount)
     
-    # fill roughly buffer
-    for i in range(0, min(len(self.buffer), len(chunkBuffer))):
-      chunkBuffer[i]=self.buffer[i]
+    #if buffer empty, give it at least one element
+    if len(self.buffer) < 1:
+      self.buffer.append(self.lastValue)
+      print "Empty buffer, put last value: " + str(self.lastValue)
+    
+    # we will have to adapt sigal to fit openvibe requisite
+    if len(self.buffer) != self.epochSampleCount:
+      print "Damn, buffer and chunk len mismatch"
+      chunkBuffer=self.resample(numpy.asarray(self.buffer), self.epochSampleCount)
+    # won't happen often, just have to copy
+    else:
+      print "Lucky: same size for buffer and chunk"
+      for i in range(0, min(len(self.buffer), len(chunkBuffer))):
+        chunkBuffer[i]=self.buffer[i]
       
     self.output[0].append( OVSignalBuffer(start, end, chunkBuffer.tolist()) )
 
+  # from the array array_from, return an array nb_samples long with interpolated data (could cause decimation if nb_samples smaller)
+  def resample(self, array, nb_samples):
+    # the chunk we gonna fill
+    chunkBuffer = numpy.zeros(nb_samples);
+    
+    # got no data, won't return any data
+    if (len(array) == 0):
+      print "Empty array, can't seek any data"
+    # with one element we won't interpolate much, just replicate the one item
+    elif (len(array) == 1):
+      chunkBuffer = chunkBuffer+array[0]
+    # the real scenario!
+    else:
+      if len(array) < nb_samples:
+        print "Oversampling!"
+      else:
+        print "Decimation!"
+      # two spaces: in and out
+      x_in = numpy.linspace(0,1,len(array))
+      x_out = numpy.linspace(0,1,nb_samples)
+      # use cubic interpolation for smoother data
+      # TODO: box parameter for interpolation kind
+      f = interp1d(x_in, array, kind='cubic')
+      # fill output with interpolation
+      chunkBuffer=f(x_out)
+    
+    print "Before:", array
+    print "After:", chunkBuffer
+    return chunkBuffer
+    
       
   # need to be call also upon deco from server to avoid "[Errno 106] Transport endpoint is already connected") and create a new one (to avoid "[Errno 9] Bad file descriptor") on following reco
   def create_socket(self):
@@ -184,7 +226,7 @@ class MyOVBox(OVBox):
       #print "value: " + value
       self.buffer.append(float(value))
       # record for sendSignalBufferToOpenvibe()
-      self.lastValue = value
+      self.lastValue = float(value)
 
   def uninitialize(self):
     # close client socket
