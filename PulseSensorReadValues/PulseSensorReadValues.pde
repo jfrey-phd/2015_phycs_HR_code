@@ -1,3 +1,5 @@
+import signal.library.*;
+
 /*
 THIS PROGRAM WORKS WITH PulseSensorAmped_Arduino-xx ARDUINO CODE
  THE PULSE DATA WINDOW IS SCALEABLE WITH SCROLLBAR AT BOTTOM OF SCREEN
@@ -35,10 +37,16 @@ boolean beat = false;    // set when a heart beat is detected, then cleared when
 float zoom_min = 0.1;
 float zoom_max = 1.5;
 
+// for deriv computation
+int deriv_window = 10;
+
+// filtering
+SignalFilter myFilter;
+
 void setup() {
   size(1200, 600);  // Stage size
   // the arduino sends data at 500hz, fortunately serialEvent() catches everything
-  frameRate(100);
+  frameRate(1000);
   font = loadFont("Arial-BoldMT-24.vlw");
   textFont(font);
   textAlign(CENTER);
@@ -67,6 +75,13 @@ void setup() {
   port = new Serial(this, Serial.list()[0], 115200);  // make sure Arduino is talking serial at this baud rate
   port.clear();            // flush buffer
   port.bufferUntil('\n');  // set buffer full flag on receipt of carriage return
+
+  // init low-pass filter
+  myFilter = new SignalFilter(this);
+  // myFilter.setBeta(0);
+  // myFilter.setMinCutoff(0.0) ;
+  // myFilter.setDerivateCutoff(1);
+  myFilter.setFrequency(1000); // the only parameter which seem to have some effect, even higher than reality to have a really smooth curv
 }
 
 void draw() {
@@ -97,14 +112,19 @@ void draw() {
   endShape();
 
 
+  println("signal: " + Sensor);
   // draw weird computations
   fill(eggshell);
   rect(950, 360, PulseWindowWidth, PulseWindowHeight);
 
-  RawY2[RawY2.length-1] = Sensor; 
-  int deriv = RawY2[RawY2.length-1] - RawY2[RawY2.length-10];
-  println( deriv);
-  RawY2[RawY2.length-1] = deriv;  
+  int deriv = RawY[RawY.length-1] - RawY[RawY.length-deriv_window-1];
+  println("deriv: " + deriv);
+
+  float filt = myFilter.filterUnitFloat(Sensor);
+  println("filt: " + filt);
+
+  RawY2[RawY2.length-1] =  (4095 -  (int)filt) - 1024; 
+  ;//deriv;  
   for (int i = 0; i < RawY2.length-1; i++) {      // move the pulse waveform by
     RawY2[i] = RawY2[i+1];                         // shifting all raw datapoints one pixel left
     float dummy = RawY2[i] * zoom + offset;       // adjust the raw data to the selected scale
