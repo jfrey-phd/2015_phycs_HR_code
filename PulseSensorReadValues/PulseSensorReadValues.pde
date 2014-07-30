@@ -1,3 +1,5 @@
+import signal.library.*;
+
 /*
 THIS PROGRAM WORKS WITH PulseSensorAmped_Arduino-xx ARDUINO CODE
  THE PULSE DATA WINDOW IS SCALEABLE WITH SCROLLBAR AT BOTTOM OF SCREEN
@@ -17,6 +19,8 @@ int IBI;         // HOLDS TIME BETWEN HEARTBEATS FROM ARDUINO
 int BPM;         // HOLDS HEART RATE VALUE FROM ARDUINO
 int[] RawY;      // HOLDS HEARTBEAT WAVEFORM DATA BEFORE SCALING
 int[] ScaledY;   // USED TO POSITION SCALED HEARTBEAT WAVEFORM
+int[] RawY2;     
+int[] ScaledY2;  
 int[] rate;      // USED TO POSITION BPM DATA WAVEFORM
 float zoom;      // USED WHEN SCALING PULSE WAVEFORM TO PULSE WINDOW
 float offset;    // USED WHEN SCALING PULSE WAVEFORM TO PULSE WINDOW
@@ -24,22 +28,49 @@ color eggshell = color(255, 253, 248);
 int heart = 0;   // This variable times the heart image 'pulse' on screen
 //  THESE VARIABLES DETERMINE THE SIZE OF THE DATA WINDOWS
 int PulseWindowWidth = 490;
-int PulseWindowHeight = 512; 
+int PulseWindowHeight = 400; 
 int BPMWindowWidth = 180;
 int BPMWindowHeight = 340;
 boolean beat = false;    // set when a heart beat is detected, then cleared when the BPM graph is advanced
 
+// min and max for zoom range (may vary if high amplitudes / small fluctuations)
+float zoom_min = 0.1;
+float zoom_max = 1.5;
+
+// for deriv computation
+int deriv_window = 50;
+// can have small fluctuations, if derivative goes higher than threshold, we got the beat
+int beat_threshold = 5;
+// will be set to true when blood flow is increasing (fist step of a pulse)
+boolean flow = false;
+// last time heart beat
+int last_beat = 0;
+// last computed delay
+int last_beat_delay = 0; 
+
+// print serial data on stdout
+boolean print_serial = false;
+// print verbose data en stdout
+boolean print_verbose = false;
+
+// filtering
+SignalFilter myFilter;
 
 void setup() {
-  size(700, 600);  // Stage size
-  frameRate(100);  
+  size(1200, 600);  // Stage size
+  // the arduino sends data at 500hz, fortunately serialEvent() catches everything
+  frameRate(100);
+  font = loadFont("Arial-BoldMT-24.vlw");
+  textFont(font);
   textAlign(CENTER);
   rectMode(CENTER);
   ellipseMode(CENTER);  
   // Scrollbar constructor inputs: x,y,width,height,minVal,maxVal
-  scaleBar = new Scrollbar (400, 575, 180, 12, 0.5, 1.0);  // set parameters for the scale bar
+  scaleBar = new Scrollbar (400, 575, 180, 12, zoom_min, zoom_max);  // set parameters for the scale bar
   RawY = new int[PulseWindowWidth];          // initialize raw pulse waveform array
   ScaledY = new int[PulseWindowWidth];       // initialize scaled pulse waveform array
+  RawY2 = new int[PulseWindowWidth];          
+  ScaledY2 = new int[PulseWindowWidth];       
   rate = new int [BPMWindowWidth];           // initialize BPM waveform array
   zoom = 0.75;                               // initialize scale of heartbeat window
 
@@ -57,6 +88,19 @@ void setup() {
   port = new Serial(this, Serial.list()[0], 115200);  // make sure Arduino is talking serial at this baud rate
   port.clear();            // flush buffer
   port.bufferUntil('\n');  // set buffer full flag on receipt of carriage return
+
+  // init low-pass filter
+  myFilter = new SignalFilter(this);
+  //myFilter.setBeta(0);
+  //myFilter.setMinCutoff(0.0) ;
+  //myFilter.setDerivateCutoff(1);
+  myFilter.setFrequency(1000); // the only parameter which seem to have some effect, even higher than reality to have a really smooth curv
+
+  last_beat = millis();
+
+
+  // by default, a default BPM
+  BPM=70;
 }
 
 void draw() {
@@ -64,14 +108,19 @@ void draw() {
   noStroke();
   // DRAW OUT THE PULSE WINDOW AND BPM WINDOW RECTANGLES  
   fill(eggshell);  // color for the window background
-  rect(255, height/2, PulseWindowWidth, PulseWindowHeight);
+  rect(255, 300, PulseWindowWidth, PulseWindowHeight);
   rect(600, 385, BPMWindowWidth, BPMWindowHeight);
 
+  float filt = myFilter.filterUnitFloat(map(Sensor, 0, 4095, 0, 1))*4095;
+
+
+
   // DRAW THE PULSE WAVEFORM
-  // prepare pulse data points    
-  RawY[RawY.length-1] = (1023 - Sensor) - 212;   // place the new raw datapoint at the end of the array
+  // prepare pulse data points
+  // with DUE sensor could read up to 4096...
+  RawY[RawY.length-1] = (4095 - (int)filt) - 1024;   // place the new raw datapoint at the end of the array
   zoom = scaleBar.getPos();                      // get current waveform scale value
-  offset = map(zoom, 0.5, 1, 150, 0);                // calculate the offset needed at this scale
+  offset = map(zoom, zoom_min, zoom_max, 150, 0);                // calculate the offset needed at this scale
   for (int i = 0; i < RawY.length-1; i++) {      // move the pulse waveform by
     RawY[i] = RawY[i+1];                         // shifting all raw datapoints one pixel left
     float dummy = RawY[i] * zoom + offset;       // adjust the raw data to the selected scale
@@ -84,6 +133,66 @@ void draw() {
     vertex(x+10, ScaledY[x]);                    //draw a line connecting the data points
   }
   endShape();
+
+
+
+  // draw weird computations
+  fill(eggshell);
+  rect(950, 360, PulseWindowWidth, PulseWindowHeight);
+
+  int deriv = RawY[RawY.length-1] - RawY[RawY.length-deriv_window-1];
+
+  if (print_verbose) {
+    println("signal: " + Sensor);
+    println("filt: " + filt);
+    println("deriv: " + deriv);
+  }
+
+  // ...if fact the "peak" goes down
+  if (deriv < -beat_threshold ) {
+    flow=true;
+  }
+  else {
+    // a bit only if the is changing
+    if (flow) {
+      // we got the beat!
+      beat = true;
+      heart=20;
+      println("beat=============================");
+
+      // compute BPM: delay in ms then in minutes, then convert to freq
+      int tick=millis();
+      float perio_ms = (tick-last_beat);
+      float perio_m = perio_ms /(1000*60);
+      int new_BPM=(int)(1/perio_m);
+      // clamp values to previous BPM +/- 10% to avoid noise 
+      new_BPM=round(min(new_BPM, BPM+0.1*BPM));
+      new_BPM=round(max(new_BPM, BPM-0.1*BPM));
+      println("perio_ms: " + perio_ms, "perio_m: " + perio_m + " new_BPM: " + new_BPM);
+      BPM=new_BPM;
+      last_beat=tick;
+      IBI=(int)perio_ms;
+    }
+
+    flow = false;
+  }
+
+  //RawY2[RawY2.length-1] =  (4095 -  (int)filt) - 1024; 
+  RawY2[RawY2.length-1] =  deriv;  
+  for (int i = 0; i < RawY2.length-1; i++) {      // move the pulse waveform by
+    RawY2[i] = RawY2[i+1];                         // shifting all raw datapoints one pixel left
+    float dummy = RawY2[i] * zoom + offset;       // adjust the raw data to the selected scale
+    ScaledY2[i] = constrain(int(dummy), 44, 556);   // transfer the raw data array to the scaled array
+  }
+  stroke(0, 0, 250);                               // blue here
+  noFill();
+  beginShape();                                  // using beginShape() renders fast
+  for (int x = 1; x < ScaledY2.length-1; x++) {    
+    vertex(x+700, ScaledY2[x]);                    //draw a line connecting the data points
+  }
+  endShape();
+
+
 
   // DRAW THE BPM WAVE FORM
   // first, shift the BPM waveform over to fit then next data point only when a beat is found
@@ -108,7 +217,12 @@ void draw() {
   endShape();
 
   // DRAW THE HEART AND MAYBE MAKE IT BEAT
-  fill(250, 0, 0);
+  if (!flow) {
+    fill(250, 0, 0);
+  }
+  else {
+    fill(0, 0, 250);
+  }
   stroke(250, 0, 0);
   // the 'heart' variable is set in serialEvent when arduino sees a beat happen
   heart--;                    // heart is used to time how long the heart graphic swells when your heart beats

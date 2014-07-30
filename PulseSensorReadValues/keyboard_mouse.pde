@@ -10,11 +10,14 @@ void mouseReleased() {
 void keyPressed() {
 
   switch(key) {
-  case 's':    // pressing 's' or 'S' will take a jpg of the processing window
+  case 's':
   case 'S':
-    saveFrame("heartLight-####.jpg");    // take a shot of that!
+    print_serial = !print_serial;
     break;
-
+  case 'v':
+  case 'V':
+    print_verbose = !print_verbose;
+    break;
   default:
     break;
   }
