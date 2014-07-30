@@ -38,7 +38,12 @@ float zoom_min = 0.1;
 float zoom_max = 1.5;
 
 // for deriv computation
-int deriv_window = 10;
+int deriv_window = 50;
+// can have small fluctuations, if derivative goes higher than threshold, we got the beat
+int beat_threshold = 5;
+// will be set to true when blood flow is increasing (fist step of a pulse)
+boolean flow = false;
+int last_beat = 0;
 
 // filtering
 SignalFilter myFilter;
@@ -46,7 +51,7 @@ SignalFilter myFilter;
 void setup() {
   size(1200, 600);  // Stage size
   // the arduino sends data at 500hz, fortunately serialEvent() catches everything
-  frameRate(1000);
+  frameRate(100);
   font = loadFont("Arial-BoldMT-24.vlw");
   textFont(font);
   textAlign(CENTER);
@@ -78,10 +83,12 @@ void setup() {
 
   // init low-pass filter
   myFilter = new SignalFilter(this);
-  // myFilter.setBeta(0);
-  // myFilter.setMinCutoff(0.0) ;
-  // myFilter.setDerivateCutoff(1);
+  //myFilter.setBeta(0);
+  //myFilter.setMinCutoff(0.0) ;
+  //myFilter.setDerivateCutoff(1);
   myFilter.setFrequency(1000); // the only parameter which seem to have some effect, even higher than reality to have a really smooth curv
+
+  last_beat = millis();
 }
 
 void draw() {
@@ -92,10 +99,14 @@ void draw() {
   rect(255, 300, PulseWindowWidth, PulseWindowHeight);
   rect(600, 385, BPMWindowWidth, BPMWindowHeight);
 
+  float filt = myFilter.filterUnitFloat(map(Sensor, 0, 4095, 0, 1))*4095;
+  println("filt: " + filt);
+
+
   // DRAW THE PULSE WAVEFORM
   // prepare pulse data points
   // with DUE sensor could read up to 4096...
-  RawY[RawY.length-1] = (4095 - Sensor) - 1024;   // place the new raw datapoint at the end of the array
+  RawY[RawY.length-1] = (4095 - (int)filt) - 1024;   // place the new raw datapoint at the end of the array
   zoom = scaleBar.getPos();                      // get current waveform scale value
   offset = map(zoom, zoom_min, zoom_max, 150, 0);                // calculate the offset needed at this scale
   for (int i = 0; i < RawY.length-1; i++) {      // move the pulse waveform by
@@ -120,11 +131,29 @@ void draw() {
   int deriv = RawY[RawY.length-1] - RawY[RawY.length-deriv_window-1];
   println("deriv: " + deriv);
 
-  float filt = myFilter.filterUnitFloat(Sensor);
-  println("filt: " + filt);
+  // ...if fact the "peak" goes down
+  if (deriv < -beat_threshold ) {
+    flow=true;
+  }
+  else {
+    // a bit only if the is changing
+    if (flow) {
+      beat = true;
+      heart=20;
+      println("beat=============================");
+      int tick=millis();
+      float perio_ms = (tick-last_beat);
+      float perio_m = perio_ms /(1000*60);
+      BPM=(int)(1/perio_m);
+      println("perio_ms: " + perio_ms, "perio_m: " + perio_m + " BPM: " + BPM);
+      last_beat=tick;
+    }
 
-  RawY2[RawY2.length-1] =  (4095 -  (int)filt) - 1024; 
-  ;//deriv;  
+    flow = false;
+  }
+
+  //RawY2[RawY2.length-1] =  (4095 -  (int)filt) - 1024; 
+  RawY2[RawY2.length-1] =  deriv;  
   for (int i = 0; i < RawY2.length-1; i++) {      // move the pulse waveform by
     RawY2[i] = RawY2[i+1];                         // shifting all raw datapoints one pixel left
     float dummy = RawY2[i] * zoom + offset;       // adjust the raw data to the selected scale
@@ -163,7 +192,12 @@ void draw() {
   endShape();
 
   // DRAW THE HEART AND MAYBE MAKE IT BEAT
-  fill(250, 0, 0);
+  if (!flow) {
+    fill(250, 0, 0);
+  }
+  else {
+    fill(0, 0, 250);
+  }
   stroke(250, 0, 0);
   // the 'heart' variable is set in serialEvent when arduino sees a beat happen
   heart--;                    // heart is used to time how long the heart graphic swells when your heart beats
