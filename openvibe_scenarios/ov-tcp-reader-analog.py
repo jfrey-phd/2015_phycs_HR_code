@@ -1,5 +1,5 @@
 
-import socket, time, traceback
+import socket, traceback, numpy
 
 BUFFER_SIZE = 2048
 # in seconds, how long do we wait between two connection attempts
@@ -13,6 +13,20 @@ connected =  False
 class MyOVBox(OVBox):
   def __init__(self):
     OVBox.__init__(self)
+    
+    # for sending data to openvibe
+    self.samplingFrequency = 100
+    # must be a dividor of samplingFrequency... not too small?
+    self.epochSampleCount = 25
+    self.startTime = 0.
+    self.endTime = 0.
+    self.dimensionSizes = list()
+    self.dimensionLabels = list()
+    self.timeBuffer = list()
+    self.signalBuffer = None
+    self.signalHeader = None
+    
+    self.lastValue = 0
 
   # the initialize method reads settings and outputs the first header
   def initialize(self):
@@ -24,7 +38,42 @@ class MyOVBox(OVBox):
     # init client
     self.create_socket()
     self.connect_to_server()
-  
+    self.buffer = []
+    
+    #creation of the signal header -- simplified code with one channel at the moment
+    self.dimensionLabels.append( 'Chan1')
+    self.dimensionLabels += self.epochSampleCount*['']
+    self.dimensionSizes = [1, self.epochSampleCount]
+    self.signalHeader = OVSignalHeader(0., 0., self.dimensionSizes, self.dimensionLabels, self.samplingFrequency)
+    self.output[0].append(self.signalHeader)
+    
+    #creation of the first signal chunk
+    self.endTime = 1.*self.epochSampleCount/self.samplingFrequency
+    self.signalBuffer = numpy.zeros(self.epochSampleCount)
+    self.updateTimeBuffer()
+    self.updateSignalBuffer()
+    
+
+  #the followin are taken from openvibe doc, sample code for oscillator
+  def updateStartTime(self):
+    self.startTime += 1.*self.epochSampleCount/self.samplingFrequency
+
+  def updateEndTime(self):
+    self.endTime = float(self.startTime + 1.*self.epochSampleCount/self.samplingFrequency)
+
+  def updateTimeBuffer(self):
+    self.timeBuffer = numpy.arange(self.startTime, self.endTime, 1./self.samplingFrequency)
+
+  def updateSignalBuffer(self):
+        self.signalBuffer[:] = 100.*numpy.sin( 2.*numpy.pi*1.*self.timeBuffer )
+
+  def sendSignalBufferToOpenvibe(self):
+    start = self.timeBuffer[0]
+    end = self.timeBuffer[-1] + 1./self.samplingFrequency
+    bufferElements = self.signalBuffer.reshape(self.epochSampleCount).tolist()
+    self.output[0].append( OVSignalBuffer(start, end, bufferElements) )
+
+      
   # need to be call also upon deco from server to avoid "[Errno 106] Transport endpoint is already connected") and create a new one (to avoid "[Errno 9] Bad file descriptor") on following reco
   def create_socket(self):
     self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,7 +86,7 @@ class MyOVBox(OVBox):
   def process(self):
     # if not connected, may try reco
     if not(self.connected):
-      if time.clock() - self.last_attempt > WAITTIME_BEFORE_RECO:
+      if self.getCurrentTime() - self.last_attempt > WAITTIME_BEFORE_RECO:
         self.connect_to_server()
     # if connected, listen to data
     else:
@@ -57,6 +106,21 @@ class MyOVBox(OVBox):
           #print "data: [" + data + "]"
           # at this point we got data, let's check it
           self.process_data(data)
+    
+    # Check if it's time to send the buffer
+    start = self.timeBuffer[0]
+    end = self.timeBuffer[-1]
+    if self.getCurrentTime() >= end:
+        # will interpolate/decimate data depending on what we received
+        self.sendSignalBufferToOpenvibe()
+        # reset data for next buffer
+        #self.signalBuffer= []
+        self.buffer = []
+        self.updateStartTime()
+        self.updateEndTime()
+        self.updateTimeBuffer()
+        self.updateSignalBuffer()
+    
    
   # copied from processing sketch, check message consistency, produce data
   def process_data(self, data):
@@ -98,12 +162,13 @@ class MyOVBox(OVBox):
       # if the last chunk is ok, we don't have any pending broken message
       self.broken_msg=""
     
+    
   # called by process_data for each value received
   def trigger(self, value):
     # don't bother with empty value (split does that)
     if value != '':
-      print "value: " + value
-
+      #print "value: " + value
+      self.buffer.append(float(value))
 
   def uninitialize(self):
     # close client socket
@@ -112,7 +177,7 @@ class MyOVBox(OVBox):
     
   # (re)tries to connect to server
   def connect_to_server(self):
-    self.last_attempt = time.clock()
+    self.last_attempt = self.getCurrentTime()
     print "Connection attempt at: " + str(self.last_attempt) + "s"
     try:
       # create connection
