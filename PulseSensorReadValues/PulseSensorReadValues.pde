@@ -43,7 +43,15 @@ int deriv_window = 50;
 int beat_threshold = 5;
 // will be set to true when blood flow is increasing (fist step of a pulse)
 boolean flow = false;
+// last time heart beat
 int last_beat = 0;
+// last computed delay
+int last_beat_delay = 0; 
+
+// print serial data on stdout
+boolean print_serial = false;
+// print verbose data en stdout
+boolean print_verbose = false;
 
 // filtering
 SignalFilter myFilter;
@@ -89,6 +97,10 @@ void setup() {
   myFilter.setFrequency(1000); // the only parameter which seem to have some effect, even higher than reality to have a really smooth curv
 
   last_beat = millis();
+
+
+  // by default, a default BPM
+  BPM=70;
 }
 
 void draw() {
@@ -100,7 +112,7 @@ void draw() {
   rect(600, 385, BPMWindowWidth, BPMWindowHeight);
 
   float filt = myFilter.filterUnitFloat(map(Sensor, 0, 4095, 0, 1))*4095;
-  println("filt: " + filt);
+
 
 
   // DRAW THE PULSE WAVEFORM
@@ -123,13 +135,18 @@ void draw() {
   endShape();
 
 
-  println("signal: " + Sensor);
+
   // draw weird computations
   fill(eggshell);
   rect(950, 360, PulseWindowWidth, PulseWindowHeight);
 
   int deriv = RawY[RawY.length-1] - RawY[RawY.length-deriv_window-1];
-  println("deriv: " + deriv);
+
+  if (print_verbose) {
+    println("signal: " + Sensor);
+    println("filt: " + filt);
+    println("deriv: " + deriv);
+  }
 
   // ...if fact the "peak" goes down
   if (deriv < -beat_threshold ) {
@@ -138,15 +155,23 @@ void draw() {
   else {
     // a bit only if the is changing
     if (flow) {
+      // we got the beat!
       beat = true;
       heart=20;
       println("beat=============================");
+
+      // compute BPM: delay in ms then in minutes, then convert to freq
       int tick=millis();
       float perio_ms = (tick-last_beat);
       float perio_m = perio_ms /(1000*60);
-      BPM=(int)(1/perio_m);
-      println("perio_ms: " + perio_ms, "perio_m: " + perio_m + " BPM: " + BPM);
+      int new_BPM=(int)(1/perio_m);
+      // clamp values to previous BPM +/- 10% to avoid noise 
+      new_BPM=round(min(new_BPM, BPM+0.1*BPM));
+      new_BPM=round(max(new_BPM, BPM-0.1*BPM));
+      println("perio_ms: " + perio_ms, "perio_m: " + perio_m + " new_BPM: " + new_BPM);
+      BPM=new_BPM;
       last_beat=tick;
+      IBI=(int)perio_ms;
     }
 
     flow = false;
