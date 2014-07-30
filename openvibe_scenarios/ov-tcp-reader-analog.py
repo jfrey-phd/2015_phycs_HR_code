@@ -7,7 +7,9 @@ WAITTIME_BEFORE_RECO = 0.5
 
 connected =  False
 
-# WARNING: does not write anyting, simply listen to server data
+# NB: does not write anyting, simply listen to server data
+
+# WARNING: due to network latency or arduino delays, will probably modify data a bit for synchronization sake
 
 # let's define a new box class that inherits from OVBox
 class MyOVBox(OVBox):
@@ -15,9 +17,10 @@ class MyOVBox(OVBox):
     OVBox.__init__(self)
     
     # for sending data to openvibe
-    self.samplingFrequency = 100
-    # must be a dividor of samplingFrequency... not too small?
-    self.epochSampleCount = 25
+    # WARNING: too high and interpolation will occur, too low and data will be decimated... depending on chunk size.
+    self.samplingFrequency = 500
+    # big chunk for closer interpolation/decimation
+    self.epochSampleCount = 50
     self.startTime = 0.
     self.endTime = 0.
     self.dimensionSizes = list()
@@ -25,7 +28,7 @@ class MyOVBox(OVBox):
     self.timeBuffer = list()
     self.signalBuffer = None
     self.signalHeader = None
-    
+    # useful if not enough data (0 or 1 value)
     self.lastValue = 0
 
   # the initialize method reads settings and outputs the first header
@@ -38,6 +41,7 @@ class MyOVBox(OVBox):
     # init client
     self.create_socket()
     self.connect_to_server()
+    # FIXME: a list is not efficient
     self.buffer = []
     
     #creation of the signal header -- simplified code with one channel at the moment
@@ -51,7 +55,7 @@ class MyOVBox(OVBox):
     self.endTime = 1.*self.epochSampleCount/self.samplingFrequency
     self.signalBuffer = numpy.zeros(self.epochSampleCount)
     self.updateTimeBuffer()
-    self.updateSignalBuffer()
+    #self.updateSignalBuffer()
     
 
   #the followin are taken from openvibe doc, sample code for oscillator
@@ -64,14 +68,24 @@ class MyOVBox(OVBox):
   def updateTimeBuffer(self):
     self.timeBuffer = numpy.arange(self.startTime, self.endTime, 1./self.samplingFrequency)
 
-  def updateSignalBuffer(self):
-        self.signalBuffer[:] = 100.*numpy.sin( 2.*numpy.pi*1.*self.timeBuffer )
+  #def updateSignalBuffer(self):
+  #  self.signalBuffer = 100.*numpy.sin( 2.*numpy.pi*1.*self.timeBuffer )
 
+  #the sensitive part: will interpolate/decimate signal to fit openvibe timing
   def sendSignalBufferToOpenvibe(self):
     start = self.timeBuffer[0]
     end = self.timeBuffer[-1] + 1./self.samplingFrequency
-    bufferElements = self.signalBuffer.reshape(self.epochSampleCount).tolist()
-    self.output[0].append( OVSignalBuffer(start, end, bufferElements) )
+    #bufferElements = self.signalBuffer.reshape(self.epochSampleCount).tolist()
+    print "buffer size: " + str(len(self.buffer))
+    # the chunk we gonna fill
+    chunkBuffer = numpy.zeros(self.epochSampleCount);
+    print "chunk size: " + str(len(chunkBuffer))
+    
+    # fill roughly buffer
+    for i in range(0, min(len(self.buffer), len(chunkBuffer))):
+      chunkBuffer[i]=self.buffer[i]
+      
+    self.output[0].append( OVSignalBuffer(start, end, chunkBuffer.tolist()) )
 
       
   # need to be call also upon deco from server to avoid "[Errno 106] Transport endpoint is already connected") and create a new one (to avoid "[Errno 9] Bad file descriptor") on following reco
@@ -119,7 +133,7 @@ class MyOVBox(OVBox):
         self.updateStartTime()
         self.updateEndTime()
         self.updateTimeBuffer()
-        self.updateSignalBuffer()
+        #self.updateSignalBuffer()
     
    
   # copied from processing sketch, check message consistency, produce data
@@ -169,6 +183,8 @@ class MyOVBox(OVBox):
     if value != '':
       #print "value: " + value
       self.buffer.append(float(value))
+      # record for sendSignalBufferToOpenvibe()
+      self.lastValue = value
 
   def uninitialize(self):
     # close client socket
