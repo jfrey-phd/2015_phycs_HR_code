@@ -83,11 +83,13 @@ void setup() {
   }
 
   // GO FIND THE ARDUINO
-  println(Serial.list());    // print a list of available serial ports
+  //println(Serial.list());    // print a list of available serial ports
   // choose the number between the [] that is connected to the Arduino
-  port = new Serial(this, Serial.list()[0], 115200);  // make sure Arduino is talking serial at this baud rate
-  port.clear();            // flush buffer
-  port.bufferUntil('\n');  // set buffer full flag on receipt of carriage return
+  // port = new Serial(this, Serial.list()[0], 115200);  // make sure Arduino is talking serial at this baud rate
+  //port.clear();            // flush buffer
+  //port.bufferUntil('\n');  // set buffer full flag on receipt of carriage return
+
+  init_TCP();
 
   // init low-pass filter
   myFilter = new SignalFilter(this);
@@ -104,6 +106,8 @@ void setup() {
 }
 
 void draw() {
+  listen_TCP();
+  
   background(0);
   noStroke();
   // DRAW OUT THE PULSE WINDOW AND BPM WINDOW RECTANGLES  
