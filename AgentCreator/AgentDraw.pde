@@ -26,83 +26,88 @@ float heart_BPM = 60;
 int heart_last_beat = 0; 
 
 
-BodyPart BDHead;
+BodyPart head, eyes;
 
 void AgentDraw_setup() {
   // load the different parts of the agent
-  head = loadShape("head_M_1.svg");
-  eye = loadShape("eye_M_1.svg");
+  //eye = loadShape("eye_M_1.svg");
   mouth = loadShape("mouth_M_1.svg");
   heart = loadShape("heart_B_1.svg");
   heart_last_beat = millis();
   eye_last_beat = millis();
 
-  BDHead = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
+  // Create and position different parts
+  head = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
+  head.setPos(0, 0);
+  eyes = new BodyPart(Body.Type.EYES, Body.Genre.MALE);
+  eyes.setPos(200, 75);
+  eyes.setBPM(10);
 }
 
 
 void AgentDraw_draw() {
-  BDHead.draw();
+  head.draw();
+  eyes.draw();
 }
 
-void draw_eyes() {
-  // check if new beat must be initiated
-  int tick = millis();
-  if (eye_next_BPM > 0 && tick > eye_last_beat + 60000/eye_next_BPM) {
-    eye_blink = true;
-    eye_last_beat = tick;
-    // adjust BPM with variability
-    eye_next_BPM = eye_BPM + random(-eye_BPM_variability, eye_BPM_variability);
-    // avoid blocking if poor choice of variability leads to death
-    if (eye_next_BPM < 0) {
-      eye_next_BPM = eye_BPM;
-    }
-    println(eye_next_BPM );
-  }
-
-  // influence blink speed;
-  float anim_step = 0.08;
-
-  // if a blinks happens and not already blinking, we have initiate scale
-  if (eye_blink && !eye_blinking) {
-    eye_blink = false;
-    eye_blinking = true;
-    eye_closing = true;
-    eye_scale = 1;
-  }
-
-  // scale according to blinking state
-  if (eye_blinking) {
-    // shrinking while closing
-    if (eye_closing) {
-      eye_scale -= anim_step;
-    }
-    else {
-      eye_scale += anim_step;
-    }
-    // once we reached a bottom point, opening again
-    if (eye_scale <= 0) {
-      eye_scale = 0.01;
-      eye_closing = false;
-    }
-    // once opened, finished animation
-    if (eye_scale >= 1) {
-      eye_scale = 1;
-      eye_blinking = false;
-    }
-  }
-
-  // before drawing, reset transformation to eyes and apply current scale
-  eye.resetMatrix();
-  eye.scale(1.0, eye_scale);
-
-  // two of the same eye...
-  // blinks renders better if they stay centered...
-  shapeMode(CENTER);
-  shape(eye, 500, 240);
-  shape(eye, 250, 240);
-  shapeMode(CORNER);
-}
+//void draw_eyes() {
+//  // check if new beat must be initiated
+//  int tick = millis();
+//  if (eye_next_BPM > 0 && tick > eye_last_beat + 60000/eye_next_BPM) {
+//    eye_blink = true;
+//    eye_last_beat = tick;
+//    // adjust BPM with variability
+//    eye_next_BPM = eye_BPM + random(-eye_BPM_variability, eye_BPM_variability);
+//    // avoid blocking if poor choice of variability leads to death
+//    if (eye_next_BPM < 0) {
+//      eye_next_BPM = eye_BPM;
+//    }
+//    println(eye_next_BPM );
+//  }
+//
+//  // influence blink speed;
+//  float anim_step = 0.08;
+//
+//  // if a blinks happens and not already blinking, we have initiate scale
+//  if (eye_blink && !eye_blinking) {
+//    eye_blink = false;
+//    eye_blinking = true;
+//    eye_closing = true;
+//    eye_scale = 1;
+//  }
+//
+//  // scale according to blinking state
+//  if (eye_blinking) {
+//    // shrinking while closing
+//    if (eye_closing) {
+//      eye_scale -= anim_step;
+//    }
+//    else {
+//      eye_scale += anim_step;
+//    }
+//    // once we reached a bottom point, opening again
+//    if (eye_scale <= 0) {
+//      eye_scale = 0.01;
+//      eye_closing = false;
+//    }
+//    // once opened, finished animation
+//    if (eye_scale >= 1) {
+//      eye_scale = 1;
+//      eye_blinking = false;
+//    }
+//  }
+//
+//  // before drawing, reset transformation to eyes and apply current scale
+//  eye.resetMatrix();
+//  eye.scale(1.0, eye_scale);
+//
+//  // two of the same eye...
+//  // blinks renders better if they stay centered...
+//  shapeMode(CENTER);
+//  shape(eye, 500, 240);
+//  shape(eye, 250, 240);
+//  shapeMode(CORNER);
+//}
 
 void draw_mouth() {
   // influence blink speed;

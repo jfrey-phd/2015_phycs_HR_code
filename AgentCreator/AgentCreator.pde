@@ -1,6 +1,6 @@
 
 // at the moment our agent is disassembled
-PShape head, eye, mouth, heart;
+PShape  mouth, heart;
 
 // flag to make eye blink
 boolean eye_blink = false;
@@ -25,7 +25,7 @@ void draw() {
   // draw every part
   AgentDraw_draw();
   // deals with blinking also
-  draw_eyes();
+  //draw_eyes();
   draw_mouth();
   draw_heart();
 
