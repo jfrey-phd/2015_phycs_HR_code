@@ -1,10 +1,18 @@
 
+Agent agent;
+
+int WINDOW_X = 1000;
+int WINDOW_Y = 1000;
+
 void setup() {
   // using 2D backend as we won't venture in 3D realm
-  size(1000, 1000, P2D);
+  size(WINDOW_X, WINDOW_Y, P2D);
   smooth();
   // init for drawing / BPM
-  AgentDraw_setup();
+  agent = new Agent();
+  // a bit to big by default
+  agent.getPShape().scale(0.8);
+
   // init for TTS
   AgentSpeak_setup();
   // load sententes
@@ -14,21 +22,23 @@ void setup() {
 void draw() {
   // reset display
   background(255);
-  // draw every part, deals with blinking also
-  AgentDraw_draw();
+  // update every part, deals all animations
+  agent.update();
+  // draw (somewhat) in the middle
+  shape(agent.getPShape(), 100, 100);
 }
 
 // trigger different action for debug
 void keyPressed() {
   // debug animation
   if (key == 'b') {
-    eyes.animate();
+    agent.eyes.animate();
   }
   else if (key == 'm') {
-    mouth.animate();
+    agent.mouth.animate();
   }
   else if (key == 'h') {
-    heart.animate();
+    agent.heart.animate();
   }
   // debug TTS
   else if (key == 's') {

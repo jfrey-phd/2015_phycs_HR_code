@@ -1,10 +1,12 @@
 
-
+// A body part will draw and animate a specific element of the agent
 public class BodyPart {
 
   private Body.Type type;
   private Body.Genre genre;
-  // use an array of frames for animations
+  // parent for all parts
+  private PShape bodyPart;
+  // use an array of frames for animations, faster to access to part
   private ArrayList<PShape> frames;
   private int current_frame = 0;
 
@@ -26,18 +28,22 @@ public class BodyPart {
   // during animation, when last frame occured
   private int last_keyframe = 0;
 
-  // in (0,0) coordinates by default
-  private float x = 0;
-  private float y = 0;
-
   // set type and load model
   BodyPart(Body.Type type, Body.Genre genre) {
     this.type = type;
     this.genre = genre;
+    // one master to rule them all
+    bodyPart = new PShape();
+    // load frames
     frames = new ArrayList();
     loadModel();
     // init animation variables
     last_beat = millis();
+    // If we have at laest one frame, let's show it!
+    if (frames.size() > 0) {
+      current_frame = 0;
+      frames.get(current_frame).setVisible(true);
+    }
   }
 
   // load svg on creation
@@ -58,7 +64,11 @@ public class BodyPart {
       //println("Look for " + layerName);
       frame = img.findChild(layerName);
       if (frame != null) {
+        // hide it by default
+        frame.setVisible(false);
+        // add to list and to parent
         frames.add(frame);
+        bodyPart.addChild(frame);
         nbFrames++;
       }
     } 
@@ -66,11 +76,12 @@ public class BodyPart {
     println("Found " + nbFrames + " frames.");
   }
 
-  // render to screen the current frame
-  public void draw() {
+  // update frame if needed, changing visibility of the right layer
+  // returns true if has been updated
+  public boolean update() {
     // quit immidiatly if there's nothing to show
     if (frames.size() == 0) {
-      return;
+      return false;
     }
 
     // check if new beat must be initiated
@@ -85,7 +96,7 @@ public class BodyPart {
       if (next_BPM < 0) {
         next_BPM = BPM;
       }
-      println("Next BPM for " + this + ": " + next_BPM );
+      //println("Next BPM for " + this + ": " + next_BPM );
     }
 
     if (
@@ -97,6 +108,8 @@ public class BodyPart {
       // THEN we go for a cartoon
     {
       start_anim = false;
+      // backup to toggle on one and off the previous
+      int last_frame = current_frame;
       // next frame... but don't go too far
       current_frame++;
       if (current_frame >= frames.size()) {
@@ -104,17 +117,22 @@ public class BodyPart {
       }
       // reset timestamp for keyframe
       last_keyframe = tick;
+      frames.get(last_frame).setVisible(false);
+      frames.get(current_frame).setVisible(true);
+
+      return true;
     }
 
-    // we just need to retrieve current frame and put it in the right place
-    PShape frame = frames.get(current_frame);
-    shape(frame, x, y);
+    return false;
   }
 
-  // set coordinates in screen space
+  // set coordinates in screen space: translates every frame
+  // (careful, it's absolute, reset matrix before that)
   public void setPos(float x, float y) {
-    this.x = x;
-    this.y = y;
+    for (int i = 0; i < frames.size(); i++) {
+      frames.get(i).resetMatrix();
+      frames.get(i).translate(x, y);
+    }
   }
 
   // set BPM
@@ -131,7 +149,7 @@ public class BodyPart {
 
   // a hint of true java under the hood
   public String toString() {
-    return Body.getTypeName(type);
+    return Body.getTypeName(type) + Body.getGenreName(genre);
   }
 
   // start a new animation
@@ -146,6 +164,10 @@ public class BodyPart {
   // setter for animation speed, time in ms between two frames
   public void setAnimationSpeed(float speed) {
     animation_speed = speed;
+  }
+
+  public PShape getPShape() {
+    return bodyPart;
   }
 };
 
