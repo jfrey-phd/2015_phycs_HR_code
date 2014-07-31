@@ -23,7 +23,7 @@ void draw() {
   // reset display
   background(255);
   // draw every part
-  shape(head, 0, 0);
+  AgentDraw_draw();
   // deals with blinking also
   draw_eyes();
   draw_mouth();

@@ -25,14 +25,24 @@ float heart_scale = 1.0; // current Y scale
 float heart_BPM = 60;
 int heart_last_beat = 0; 
 
+
+BodyPart BDHead;
+
 void AgentDraw_setup() {
   // load the different parts of the agent
   head = loadShape("head_M_1.svg");
   eye = loadShape("eye_M_1.svg");
   mouth = loadShape("mouth_M_1.svg");
-  heart = loadShape("heart.svg");
+  heart = loadShape("heart_B_1.svg");
   heart_last_beat = millis();
   eye_last_beat = millis();
+
+  BDHead = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
+}
+
+
+void AgentDraw_draw() {
+  BDHead.draw();
 }
 
 void draw_eyes() {
