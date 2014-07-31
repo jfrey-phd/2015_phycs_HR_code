@@ -1,12 +1,4 @@
 
-// at the moment our agent is disassembled
-PShape head, eye, mouth, heart;
-
-// flag to make eye blink
-boolean eye_blink = false;
-boolean mouth_animation = false;
-boolean heart_animation = false;
-
 void setup() {
   // using 2D backend as we won't venture in 3D realm
   size(1000, 1000, P2D);
@@ -22,34 +14,21 @@ void setup() {
 void draw() {
   // reset display
   background(255);
-  // draw every part
-  shape(head, 0, 0);
-  // deals with blinking also
-  draw_eyes();
-  draw_mouth();
-  draw_heart();
-
-  // animate mouth if needed
-  if (isSpeaking()) {
-    mouth_animation = true;
-  }
-  else {
-    mouth_animation = false;
-  }
+  // draw every part, deals with blinking also
+  AgentDraw_draw();
 }
 
 // trigger different action for debug
 void keyPressed() {
   // debug animation
   if (key == 'b') {
-    //scale = 1;
-    eye_blink = true;
+    eyes.animate();
   }
   else if (key == 'm') {
-    mouth_animation = true;
+    mouth.animate();
   }
   else if (key == 'h') {
-    heart_animation = true;
+    heart.animate();
   }
   // debug TTS
   else if (key == 's') {
