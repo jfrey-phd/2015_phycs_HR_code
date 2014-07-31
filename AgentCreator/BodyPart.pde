@@ -13,7 +13,7 @@ public class BodyPart {
   private int BPM = 0;
   // if != 0, a noise will be added to BPM to avoid too constant beats
   // NB: careful if too close to BPM : could lead to very slow beat
-  private float BPM_variability = 5;
+  private float BPM_variability = 0;
   // variability is computed once per beat -- otherwise mixes up too much computations, small BPM more likely to appear
   private float next_BPM = BPM;
   // flag to start animation on next draw
@@ -55,7 +55,7 @@ public class BodyPart {
     // will loop and push to "frames" as long as finds layers
     do {
       String layerName = "layer" + Integer.toString(nbFrames+1);
-      println("Look for " + layerName);
+      //println("Look for " + layerName);
       frame = img.findChild(layerName);
       if (frame != null) {
         frames.add(frame);
@@ -83,11 +83,10 @@ public class BodyPart {
       next_BPM = BPM + random(-BPM_variability, BPM_variability);
       // avoid blocking if poor choice of variability leads to death
       if (next_BPM < 0) {
-        next_BPM = eye_BPM;
+        next_BPM = BPM;
       }
       println("Next BPM for " + this + ": " + next_BPM );
     }
-
 
     if (
     // if an animation should start and is not already taking place...
@@ -124,9 +123,29 @@ public class BodyPart {
     this.BPM = BPM;
     next_BPM = BPM;
   }
-  
+
+  // setter for BPM variability (noisy BPM computed in draw())
+  public void setBPMVariability(int variability) {
+    this.BPM_variability = variability;
+  }
+
+  // a hint of true java under the hood
   public String toString() {
     return Body.getTypeName(type);
+  }
+
+  // start a new animation
+  // return false if it is not possible -- already ocurring or no more than 1 frame
+  public boolean animate() {
+    if (current_frame != 0 || frames.size() < 2) {
+      return false;
+    }
+    return start_anim = true;
+  }
+
+  // setter for animation speed, time in ms between two frames
+  public void setAnimationSpeed(float speed) {
+    animation_speed = speed;
   }
 };
 
