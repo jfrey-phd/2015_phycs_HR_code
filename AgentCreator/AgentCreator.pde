@@ -1,10 +1,12 @@
 
+Agent agent;
+
 void setup() {
   // using 2D backend as we won't venture in 3D realm
   size(1000, 1000, P2D);
   smooth();
   // init for drawing / BPM
-  AgentDraw_setup();
+  agent = new Agent();
   // init for TTS
   AgentSpeak_setup();
   // load sententes
@@ -15,20 +17,20 @@ void draw() {
   // reset display
   background(255);
   // draw every part, deals with blinking also
-  AgentDraw_draw();
+  agent.draw();
 }
 
 // trigger different action for debug
 void keyPressed() {
   // debug animation
   if (key == 'b') {
-    eyes.animate();
+    agent.eyes.animate();
   }
   else if (key == 'm') {
-    mouth.animate();
+    agent.mouth.animate();
   }
   else if (key == 'h') {
-    heart.animate();
+    agent.heart.animate();
   }
   // debug TTS
   else if (key == 's') {
