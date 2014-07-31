@@ -35,7 +35,8 @@ public class Agent {
     wholeBody.addChild(heart.getPShape());
   }
 
-  public void draw() {
+  // will call recursively body parts + make mouth animate if speaking
+  public void update() {
 
     // animate mouteeded
     if (isSpeaking()) {
@@ -47,8 +48,11 @@ public class Agent {
     eyes.update();
     mouth.update();
     heart.update();
+  }
 
-    shape(wholeBody, 0, 0);
+  // access to master shape for transformations and drawing
+  public PShape getPShape() {
+    return wholeBody;
   }
 }
 

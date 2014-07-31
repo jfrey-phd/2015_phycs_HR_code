@@ -96,7 +96,7 @@ public class BodyPart {
       if (next_BPM < 0) {
         next_BPM = BPM;
       }
-      println("Next BPM for " + this + ": " + next_BPM );
+      //println("Next BPM for " + this + ": " + next_BPM );
     }
 
     if (
