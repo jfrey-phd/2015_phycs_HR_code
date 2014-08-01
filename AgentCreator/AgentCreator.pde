@@ -4,10 +4,20 @@ Agent agent;
 int WINDOW_X = 1000;
 int WINDOW_Y = 1000;
 
+final String CSV_body_filename = "body_parts.csv";
+
 void setup() {
+  // init logs
+  Diary.applet = this;
   // using 2D backend as we won't venture in 3D realm
   size(WINDOW_X, WINDOW_Y, P2D);
   smooth();
+
+  // init for body parts randomness -- got headers, fields separated by tabs
+  Table body_parts = loadTable(CSV_body_filename, "header, tsv");
+  println("Loaded " + CSV_body_filename + ", nb rows: " + body_parts.getRowCount());
+  Body.setTableParts(body_parts);
+
   // init for drawing / BPM
   agent = new Agent();
   // a bit to big by default
@@ -62,4 +72,3 @@ void keyPressed() {
     thread("speak");
   }
 }
-

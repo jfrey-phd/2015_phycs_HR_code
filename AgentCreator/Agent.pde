@@ -1,6 +1,7 @@
 
 // will create an "agent" from different body parts
 // NB: the screen space is believed to be 1000x1000
+// NB: call Body.setTableParts() beforehand fore randomness
 public class Agent {
 
   // FIXME: public for debug through keyboard
@@ -55,4 +56,3 @@ public class Agent {
     return wholeBody;
   }
 }
-
