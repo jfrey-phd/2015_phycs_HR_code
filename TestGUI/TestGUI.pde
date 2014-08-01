@@ -26,9 +26,12 @@ void mousePressed() {
   lik2.sendMousePress(true);
 }
 
-// through LikertScale, will recursively inform buttons of the events
+// through LikertScale, will recursively inform buttons of the events, and notify if one is selcted
 void mouseReleased() {
   lik.sendMousePress(false);
+  if(lik.getClickedButton() >= 0) {
+    println("Likert clicked!");
+  }
   lik2.sendMousePress(false);
 }
 

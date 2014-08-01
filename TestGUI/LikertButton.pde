@@ -2,8 +2,14 @@
 // create a clickable button with a label beneath
 
 class LikertButton {
+  // the actual shape of the button
   private PShape button;
+
+  // label associated
   private String label;
+  // ID for passing back information
+  private int ID;
+
   // position and size
   float posX, posY, size;
   // space between button and label
@@ -23,7 +29,7 @@ class LikertButton {
   private final int CLICK_COLOR = 0;
 
   // on creation, set label and position
-  LikertButton(String label, float posX, float posY, float size) {
+  LikertButton(String label, int ID, float posX, float posY, float size) {
     this.label = label;
     this.posX=posX;
     this.posY=posY;
@@ -86,7 +92,7 @@ class LikertButton {
   }
 
   public String toString() {
-    return "Button, label [" + label + "], posX [" + posX + "], posY [" + posY + "], size [" + size + "]";
+    return "Button" + ID + ", label [" + label + "], posX [" + posX + "], posY [" + posY + "], size [" + size + "]";
   }
 
   // informs the button that a press occurred (true) or not (false)
@@ -106,6 +112,16 @@ class LikertButton {
   // has a press previously occurred?
   public boolean isPressed() {
     return pressed;
+  }
+
+  // this is the one
+  public boolean isClicked() {
+    return clicked;
+  }
+  
+  // return ID
+  public int getID() {
+    return ID;
   }
 }
 

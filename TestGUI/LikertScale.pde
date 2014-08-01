@@ -6,6 +6,8 @@ class LikertScale {
   private int nbButtons;
   // holds our precious buttons
   ArrayList<LikertButton> buttons;
+  // which one is selected ?
+  int clicked_ID = -1;
 
   // position and width on screen
   private float posX, posY, size;
@@ -38,7 +40,7 @@ class LikertScale {
       float buttonX = i * (size/nbButtons) + posX;
       float buttonY = posY + TEXT_HEIGHT*1.5;
       // push button to stack
-      buttons.add(new LikertButton(button_label, buttonX, buttonY, button_size));
+      buttons.add(new LikertButton(button_label, i, buttonX, buttonY, button_size));
     }
   }
 
@@ -59,6 +61,7 @@ class LikertScale {
 
   // update buttons status. If a press occurrs (flag == true) then button hovered by mouse, if any, will have its status updated
   // if a release occured (false), a button presivously marked as "pressed" will be clicked.
+  // update the ID of the selected button (see getClickedButton())
   public void sendMousePress(boolean flag) {
     for (int i=0; i<buttons.size(); i++) {
       LikertButton button = buttons.get(i);
@@ -71,10 +74,17 @@ class LikertScale {
       else {
         if (button.isMouseHover() && button.isPressed()) {
           button.setClicked();
+          clicked_ID = button.getID();
         }
         button.setPressed(false);
       }
     }
+  }
+
+  // return the ID of the button pressed (-1 if none).
+  // NB: return the last clicked button or, if severeal button are clicked (multitouch??), the highest ID, 
+  public int getClickedButton() {
+    return clicked_ID;
   }
 }
 
