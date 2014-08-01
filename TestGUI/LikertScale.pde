@@ -1,5 +1,6 @@
 
 // a set of clickable buttons with different labels associated and a question to be answered
+// possible to disable likert scale on click and/or to activate fading effect
 
 class LikertScale {
   // how may choices do we have ?
@@ -20,8 +21,21 @@ class LikertScale {
   // vertical space allocated for text
   private float TEXT_HEIGHT = 40;
 
-  // create the scale, with its label, the number of propositions and the position
+  // fade step seleced for appearance/disappearance
+  private float fade_step;
+  // current transparancy effect
+  private float current_alpha = 255;
+
+  // By default we don't care about fade-in/out effect
   LikertScale(String label, int nbButtons, float posX, float posY, float size, boolean disable_on_click) {
+    this(label, nbButtons, posX, posY, size, disable_on_click, 0);
+  }
+
+  // create the scale, with its label, the number of propositions and the position
+  // fade effect: will inscrease by this step tranparancy on appearance at each call of draw (unit: fraction of 255)
+  // fade out will automatically occur if disable_on_click is set
+  // WARNING: fade smoothness depends on FPS
+  LikertScale(String label, int nbButtons, float posX, float posY, float size, boolean disable_on_click, float fade) {
     this.label = label;
     this.nbButtons = nbButtons;
     this.posX = posX;
@@ -47,12 +61,27 @@ class LikertScale {
       // push button to stack
       buttons.add(new LikertButton(button_label, i, buttonX, buttonY, button_size, disable_on_click));
     }
+
+    // fade effect, if > 0 enable effect
+    this.fade_step = fade;
+    if (this.fade_step > 0) {
+      // will begin with complete transparancy if effect is set
+      current_alpha = 0;
+    }
   }
 
   // draw each button + label
   public void draw() {
+    // fade out if disabled
+    if (disabled && fade_step > 0 && current_alpha > 0) {
+      current_alpha = max(0, current_alpha-fade_step);
+    }
+    // fade in if appearing
+    if (!disabled && fade_step > 0 && current_alpha < 255) {
+      current_alpha = min(255, current_alpha+fade_step);
+    }
     // draw text in the top middle
-    fill(0);
+    fill(0, (int)current_alpha);
     textAlign(CENTER, TOP);
     textSize(TEXT_HEIGHT);
     text(label, posX+size/2, posY);
@@ -60,9 +89,11 @@ class LikertScale {
     line(posX, posY, size, posY);
     // then draw each button
     for (int i=0; i<buttons.size(); i++) {
-      buttons.get(i).draw();
+      buttons.get(i).draw((int)current_alpha);
     }
   }
+
+
 
   // update buttons status. If a press occurrs (flag == true) then button hovered by mouse, if any, will have its status updated
   // if a release occured (false), a button presivously marked as "pressed" will be clicked.

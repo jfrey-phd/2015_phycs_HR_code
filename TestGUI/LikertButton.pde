@@ -32,6 +32,10 @@ class LikertButton {
   private final int PRESS_COLOR = 255;
   private final int CLICK_COLOR = 0;
 
+  // current selected color of the button
+  private int current_color_fill = REST_COLOR;
+  private int current_color_stroke = STROKE_COLOR;
+
   // on creation, set label, ID, position, and if button should stop responding to event once clicked
   LikertButton(String label, int ID, float posX, float posY, float size, boolean disable_on_click) {
     this.label = label;
@@ -44,10 +48,8 @@ class LikertButton {
     margin = size*1/5;
     // the shape of our button is a square
     button =  createShape(RECT, 0, 0, size, size);
-    // set default colors
-    button.setStroke(color(STROKE_COLOR));
+    // set default outline 
     button.setStrokeWeight(4);
-    button.setFill(color(REST_COLOR));
   }
 
   // returns true if the mouse is on the button
@@ -74,32 +76,42 @@ class LikertButton {
     // special highlight if mouse over the button or, even better, if a click occurred
     if (isMouseHover()) {
       if (pressed) {
-        button.setFill(color(PRESS_COLOR));
+        current_color_fill=PRESS_COLOR;
       }
       else {
-        button.setFill(color(HOVER_COLOR));
+        current_color_fill=HOVER_COLOR;
       }
     }
     // if button has been clicked, the color is more here for debug
     else if (clicked) {
-      button.setFill(color(CLICK_COLOR));
+      current_color_fill=CLICK_COLOR;
     } 
     // no particular highlight
     else {
-      button.setFill(color(REST_COLOR));
+      current_color_fill=REST_COLOR;
     }
   }
 
   // render the button + label
-  public void draw() {
+  // alpha: set transparency -- for fading for example
+  public void draw(int alpha) {
     // fillin depends on mouse state
     updateColor();
+    // set default colors
+    button.setFill(color(current_color_fill, alpha));
+    button.setStroke(color(current_color_stroke, alpha));
+
     shape(button, posX, posY);
     // put black text on the center bottom, with a margin
-    fill(0);
+    fill(0, alpha);
     textAlign(CENTER, TOP);
     textSize(TEXT_HEIGHT);
     text(label, posX+size/2, posY+size+margin);
+  }
+
+  // render the button + label
+  public void draw() {
+    draw(255);
   }
 
   public String toString() {
@@ -130,7 +142,7 @@ class LikertButton {
     clicked= true;
     println(this + " clicked!");
     // no update will occurs if disable_on_click, we have to change once the color here
-    button.setFill(color(CLICK_COLOR));
+    current_color_fill=CLICK_COLOR;
     // disable once for all
     if (clicked && disable_on_click) {
       disabled = true;
