@@ -63,11 +63,11 @@ class LikertButton {
   }
 
 
-  // update color, unless already clicked and disable_on_click has been set
+  // update color, unless disable
+  // NB: because in this case no update is done, if disable_on_click is set,  setClicked() is the only other place where color is touch
   private void updateColor() {
-    // if clicked and should be disabled, color will turn CLICK_COLOR and won't change
-    if (clicked && disable_on_click) {
-      button.setFill(color(CLICK_COLOR));
+    // if clicked and should be disabled, colors won't change anymore
+    if (disabled) {
       return;
     }
 
@@ -107,10 +107,10 @@ class LikertButton {
   }
 
   // informs the button that a press occurred (true) or not (false)
-  // NB: won't do anything if clicked && disable_on_click
+  // NB: won't do anything if disabled
   public void setPressed(boolean flag) {
     // disabled once for all
-    if (clicked && disable_on_click) {
+    if (disabled) {
       return;
     }
 
@@ -121,15 +121,20 @@ class LikertButton {
   }
 
   // inform the button it has been clicked (pressed and released while mouse over, checked by LikertScale)
-  // NB: won't do anything if clicked &&_disable_on_click
+  // NB: will disable button if clicked &&_disable_on_click
   public void setClicked() {
-    // disabled once for all
-    if (clicked && disable_on_click) {
+    // if disable, no more use
+    if (disabled) {
       return;
     }
-
     clicked= true;
     println(this + " clicked!");
+    // no update will occurs if disable_on_click, we have to change once the color here
+    button.setFill(color(CLICK_COLOR));
+    // disable once for all
+    if (clicked && disable_on_click) {
+      disabled = true;
+    }
   }
 
   // has a press previously occurred?
@@ -148,7 +153,7 @@ class LikertButton {
   }
 
   public void disable() {
-    disabled = false;
+    disabled = true;
   }
 }
 

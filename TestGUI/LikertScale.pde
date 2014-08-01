@@ -10,6 +10,8 @@ class LikertScale {
   int clicked_ID = -1;
   // won't change after click (nor select more than one button) if true
   private boolean disable_on_click;
+  // remember the current active state of the likert scale
+  private boolean disabled = false;
 
   // position and width on screen
   private float posX, posY, size;
@@ -65,7 +67,13 @@ class LikertScale {
   // update buttons status. If a press occurrs (flag == true) then button hovered by mouse, if any, will have its status updated
   // if a release occured (false), a button presivously marked as "pressed" will be clicked.
   // update the ID of the selected button (see getClickedButton())
+  // disable the likert scale (and each individual buttons) if disable_on_click is set
   public void sendMousePress(boolean flag) {
+    // if disabled, no use to go below
+    if (disabled) {
+      return;
+    }
+    // first update press/detect click
     for (int i=0; i<buttons.size(); i++) {
       LikertButton button = buttons.get(i);
       // if it just a "press", then update only this status
@@ -82,12 +90,25 @@ class LikertScale {
         button.setPressed(false);
       }
     }
+
+    // if a click occurred and disable_on_click is set, we have to disable every button
+    if (clicked_ID >= 0 && disable_on_click) {
+      for (int i=0; i<buttons.size(); i++) {
+        buttons.get(i).disable();
+      }
+      disabled=true;
+    }
   }
 
   // return the ID of the button pressed (-1 if none).
   // NB: return the last clicked button or, if severeal button are clicked (multitouch??), the highest ID, 
   public int getClickedButton() {
     return clicked_ID;
+  }
+
+  // client can know if it is useful to send event or take click into account
+  public boolean isDisabled() {
+    return disabled;
   }
 }
 

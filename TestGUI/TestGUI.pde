@@ -8,7 +8,7 @@ void setup() {
   size(WINDOW_X, WINDOW_Y, P2D);
   lik = new LikertScale("Super question?", 5, 30, 30, 500, true);
 
-  lik2 = new LikertScale("Super question is back?", 3, 30, 400, 700, true);
+  lik2 = new LikertScale("Super question is back?", 3, 30, 400, 700, false);
 }
 
 void draw() {
@@ -28,10 +28,20 @@ void mousePressed() {
 
 // through LikertScale, will recursively inform buttons of the events, and notify if one is selcted
 void mouseReleased() {
-  lik.sendMousePress(false);
-  if(lik.getClickedButton() >= 0) {
-    println("Likert clicked!");
+  // won't send new event/take care of click if disabled
+  if (!lik.isDisabled()) {
+    lik.sendMousePress(false);
+    if (lik.getClickedButton() >= 0) {
+      println("Likert clicked!");
+    }
   }
-  lik2.sendMousePress(false);
+
+  // not very good if not "disable_on_click" -- once clicked, will trigger event for every click everywhere 
+  if (!lik2.isDisabled()) {
+    lik2.sendMousePress(false);
+    if (lik2.getClickedButton() >= 0) {
+      println("Likert2 clicked!");
+    }
+  }
 }
 
