@@ -3,8 +3,6 @@
 // possible to disable likert scale on click and/or to activate fading effect
 
 class LikertScale {
-  // how may choices do we have ?
-  private int nbButtons;
   // holds our precious buttons
   ArrayList<LikertButton> buttons;
   // which one is selected ?
@@ -37,7 +35,6 @@ class LikertScale {
   // WARNING: fade smoothness depends on FPS
   LikertScale(String label, int nbButtons, float posX, float posY, float size, boolean disable_on_click, float fade) {
     this.label = label;
-    this.nbButtons = nbButtons;
     this.posX = posX;
     this.posY = posY;
     this.size = size;
@@ -70,6 +67,21 @@ class LikertScale {
     }
   }
 
+  // replace default labels of buttons with values
+  // FIXME: results could be weird with an even number of buttons or if < 3
+  void setLabels(String from, String neutral, String to) {
+    // first pass: empty everything exept begining and end
+    for (int i=1; i<buttons.size()-1; i++) {
+      buttons.get(i).setLabel("");
+    }
+    // then replace firt, last and middle
+    if (buttons.size() > 0) { 
+      buttons.get(0).setLabel(from);
+      buttons.get(buttons.size()/2).setLabel(neutral);
+      buttons.get(buttons.size()-1).setLabel(to);
+    }
+  }
+
   // draw each button + label
   public void draw() {
     // fade out if disabled
@@ -80,7 +92,7 @@ class LikertScale {
     if (!disabled && fade_step > 0 && current_alpha < 255) {
       current_alpha = min(255, current_alpha+fade_step);
     }
-    // draw text in the top middle
+    // draw question text in the top middle
     fill(0, (int)current_alpha);
     textAlign(CENTER, TOP);
     textSize(TEXT_HEIGHT);
@@ -142,4 +154,3 @@ class LikertScale {
     return disabled;
   }
 }
-

@@ -39,6 +39,7 @@ class LikertButton {
   // on creation, set label, ID, position, and if button should stop responding to event once clicked
   LikertButton(String label, int ID, float posX, float posY, float size, boolean disable_on_click) {
     this.label = label;
+    this.ID = ID;
     this.posX=posX;
     this.posY=posY;
     this.size=size;
@@ -148,6 +149,11 @@ class LikertButton {
       disabled = true;
     }
   }
+  
+  // replace button label
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
   // has a press previously occurred?
   public boolean isPressed() {
@@ -168,4 +174,3 @@ class LikertButton {
     disabled = true;
   }
 }
-
