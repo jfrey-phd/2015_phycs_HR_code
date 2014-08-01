@@ -28,10 +28,17 @@ public class BodyPart {
   // during animation, when last frame occured
   private int last_keyframe = 0;
 
-  // set type and load model
+  // which part ID we are
+  private int part_number;
+
+  // set type and load model (randomize part if loadParts() has been called)
   BodyPart(Body.Type type, Body.Genre genre) {
     this.type = type;
     this.genre = genre;
+    // get randomized number
+    part_number = Body.getRandomPart(type, genre);
+
+    println("Selected part number: " + part_number);
     // one master to rule them all
     bodyPart = new PShape();
     // load frames
@@ -50,7 +57,8 @@ public class BodyPart {
   private void loadModel() {
     PShape img;
     // build filename step by step
-    String filename = Body.getTypeName(type) +  "_" + Body.getGenreName(genre) + "_1.svg";
+    // if parts list have been loaded, choose a random one
+    String filename = Body.getTypeName(type) +  "_" + Body.getGenreName(genre) + "_" + part_number + ".svg";
     // load file
     println("Loading: " +  filename);
     img = loadShape(filename);
@@ -169,5 +177,4 @@ public class BodyPart {
   public PShape getPShape() {
     return bodyPart;
   }
-};
-
+}

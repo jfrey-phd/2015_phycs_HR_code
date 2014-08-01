@@ -4,19 +4,36 @@ Agent agent;
 int WINDOW_X = 1000;
 int WINDOW_Y = 1000;
 
+final String CSV_body_filename = "body_parts.csv";
+
 void setup() {
+  // init logs
+  Diary.applet = this;
   // using 2D backend as we won't venture in 3D realm
   size(WINDOW_X, WINDOW_Y, P2D);
   smooth();
-  // init for drawing / BPM
-  agent = new Agent();
-  // a bit to big by default
-  agent.getPShape().scale(0.8);
+
+  // init for body parts randomness -- got headers, fields separated by tabs
+  Table body_parts = loadTable(CSV_body_filename, "header, tsv");
+  println("Loaded " + CSV_body_filename + ", nb rows: " + body_parts.getRowCount());
+  Body.setTableParts(body_parts);
+
+  // init agent
+  createAgent();
 
   // init for TTS
   AgentSpeak_setup();
   // load sententes
   Corpus_setup();
+}
+
+// will create/reset agent
+void createAgent() {
+  println("(re)creating agent");
+  // init for drawing / BPM
+  agent = new Agent();
+  // a bit to big by default
+  agent.getPShape().scale(0.8);
 }
 
 void draw() {
@@ -40,6 +57,7 @@ void keyPressed() {
   else if (key == 'h') {
     agent.heart.animate();
   }
+
   // debug TTS
   else if (key == 's') {
     String mes = "Bonjour tout le monde et bonjour et bonjour !";
@@ -61,5 +79,9 @@ void keyPressed() {
     agentSetText(Corpus_drawText(1));
     thread("speak");
   }
-}
 
+  // debug for agent
+  else if (key == 'r') {
+    createAgent();
+  }
+}
