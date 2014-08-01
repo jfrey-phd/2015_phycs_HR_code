@@ -18,15 +18,22 @@ void setup() {
   println("Loaded " + CSV_body_filename + ", nb rows: " + body_parts.getRowCount());
   Body.setTableParts(body_parts);
 
-  // init for drawing / BPM
-  agent = new Agent();
-  // a bit to big by default
-  agent.getPShape().scale(0.8);
+  // init agent
+  createAgent();
 
   // init for TTS
   AgentSpeak_setup();
   // load sententes
   Corpus_setup();
+}
+
+// will create/reset agent
+void createAgent() {
+  println("(re)creating agent");
+  // init for drawing / BPM
+  agent = new Agent();
+  // a bit to big by default
+  agent.getPShape().scale(0.8);
 }
 
 void draw() {
@@ -50,6 +57,7 @@ void keyPressed() {
   else if (key == 'h') {
     agent.heart.animate();
   }
+
   // debug TTS
   else if (key == 's') {
     String mes = "Bonjour tout le monde et bonjour et bonjour !";
@@ -70,5 +78,10 @@ void keyPressed() {
   else if (key == '3') {
     agentSetText(Corpus_drawText(1));
     thread("speak");
+  }
+
+  // debug for agent
+  else if (key == 'r') {
+    createAgent();
   }
 }

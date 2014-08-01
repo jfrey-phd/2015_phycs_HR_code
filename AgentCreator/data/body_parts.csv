@@ -1,5 +1,5 @@
 type	genre	nb_parts
-head	M	2
-eyes	M	1
-mouth	M	1
+head	M	3
+eyes	M	2
+mouth	M	2
 heart	B	1
