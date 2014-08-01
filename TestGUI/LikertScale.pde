@@ -8,6 +8,8 @@ class LikertScale {
   ArrayList<LikertButton> buttons;
   // which one is selected ?
   int clicked_ID = -1;
+  // won't change after click (nor select more than one button) if true
+  private boolean disable_on_click;
 
   // position and width on screen
   private float posX, posY, size;
@@ -17,12 +19,13 @@ class LikertScale {
   private float TEXT_HEIGHT = 40;
 
   // create the scale, with its label, the number of propositions and the position
-  LikertScale(String label, int nbButtons, float posX, float posY, float size) {
+  LikertScale(String label, int nbButtons, float posX, float posY, float size, boolean disable_on_click) {
     this.label = label;
     this.nbButtons = nbButtons;
     this.posX = posX;
     this.posY = posY;
     this.size = size;
+    this.disable_on_click = disable_on_click;
     // really, should not happen, but since we divide by nbButtons later...
     if (nbButtons < 1) {
       println("Odd: a likert scale with no buttons?");
@@ -40,7 +43,7 @@ class LikertScale {
       float buttonX = i * (size/nbButtons) + posX;
       float buttonY = posY + TEXT_HEIGHT*1.5;
       // push button to stack
-      buttons.add(new LikertButton(button_label, i, buttonX, buttonY, button_size));
+      buttons.add(new LikertButton(button_label, i, buttonX, buttonY, button_size, disable_on_click));
     }
   }
 

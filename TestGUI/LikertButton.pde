@@ -9,6 +9,10 @@ class LikertButton {
   private String label;
   // ID for passing back information
   private int ID;
+  // won't change after click if true
+  private boolean disable_on_click;
+  // is button enable or not
+  private boolean disabled = false;
 
   // position and size
   float posX, posY, size;
@@ -28,12 +32,13 @@ class LikertButton {
   private final int PRESS_COLOR = 255;
   private final int CLICK_COLOR = 0;
 
-  // on creation, set label and position
-  LikertButton(String label, int ID, float posX, float posY, float size) {
+  // on creation, set label, ID, position, and if button should stop responding to event once clicked
+  LikertButton(String label, int ID, float posX, float posY, float size, boolean disable_on_click) {
     this.label = label;
     this.posX=posX;
     this.posY=posY;
     this.size=size;
+    this.disable_on_click = disable_on_click;
     println(this);
     // margin proportionnal to size: 20%
     margin = size*1/5;
@@ -58,8 +63,14 @@ class LikertButton {
   }
 
 
-  // update color
+  // update color, unless already clicked and disable_on_click has been set
   private void updateColor() {
+    // if clicked and should be disabled, color will turn CLICK_COLOR and won't change
+    if (clicked && disable_on_click) {
+      button.setFill(color(CLICK_COLOR));
+      return;
+    }
+
     // special highlight if mouse over the button or, even better, if a click occurred
     if (isMouseHover()) {
       if (pressed) {
@@ -96,7 +107,13 @@ class LikertButton {
   }
 
   // informs the button that a press occurred (true) or not (false)
+  // NB: won't do anything if clicked && disable_on_click
   public void setPressed(boolean flag) {
+    // disabled once for all
+    if (clicked && disable_on_click) {
+      return;
+    }
+
     pressed = flag;
     if (flag) {
       println(this + " pressed!");
@@ -104,7 +121,13 @@ class LikertButton {
   }
 
   // inform the button it has been clicked (pressed and released while mouse over, checked by LikertScale)
+  // NB: won't do anything if clicked &&_disable_on_click
   public void setClicked() {
+    // disabled once for all
+    if (clicked && disable_on_click) {
+      return;
+    }
+
     clicked= true;
     println(this + " clicked!");
   }
@@ -118,10 +141,14 @@ class LikertButton {
   public boolean isClicked() {
     return clicked;
   }
-  
+
   // return ID
   public int getID() {
     return ID;
+  }
+
+  public void disable() {
+    disabled = false;
   }
 }
 

@@ -6,9 +6,9 @@ LikertScale lik, lik2;
 void setup() {
   // using 2D backend as we won't venture in 3D realm
   size(WINDOW_X, WINDOW_Y, P2D);
-  lik = new LikertScale("Super question?", 5, 30, 30, 500);
+  lik = new LikertScale("Super question?", 5, 30, 30, 500, true);
 
-  lik2 = new LikertScale("Super question is back?", 3, 30, 400, 700);
+  lik2 = new LikertScale("Super question is back?", 3, 30, 400, 700, true);
 }
 
 void draw() {
