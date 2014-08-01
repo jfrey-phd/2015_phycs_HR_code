@@ -1,4 +1,6 @@
 
+// a set of clickable buttons with different labels associated and a question to be answered
+
 class LikertScale {
   // how may choices do we have ?
   private int nbButtons;
@@ -12,7 +14,7 @@ class LikertScale {
   // vertical space allocated for text
   private float TEXT_HEIGHT = 40;
 
-  // create
+  // create the scale, with its label, the number of propositions and the position
   LikertScale(String label, int nbButtons, float posX, float posY, float size) {
     this.label = label;
     this.nbButtons = nbButtons;
@@ -40,6 +42,7 @@ class LikertScale {
     }
   }
 
+  // draw each button + label
   public void draw() {
     // draw text in the top middle
     fill(0);
@@ -51,6 +54,26 @@ class LikertScale {
     // then draw each button
     for (int i=0; i<buttons.size(); i++) {
       buttons.get(i).draw();
+    }
+  }
+
+  // update buttons status. If a press occurrs (flag == true) then button hovered by mouse, if any, will have its status updated
+  // if a release occured (false), a button presivously marked as "pressed" will be clicked.
+  public void sendMousePress(boolean flag) {
+    for (int i=0; i<buttons.size(); i++) {
+      LikertButton button = buttons.get(i);
+      // if it just a "press", then update only this status
+      if (flag) {
+        // let's make them work by themselves!
+        button.setPressed(button.isMouseHover());
+      }
+      // if released, check if it still on button and was previously pressed and if it was... bingo, it's a click!
+      else {
+        if (button.isMouseHover() && button.isPressed()) {
+          button.setClicked();
+        }
+        button.setPressed(false);
+      }
     }
   }
 }
