@@ -1,4 +1,4 @@
-//<>// //<>// //<>// //<>//
+
 // the different stages of the XP
 ArrayList<Stage> stages;
 // pointer to current step
