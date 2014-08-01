@@ -5,39 +5,35 @@
   </stage>
   <stage type="xp">
     <corpus>random</corpus>
-    <agents>
-      <agent>
-        <HR>medium</HR>
-      </agent>
-      <agent>
-        <HR>human</HR>
-      </agent>
-    </agents>
+    <agent>
+      <HR>medium</HR>
+    </agent>
+    <agent>
+      <HR>human</HR>
+    </agent>
     <nbSentences>12</nbSentences>
     <nbSameValence>3</nbSameValence>
-    <likerts>
-      <likert type="sentence">
-        <question>Valence question?</question>
-        <nb>7</nb>
-        <from>negative</from>
-        <middle>neutral</middle>
-        <to>positive</to>
-      </likert>
-      <likert type="agent">
-        <question>Good looking?</question>
-        <nb>7</nb>
-        <from>not at all</from>
-        <middle>neutral</middle>
-        <to>very</to>
-      </likert>
-      <likert type="agent">
-        <question>Empathy?</question>
-        <nb>7</nb>
-        <from>not at all</from>
-        <middle>neutral</middle>
-        <to>very</to>
-      </likert>
-    </likerts>
+    <likert type="sentence">
+      <question>Valence question?</question>
+      <nb>7</nb>
+      <from>negative</from>
+      <middle>neutral</middle>
+      <to>positive</to>
+    </likert>
+    <likert type="agent">
+      <question>Good looking?</question>
+      <nb>7</nb>
+      <from>not at all</from>
+      <middle>neutral</middle>
+      <to>very</to>
+    </likert>
+    <likert type="agent">
+      <question>Empathy?</question>
+      <nb>7</nb>
+      <from>not at all</from>
+      <middle>neutral</middle>
+      <to>very</to>
+    </likert>
   </stage>
   <stage type="title">
     <label>break</label>
