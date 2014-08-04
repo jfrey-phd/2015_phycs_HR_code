@@ -7,7 +7,10 @@ public class Agent {
   // FIXME: public for debug through keyboard
   public BodyPart head, eyes, mouth, heart;
   // Every elemet will be connected to it
-  PShape wholeBody;
+  private PShape wholeBody;
+
+  // use to check if mouth animation should be played in update()
+  private AgentSpeak tts;
 
   // Create the different parts
   Agent() {
@@ -36,11 +39,16 @@ public class Agent {
     wholeBody.addChild(heart.getPShape());
   }
 
+  // link to an instance of AgentSpeak for mouth animation
+  public void setTTS(AgentSpeak tts) {
+    this.tts = tts;
+  }
+
   // will call recursively body parts + make mouth animate if speaking
   public void update() {
 
-    // animate mouteeded
-    if (isSpeaking()) {
+    // animate mouth
+    if (tts != null && tts.isSpeaking()) {
       mouth.animate();
     }
 
