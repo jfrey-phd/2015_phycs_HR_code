@@ -1,5 +1,5 @@
 
-// handle info about what's currently going on during the XP, will disable by itself when job's done
+// handles info about what's currently going on during the XP, will disable by itself when job's done
 // this is the main place where draw occurs...
 // TODO: could do better with inheritance
 
@@ -26,8 +26,12 @@ class Stage {
   // for XP
   Agent agent;
   AgentSpeak tts;
+  // total number of sentence per agent/same valence in a raw
   private int nbSentences = -1;
   private int nbSameValence = -1;
+  // counter for current sentence number/valence
+  private int curSentenceNb = 0;
+  private int curSameValence = 0;
 
   // constructor for a screen
   Stage(String label) {
@@ -87,9 +91,23 @@ class Stage {
   // before draw: update internal states
   public void update() {
     // check if it's time to go in case it's an xp type
-    if (type==1 && millis() > start_time + SHOW_TIME ) {
-      println("timeout!");
-      desactivate();
+    //    if (type==1 && millis() > start_time + SHOW_TIME ) {
+    //      println("timeout!");
+    //      desactivate();
+    //    }
+    // if it's XP and no more talking, we have to launch sentences
+    // TODO: add timer on top of tts
+    if (type==1 && !tts.isSpeaking()) {
+      // still at least one sentence to be told
+      if (curSentenceNb < nbSentences) {
+        curSentenceNb++;
+        println("Will play sentence " + curSentenceNb  + "/" + nbSentences );
+        thread("speak");
+      }
+      // last sentence has been spoken, disable/show likert
+      else {
+        desactivate();
+      }
     }
   }
 
@@ -99,18 +117,11 @@ class Stage {
     switch (type) {
       // title
     case 0:
-      background(0);
-      fill(255);
-      text(label, 30, 30);
+      draw_title();
       break;
       // xp
     case 1:
-      // reset display
-      background(255);
-      // update every part, deals all animations
-      agent.update();
-      // draw (somewhat) in the middle
-      shape(agent.getPShape(), 100, 100);
+      draw_xp();
       break;
       // dummy text if we don't know who we are
     default:
@@ -118,6 +129,23 @@ class Stage {
       fill(255);
       text("???", 30, 30);
     }
+  }
+
+  // draw for xp type
+  public void draw_xp() {
+    // reset display
+    background(255);
+    // update every part, deals all animations
+    agent.update();
+    // draw (somewhat) in the middle
+    shape(agent.getPShape(), 100, 100);
+  }
+
+  // draw for title type
+  public void draw_title() {
+    background(0);
+    fill(255);
+    text(label, 30, 30);
   }
 
   // is it currently active? (ie: is it time to go on next stage?)

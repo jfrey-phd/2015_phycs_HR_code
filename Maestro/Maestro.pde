@@ -1,4 +1,6 @@
 
+// coordinates all the different modules
+
 // where the sentences comes from, random type
 Corpus corpus_random;
 // pointer to the currently used corpus
@@ -33,9 +35,6 @@ void setup() {
 
   // init for TTS
   tts = new AgentSpeak();
-
-  // init agent
-  //createAgent();
 
   // load sententes
   Corpus corpus_random = new Corpus();
@@ -94,12 +93,12 @@ void loadStages() {
       // same for how many of the same valence in a row we should use
       int nbSameValence = 0;
       try {
-        nbSentences = child.getChild("nbSameValence").getIntContent();
+        nbSameValence = child.getChild("nbSameValence").getIntContent();
       }
       catch(Exception e) {
         println("Can't find nbSameValence");
       }
-      println("nbSameValence: "+ nbSentences);
+      println("nbSameValence: "+ nbSameValence);
 
       // finally, we create our xp stage and add it to list
       Stage stage = new Stage(tts, nbSentences, nbSameValence);
@@ -208,6 +207,7 @@ void mouseClicked() {
 }
 
 // wrapper for tts.speak in order to use thread()
+// FIXME: also called by Stage...
 void speak() {
   tts.speak();
 }

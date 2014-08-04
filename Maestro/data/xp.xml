@@ -11,8 +11,8 @@
     <agent>
       <HR>human</HR>
     </agent>
-    <nbSentences>12</nbSentences>
-    <nbSameValence>3</nbSameValence>
+    <nbSentences>4</nbSentences>
+    <nbSameValence>2</nbSameValence>
     <likert type="sentence">
       <question>Valence question?</question>
       <nb>7</nb>
@@ -40,6 +40,8 @@
   </stage>
   <stage type="xp">
     <corpus>order</corpus>
+     <nbSentences>4</nbSentences>
+    <nbSameValence>2</nbSameValence>
   </stage>
   <stage type="title">
     <label>end</label>
