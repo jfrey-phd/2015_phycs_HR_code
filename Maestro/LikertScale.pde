@@ -105,8 +105,6 @@ class LikertScale {
     }
   }
 
-
-
   // update buttons status. If a press occurrs (flag == true) then button hovered by mouse, if any, will have its status updated
   // if a release occured (false), a button presivously marked as "pressed" will be clicked.
   // update the ID of the selected button (see getClickedButton())
@@ -152,5 +150,23 @@ class LikertScale {
   // client can know if it is useful to send event or take click into account
   public boolean isDisabled() {
     return disabled;
+  }
+
+  // reset state of the buttons and likerts for re-use
+  public void reset() {
+    // our variables first, as in header
+    disabled = false;
+    clicked_ID = -1;
+    // to transparent color if fade effect set
+    if (this.fade_step > 0) {
+      current_alpha = 0;
+    } 
+    // should not have been touched if no fade but who knows...
+    else {
+      current_alpha = 255;
+    }
+    for (int i=0; i<buttons.size(); i++) {
+      buttons.get(i).reset();
+    }
   }
 }

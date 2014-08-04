@@ -149,7 +149,7 @@ class LikertButton {
       disabled = true;
     }
   }
-  
+
   // replace button label
   public void setLabel(String label) {
     this.label = label;
@@ -170,7 +170,15 @@ class LikertButton {
     return ID;
   }
 
+  // disable button
   public void disable() {
     disabled = true;
+  }
+
+  // reset button internal state
+  public void reset() {
+    disabled = false;
+    pressed = false;
+    clicked = false;
   }
 }

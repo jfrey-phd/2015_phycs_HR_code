@@ -167,8 +167,7 @@ public class StageXP extends Stage {
       // show likert for sentence while at least one is active
     case LIKERT_SENTENCE:
       boolean sentence_active = false;
-      for (int i = 0; i < likertsSentence.size(); i++)
-      {
+      for (int i = 0; i < likertsSentence.size(); i++) {
         // one is active, change flag, stop loop
         if (!likertsSentence.get(i).isDisabled()) {
           sentence_active = true;
@@ -181,8 +180,12 @@ public class StageXP extends Stage {
         println("State: " + curState);
       }
       break;
-      // not really a thing to do at the moment
+      // reset sentence likerts for next use
+      // TODO: add timer for fade out
     case LIKERT_SENTENCE_STOP:
+      for (int i = 0; i < likertsSentence.size(); i++) {
+        likertsSentence.get(i).reset();
+      }
       curState = StageState.XP.AGENT_START;
       println("State: " + curState);
       break;
@@ -207,10 +210,14 @@ public class StageXP extends Stage {
         curState = StageState.XP.LIKERT_AGENT_STOP;
         println("State: " + curState);
       }
-      break;
-      // likert done: stop agent
+      break; 
+      // likert done: stop agent, reset agent likerts for next use (? should not happen)
+      // TODO: add timer for fade out
       // TODO: back to start when agent list
     case LIKERT_AGENT_STOP:
+      for (int i = 0; i < likertsAgent.size(); i++) {
+        likertsAgent.get(i).reset();
+      }
       curState = StageState.XP.STOP;
       println("State: " + curState);
       break;
