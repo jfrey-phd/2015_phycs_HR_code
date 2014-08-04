@@ -118,7 +118,7 @@ void draw() {
   }
 }
 
-// telle current stage a click occurred
+// tell current stage a click occurred
 void mouseClicked() {
   if (current_stage >= 0 && current_stage < stages.size()) {
     stages.get(current_stage).clicked();
