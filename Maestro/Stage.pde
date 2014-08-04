@@ -4,9 +4,6 @@
 // Use this class for unknown stages, otherwise StageTitle or StageXP
 
 public abstract class Stage {
-  // 0: title
-  // 1: xp
-  private int type = -1;
 
   // will wait signal before going to work and will disable by itself when job's done
   private boolean active = false;

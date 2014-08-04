@@ -1,7 +1,12 @@
 
+
+
 // a stage which handles agents, will disable by itself when job's done
 
 public class StageXP extends Stage {
+
+  // state for keeping track of what we have to do
+  private StageState.XP curState = StageState.XP.INIT;
 
   // array list of (sort of) likert scale for sentences
   ArrayList<String> likertsSentence; 
@@ -17,6 +22,9 @@ public class StageXP extends Stage {
   // counter for current sentence number/valence
   private int curSentenceNb = 0;
   private int curSameValence = 0;
+
+  // TODO: wait for click, debug for likert
+  boolean click = false;
 
 
   // constructor for xp, create new agent, link it against AgentSpeak if available
@@ -68,35 +76,127 @@ public class StageXP extends Stage {
   }
 
   // before draw: update internal states
+  // NB: could takes few loop to reach a useful state
+  // see StageState for a diagram  of the state
   public void update() {
-    // check if it's time to go in case it's an xp type
-    //    if (type==1 && millis() > start_time + SHOW_TIME ) {
-    //      println("timeout!");
-    //      desactivate();
-    //    }
-    // if it's XP and no more talking, we have to launch sentences
-    // TODO: add timer on top of tts
-    if (!tts.isSpeaking()) {
+    switch(curState) {
+      // automatically switch to START...
+    case INIT:
+      curState = StageState.XP.START;
+      println("State: " + curState);
+      break;
+      // new agent
+      // TODO: handle agent list
+    case START:
+      createAgent();
+      curState = StageState.XP.AGENT_START;
+      println("State: " + curState);
+      break;
+    case AGENT_START:
       // still at least one sentence to be told
       if (curSentenceNb < nbSentences) {
         curSentenceNb++;
+        curState = StageState.XP.SPEAK_START;
+        println("State: " + curState);
         println("Will play sentence " + curSentenceNb  + "/" + nbSentences );
-        thread("speak");
       }
-      // last sentence has been spoken, disable/show likert
+      // last sentence has been spoken, check for likert agent
+      else if (likertsAgent.size() > 0) {
+        curState = StageState.XP.LIKERT_AGENT_START;
+        println("State: " + curState);
+      }
+      // no sentence and no likert: stop agent
+      // TODO: back to start when agent list
       else {
-        desactivate();
+        curState = StageState.XP.STOP;
+        println("State: " + curState);
       }
+      break;
+      // initiate next sentence or next step if no more in valence/agent
+      // TODO: select valence
+    case SPEAK_START:
+      thread("speak");
+      curState = StageState.XP.SPEAKING;
+      println("State: " + curState);
+      break;
+      // wait untill tts is done
+      // TODO: add timer on top of tts
+    case SPEAKING:
+      if (!tts.isSpeaking()) {
+        curState = StageState.XP.SPEAK_STOP;
+        println("State: " + curState);
+      }
+      break;
+      // check for likert
+    case SPEAK_STOP:
+      // check for likert on sentence
+      if (likertsSentence.size() > 0) {
+        curState = StageState.XP.LIKERT_SENTENCE_START;
+        println("State: " + curState);
+      } 
+      // if  no likert, back to agent
+      else {
+        curState = StageState.XP.AGENT_START;
+        println("State: " + curState);
+      }
+      break;
+      // init wait for click
+    case LIKERT_SENTENCE_START:
+      click = false;
+      curState = StageState.XP.LIKERT_SENTENCE;
+      println("State: " + curState);
+      break;
+      // show likert for sentence while not clicked
+    case LIKERT_SENTENCE:
+      if (click) {
+        curState = StageState.XP.LIKERT_SENTENCE_STOP;
+        println("State: " + curState);
+      }
+      break;
+      // not really a thing to do at the moment
+    case LIKERT_SENTENCE_STOP:
+      curState = StageState.XP.AGENT_START;
+      println("State: " + curState);
+      break;
+      // some likert for agent
+      // init wait for click
+    case LIKERT_AGENT_START:
+      click = false;
+      curState = StageState.XP.LIKERT_AGENT;
+      println("State: " + curState);
+      break;
+      // show likert for agent while not clicked
+    case LIKERT_AGENT:
+      if (click) {
+        curState = StageState.XP.LIKERT_AGENT_STOP;
+        println("State: " + curState);
+      }
+      break;
+      // likert done: stop agent
+      // TODO: back to start when agent list
+    case LIKERT_AGENT_STOP:
+      curState = StageState.XP.STOP;
+      println("State: " + curState);
+      break;
+      // time to desactivate stage 
+    case STOP:
+      desactivate();
+      break;
+      // TODO: timeout to escape infinite loop
+    default:
+      println("Error, step not handlded: " + curState);
     }
   }
 
-  // creates agent 
+  // launch stages
   public void activate() {
     super.activate();
-    createAgent();
+    curState = StageState.XP.START;
+    println("State: " + curState);
   }
 
   // draw for xp type
+  // may show likert if in correct state
   public void draw() {
     // reset display
     background(255);
@@ -104,5 +204,10 @@ public class StageXP extends Stage {
     agent.update();
     // draw (somewhat) in the middle
     shape(agent.getPShape(), 100, 100);
+  }
+
+  // for update() to go to next step
+  public void clicked() {
+    click = true;
   }
 } 

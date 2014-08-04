@@ -151,7 +151,7 @@ void draw() {
   }
   // all done ?
   else {
-    println("No more stages");
+    //println("No more stages");
     background(0);
     fill(255);
     text("The END", 50, 50);
