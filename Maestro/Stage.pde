@@ -44,9 +44,8 @@ class Stage {
     likertsAgent = new ArrayList<String>();
     likertsSentence = new ArrayList<String>();
 
-    // create agent
+    // point to tts engine
     this.tts = tts;
-    createAgent();
   }
 
   // will create/reset agent
@@ -127,15 +126,21 @@ class Stage {
   }
 
   // to die is a private thing
+  // TODO: cleanup agent maybe...
   private void desactivate() {
     println("I'm letting it go!");
     active = false;
   }
 
   // tell it to go on-stage
+  // creates agent if type XP
   public void activate() {
     active = true;
     start_time = millis();
+
+    if (type == 1) {
+      createAgent();
+    }
   }
 
   // sent click event

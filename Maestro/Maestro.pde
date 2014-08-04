@@ -126,12 +126,13 @@ void loadStages() {
   // let's lauch the rocket if we have something
   if (stages.size() > 0) {
     current_stage = 0;
+    println("Launch stage: " + current_stage);
     stages.get(current_stage).activate();
   }
 }
 
 void draw() {
-  println("Current stage: " + current_stage);
+  //println("Current stage: " + current_stage);
   // be sure to have something to do
   if (current_stage >= 0 && current_stage < stages.size()) {
     Stage stage = stages.get(current_stage);
@@ -140,6 +141,7 @@ void draw() {
     if (!stage.isActive()) {
       current_stage++;
       if (current_stage >= 0 && current_stage < stages.size()) {
+        println("Launch stage: " + current_stage);
         stages.get(current_stage).activate();
       }
     }
@@ -150,6 +152,7 @@ void draw() {
   }
   // all done ?
   else {
+    println("No more stages");
     background(0);
     fill(255);
     text("The END", 50, 50);
