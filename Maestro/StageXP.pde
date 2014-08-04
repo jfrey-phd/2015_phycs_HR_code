@@ -44,8 +44,6 @@ public class StageXP extends Stage {
     println("(re)creating agent");
     // init for drawing / BPM
     agent = new Agent();
-    // a bit to big by default
-    agent.getPShape().scale(0.8);
     // point to TTS
     agent.setTTS(tts);
   }
@@ -102,6 +100,7 @@ public class StageXP extends Stage {
       }
       // last sentence has been spoken, check for likert agent
       else if (likertsAgent.size() > 0) {
+        println("There is " + likertsAgent.size() + " likerts for agents");
         curState = StageState.XP.LIKERT_AGENT_START;
         println("State: " + curState);
       }
@@ -131,6 +130,7 @@ public class StageXP extends Stage {
     case SPEAK_STOP:
       // check for likert on sentence
       if (likertsSentence.size() > 0) {
+        println("There is " + likertsSentence.size() + " likerts for sentence");
         curState = StageState.XP.LIKERT_SENTENCE_START;
         println("State: " + curState);
       } 
@@ -197,13 +197,50 @@ public class StageXP extends Stage {
 
   // draw for xp type
   // may show likert if in correct state
+  // TODO: size depending on window
+  // TODO: size depeding on number of questions
   public void draw() {
     // reset display
     background(255);
-    // update every part, deals all animations
-    agent.update();
-    // draw (somewhat) in the middle
-    shape(agent.getPShape(), 100, 100);
+
+    // agent position and scale may change -- if likert agent
+    // should be only one likert for sentence, no need to scale -- or would distrub user
+    // by default, draw (somewhat) in the middle
+    float agentX = 100, agentY = 100;
+    // ...and a bit too big on loading
+    float agentScale = 0.8;
+    // on special case (init and stop), will not show agent to avoid glithes (change in scale for few frames)
+    boolean showAgent = true;
+
+    // resize/disable agent + draw likerts if needed 
+    switch(curState) {
+      // disable agent for special states
+    case INIT:
+    case START:
+    case STOP:
+      showAgent = false;
+      break;
+      // reduces space if likert agent -- will have several questions, makes room
+    case LIKERT_AGENT_START:
+    case LIKERT_AGENT:
+    case LIKERT_AGENT_STOP:
+      // agent top left corder
+      agentX = 10;
+      agentY = 10;
+      agentScale = 0.3;
+      break;
+    }
+
+    // if the current state don't prevent agent diplay, show the beautiful baby
+    if (showAgent && agent != null) {
+      // update every part, deals all animations
+      agent.update();
+      // reset previous scale, apply new one
+      agent.getPShape().resetMatrix();
+      agent.getPShape().scale(agentScale);
+      // draw (somewhat) in the middle
+      shape(agent.getPShape(), agentX, agentY);
+    }
   }
 
   // for update() to go to next step
