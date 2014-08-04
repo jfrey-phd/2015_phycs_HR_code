@@ -2,6 +2,7 @@
 // a stage which handles agents, will disable by itself when job's done
 
 public class StageXP extends Stage {
+
   // array list of (sort of) likert scale for sentences
   ArrayList<String> likertsSentence; 
   // array list of (sort of) likert scale for agent

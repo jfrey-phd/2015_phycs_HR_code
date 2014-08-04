@@ -11,10 +11,6 @@ public class StageTitle extends Stage {
     this.label = label;
   }
 
-  // before draw: update internal states
-  public void update() {
-  }
-
   // draw for title type
   public void draw() {
     background(0);
