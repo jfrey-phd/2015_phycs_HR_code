@@ -23,6 +23,9 @@ public class StageXP extends Stage {
   private int curSentenceNb = 0;
   private int curSameValence = 0;
 
+  // for how long we'll put stage on sleep when we have the occasion to (e.g. end of likerts) (in ms)
+  final private int TIMER_DURATION = 1000;
+
   // constructor for xp, create new agent, link it against AgentSpeak if available
   StageXP(AgentSpeak tts, int nbSentences, int nbSameValence) {
     // init variables, list for likerts 
@@ -131,14 +134,13 @@ public class StageXP extends Stage {
       }
       break;
       // initiate next sentence or next step if no more in valence/agent
-      // TODO: select valence
+      // TODO: select valence, use corpus
     case SPEAK_START:
       thread("speak");
       curState = StageState.XP.SPEAKING;
       println("State: " + curState);
       break;
       // wait untill tts is done
-      // TODO: add timer on top of tts
     case SPEAKING:
       if (!tts.isSpeaking()) {
         curState = StageState.XP.SPEAK_STOP;
@@ -178,16 +180,20 @@ public class StageXP extends Stage {
       if (!sentence_active) {
         curState = StageState.XP.LIKERT_SENTENCE_STOP;
         println("State: " + curState);
+        // launch timer
+        startTimer(TIMER_DURATION);
       }
       break;
       // reset sentence likerts for next use
-      // TODO: add timer for fade out
+      // wait for time's up before proeceeding
     case LIKERT_SENTENCE_STOP:
-      for (int i = 0; i < likertsSentence.size(); i++) {
-        likertsSentence.get(i).reset();
+      if (isTimeOver()) {
+        for (int i = 0; i < likertsSentence.size(); i++) {
+          likertsSentence.get(i).reset();
+        }
+        curState = StageState.XP.AGENT_START;
+        println("State: " + curState);
       }
-      curState = StageState.XP.AGENT_START;
-      println("State: " + curState);
       break;
       // some likert for agent
       // init wait for click
@@ -209,17 +215,20 @@ public class StageXP extends Stage {
       if (!agent_active) {
         curState = StageState.XP.LIKERT_AGENT_STOP;
         println("State: " + curState);
+        // launch timer
+        startTimer(TIMER_DURATION);
       }
       break; 
       // likert done: stop agent, reset agent likerts for next use (? should not happen)
-      // TODO: add timer for fade out
       // TODO: back to start when agent list
     case LIKERT_AGENT_STOP:
-      for (int i = 0; i < likertsAgent.size(); i++) {
-        likertsAgent.get(i).reset();
+      if (isTimeOver()) {
+        for (int i = 0; i < likertsAgent.size(); i++) {
+          likertsAgent.get(i).reset();
+        }
+        curState = StageState.XP.STOP;
+        println("State: " + curState);
       }
-      curState = StageState.XP.STOP;
-      println("State: " + curState);
       break;
       // time to desactivate stage 
     case STOP:
@@ -265,12 +274,12 @@ public class StageXP extends Stage {
       break;
       // reduces space if likert agent -- will have several questions, makes room
     case LIKERT_AGENT:
+    case LIKERT_AGENT_STOP:
       // loop on likerts to draw them
       for (int i=0; i < likertsAgent.size(); i++) {
         likertsAgent.get(i).draw();
       }
     case LIKERT_AGENT_START:
-    case LIKERT_AGENT_STOP:
       // agent top left corder
       agentX = 10;
       agentY = 10;
@@ -278,6 +287,7 @@ public class StageXP extends Stage {
       break;
       // loop on sentence likerts to draw them
     case LIKERT_SENTENCE:
+    case LIKERT_SENTENCE_STOP:
       // loop on likerts to draw them
       for (int i=0; i < likertsSentence.size(); i++) {
         likertsSentence.get(i).draw();

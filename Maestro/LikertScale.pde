@@ -98,7 +98,7 @@ class LikertScale {
     textSize(TEXT_HEIGHT);
     text(label, posX+size/2, posY);
     // a line for positionning debug
-    line(posX, posY, size, posY);
+    //line(posX, posY, size, posY);
     // then draw each button
     for (int i=0; i<buttons.size(); i++) {
       buttons.get(i).draw((int)current_alpha);

@@ -10,9 +10,9 @@ public abstract class Stage {
 
   // FIXME: leftovers
   // a timer since activation
-  private int start_time = 0;
-  // how many time in ms should this stage be active (for title)
-  private final int SHOW_TIME = 2000;
+  private int startTime = 0;
+  // how many time in ms should the timer be set
+  private int timerDuration = 0;
 
   // before draw: update internal states
   // by default: nothing
@@ -21,6 +21,21 @@ public abstract class Stage {
 
   // draw on screen, minimum requieremnts for sub-classes 
   abstract public void draw();
+
+  // will start a timer
+  // timeDuration: for how long (in ms)
+  final protected void startTimer(int timerDuration) {
+    // reset start
+    startTime = millis();
+    // update duration
+    this.timerDuration = timerDuration;
+    println("Start timer for duration=" + timerDuration + "ms at t=" + startTime + "ms");
+  }
+
+  // is the timer over yet?
+  final protected boolean isTimeOver() {
+    return millis() >= startTime+timerDuration;
+  }
 
   // is it currently active? (ie: is it time to go on next stage?)
   public boolean isActive() {
@@ -38,7 +53,6 @@ public abstract class Stage {
   // creates agent if type XP
   public void activate() {
     active = true;
-    start_time = millis();
   }
 
   // sent click event
