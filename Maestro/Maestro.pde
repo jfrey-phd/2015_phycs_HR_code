@@ -75,7 +75,7 @@ void loadStages() {
       }
       println("label: "+ stage_label);
 
-      stages.add(new Stage(stage_label));
+      stages.add(new StageTitle(stage_label));
     }
     else if (type.equals("xp")) {
       println("Create type XP");
@@ -101,7 +101,7 @@ void loadStages() {
       println("nbSameValence: "+ nbSameValence);
 
       // finally, we create our xp stage and add it to list
-      Stage stage = new Stage(tts, nbSentences, nbSameValence);
+      StageXP stage = new StageXP(tts, nbSentences, nbSameValence);
       stages.add(stage);
 
       // time to look for likert scale and to push them to current stage
@@ -118,7 +118,7 @@ void loadStages() {
       }
     }
     else {
-      println("Error: don't know how to handle stage type \"" + type + "\", ignore.");
+      println("Error: don't know how to handle stage type \"" + type + "\", set default one.");
     }
   }
 
