@@ -27,6 +27,8 @@ void setup() {
   // using 2D backend as we won't venture in 3D realm
   size(WINDOW_X, WINDOW_Y, P2D);
   smooth();
+  // we don't choose our font but we want smooth text -- should not work with P2P from doc??
+  textMode(SHAPE);
 
   // init for body parts randomness -- got headers, fields separated by tabs
   Table body_parts = loadTable(CSV_BODY_FILENAME, "header, tsv");
@@ -112,9 +114,27 @@ void loadStages() {
       for (int j = 0; j < likerts.length; j++) {
         XML likert_xml = likerts[j];
         String likert_type = likert_xml.getString("type");
-        String likert="liki"+j;
-        println("Likert: " + likert, ", likert type: " + likert_type);
-        stage.pushLikert(likert, likert_type);
+
+        // not nice, but will try/cath to grab at once question + nb answers + labels
+        String question = "likert question";
+        int nbButtons = 7;
+        String from = "from";
+        String neutral = "neutral";
+        String to = "to";
+
+        try {
+          question = likert_xml.getChild("question").getContent();
+          nbButtons = likert_xml.getChild("nb").getIntContent();
+          from = likert_xml.getChild("from").getContent();
+          neutral = likert_xml.getChild("middle").getContent();
+          to = likert_xml.getChild("to").getContent();
+        }
+        catch(Exception e) {
+          println("Can't find some of the likret parameters...");
+        }
+
+        println("Likert: " + question, ", likert type: " + likert_type);
+        stage.pushLikert(likert_type, question, nbButtons, from, neutral, to);
       }
     }
     else {

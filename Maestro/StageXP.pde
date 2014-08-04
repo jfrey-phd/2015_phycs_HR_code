@@ -8,10 +8,10 @@ public class StageXP extends Stage {
   // state for keeping track of what we have to do
   private StageState.XP curState = StageState.XP.INIT;
 
-  // array list of (sort of) likert scale for sentences
-  ArrayList<String> likertsSentence; 
-  // array list of (sort of) likert scale for agent
-  ArrayList<String> likertsAgent; 
+  // array list of likert scale for sentences
+  ArrayList<LikertScale> likertsSentence; 
+  // array list of  likert scale for agent
+  ArrayList<LikertScale> likertsAgent; 
 
   // for XP
   Agent agent;
@@ -26,14 +26,13 @@ public class StageXP extends Stage {
   // TODO: wait for click, debug for likert
   boolean click = false;
 
-
   // constructor for xp, create new agent, link it against AgentSpeak if available
   StageXP(AgentSpeak tts, int nbSentences, int nbSameValence) {
     // init variables, list for likerts 
     this.nbSentences = nbSentences;
     this.nbSameValence = nbSameValence;
-    likertsAgent = new ArrayList<String>();
-    likertsSentence = new ArrayList<String>();
+    likertsAgent = new ArrayList<LikertScale>();
+    likertsSentence = new ArrayList<LikertScale>();
 
     // point to tts engine
     this.tts = tts;
@@ -49,28 +48,51 @@ public class StageXP extends Stage {
   }
 
   // high-level function for pushing likert to stack
-  public void pushLikert(String likert, String type) {
+  // type +  question + how may answers + labels for answers
+  public void pushLikert(String type, String question, int nbButtons, String from, String neutral, String to) {
     if (type.equals("sentence")) {
-      pushLikertSentence(likert);
+      pushLikertSentence(question, nbButtons, from, neutral, to);
     }
     else if (type.equals("agent")) {
-      pushLikertAgent(likert);
+      pushLikertAgent(question, nbButtons, from, neutral, to);
     }
     else {
       println("Error, unknown likert type, ignore it.");
     }
   }
 
-  // for testing: push (sort of a) likert for sentences
-  private void pushLikertSentence(String label) {
-    println("New likert for sentences.");
-    likertsSentence.add(label);
+  // push likert for sentences
+  // question + how may answers + labels for answers
+  // FIXME: will fix positions here...
+  private void pushLikertSentence(String question, int nbButtons, String from, String neutral, String to) {
+    println("New likert for sentences. Question: " + question + ", [" + nbButtons + "], labels " + from + ", " + neutral + ", " + to);
+    // set width and position
+    float likertSize = 500;
+    float likertX = 100;
+    // magic numbers + give room for previous likerts
+    float likertY = 800 +  100*likertsSentence.size();
+    // disable on click and fade
+    LikertScale likert = new LikertScale(question, nbButtons, likertX, likertY, likertSize, true, 5);
+    // set labels
+    likert.setLabels(from, neutral, to);
+    likertsSentence.add(likert);
   }
 
-  // for testing: push (sort of a) likert for agent
-  private void pushLikertAgent(String label) {
-    println("New likert for agent.");
-    likertsAgent.add(label);
+  // push likert for agent
+  // question + how may answers + labels for answers
+  // FIXME: will fix positions here...
+  private void pushLikertAgent(String question, int nbButtons, String from, String neutral, String to) {
+    println("New likert for agent. Question: " + question + ", [" + nbButtons + "], labels " + from + ", " + neutral + ", " + to);
+    // set width and position
+    float likertSize = 500;
+    float likertX = 100;
+    // magic numbers + give room for previous likerts
+    float likertY = 400 +  200*likertsAgent.size();
+    // disable on click and fade
+    LikertScale likert = new LikertScale(question, nbButtons, likertX, likertY, likertSize, true, 5);
+    // set labels
+    likert.setLabels(from, neutral, to);
+    likertsAgent.add(likert);
   }
 
   // before draw: update internal states
@@ -221,13 +243,24 @@ public class StageXP extends Stage {
       showAgent = false;
       break;
       // reduces space if likert agent -- will have several questions, makes room
-    case LIKERT_AGENT_START:
     case LIKERT_AGENT:
+      // loop on likerts to draw them
+      for (int i=0; i < likertsAgent.size(); i++) {
+        likertsAgent.get(i).draw();
+      }
+    case LIKERT_AGENT_START:
     case LIKERT_AGENT_STOP:
       // agent top left corder
       agentX = 10;
       agentY = 10;
       agentScale = 0.3;
+      break;
+      // loop on sentence likerts to draw them
+    case LIKERT_SENTENCE:
+      // loop on likerts to draw them
+      for (int i=0; i < likertsSentence.size(); i++) {
+        likertsSentence.get(i).draw();
+      }
       break;
     }
 

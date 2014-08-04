@@ -26,7 +26,7 @@ public class StageState {
     LIKERT_AGENT, 
     LIKERT_AGENT_STOP, 
     // agent finisheld
-    AGENT_STOP, 
+    //AGENT_STOP, 
     // job done
     STOP
   }
