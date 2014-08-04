@@ -45,4 +45,14 @@ public abstract class Stage {
   // by default, does nothing
   public void clicked() {
   }
+
+  // sent press event
+  // by default, does nothing
+  public void pressed() {
+  }
+
+  // sent release event
+  // by default, does nothing
+  public void released() {
+  }
 }

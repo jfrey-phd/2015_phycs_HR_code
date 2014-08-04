@@ -226,6 +226,21 @@ void mouseClicked() {
   }
 }
 
+// tell current stage a press occurred
+void mousePressed() {
+  if (current_stage >= 0 && current_stage < stages.size()) {
+    stages.get(current_stage).pressed();
+  }
+}
+
+// tell current stage a release occurred
+void mouseReleased() {
+  if (current_stage >= 0 && current_stage < stages.size()) {
+    stages.get(current_stage).released();
+  }
+}
+
+
 // wrapper for tts.speak in order to use thread()
 // FIXME: also called by Stage...
 void speak() {

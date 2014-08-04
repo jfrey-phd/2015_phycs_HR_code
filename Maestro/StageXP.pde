@@ -23,9 +23,6 @@ public class StageXP extends Stage {
   private int curSentenceNb = 0;
   private int curSameValence = 0;
 
-  // TODO: wait for click, debug for likert
-  boolean click = false;
-
   // constructor for xp, create new agent, link it against AgentSpeak if available
   StageXP(AgentSpeak tts, int nbSentences, int nbSameValence) {
     // init variables, list for likerts 
@@ -164,13 +161,22 @@ public class StageXP extends Stage {
       break;
       // init wait for click
     case LIKERT_SENTENCE_START:
-      click = false;
       curState = StageState.XP.LIKERT_SENTENCE;
       println("State: " + curState);
       break;
-      // show likert for sentence while not clicked
+      // show likert for sentence while at least one is active
     case LIKERT_SENTENCE:
-      if (click) {
+      boolean sentence_active = false;
+      for (int i = 0; i < likertsSentence.size(); i++)
+      {
+        // one is active, change flag, stop loop
+        if (!likertsSentence.get(i).isDisabled()) {
+          sentence_active = true;
+          break;
+        }
+      }
+      // if no active state, then can go
+      if (!sentence_active) {
         curState = StageState.XP.LIKERT_SENTENCE_STOP;
         println("State: " + curState);
       }
@@ -183,13 +189,21 @@ public class StageXP extends Stage {
       // some likert for agent
       // init wait for click
     case LIKERT_AGENT_START:
-      click = false;
       curState = StageState.XP.LIKERT_AGENT;
       println("State: " + curState);
       break;
-      // show likert for agent while not clicked
+      // show likert for agent while at least one is active
     case LIKERT_AGENT:
-      if (click) {
+      boolean agent_active = false;
+      for (int i = 0; i < likertsAgent.size(); i++) {
+        // one is active, change flag, stop loop
+        if (!likertsAgent.get(i).isDisabled()) {
+          agent_active = true;
+          break;
+        }
+      }
+      // if no active state, then can go
+      if (!agent_active) {
         curState = StageState.XP.LIKERT_AGENT_STOP;
         println("State: " + curState);
       }
@@ -276,8 +290,53 @@ public class StageXP extends Stage {
     }
   }
 
-  // for update() to go to next step
-  public void clicked() {
-    click = true;
+  // send event to all the corresponding likerts while in LIKERT_SENTENCE or LIKERT_AGENT
+  // NB: poor API, but don't need to check for active state here
+  public void pressed() {
+    // loop for sentence
+    if (curState == StageState.XP.LIKERT_SENTENCE) {
+      for (int i=0; i < likertsSentence.size(); i++) {
+        // if enabled, send event
+        likertsSentence.get(i).sendMousePress(true);
+      }
+    }
+    // loop for agent
+    else if (curState == StageState.XP.LIKERT_AGENT)
+    {
+      for (int i=0; i < likertsAgent.size(); i++) {
+        // send event
+        likertsAgent.get(i).sendMousePress(true);
+      }
+    }
+  }
+
+  // send event to all the corresponding and active likerts while in LIKERT_SENTENCE or LIKERT_AGENT
+  public void released() {
+    // loop for sentence
+    if (curState == StageState.XP.LIKERT_SENTENCE) {
+      for (int i=0; i < likertsSentence.size(); i++) {
+        // if enabled, send event
+        LikertScale likert =  likertsSentence.get(i);
+        if (!likert.isDisabled()) {
+          likert.sendMousePress(false);
+          if (likert.getClickedButton() >= 0) {
+            println("Likert clicked!");
+          }
+        }
+      }
+    }
+    // loop for agent
+    else if (curState == StageState.XP.LIKERT_AGENT) {
+      for (int i=0; i < likertsAgent.size(); i++) {
+        // if enabled, send event
+        LikertScale likert =  likertsAgent.get(i);
+        if (!likert.isDisabled()) {
+          likert.sendMousePress(false);
+          if (likert.getClickedButton() >= 0) {
+            println("Likert clicked!");
+          }
+        }
+      }
+    }
   }
 } 
