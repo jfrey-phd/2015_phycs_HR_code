@@ -24,6 +24,8 @@ class Stage {
   private String label = "";
 
   // for XP
+  Agent agent;
+  AgentSpeak tts;
   private int nbSentences = -1;
   private int nbSameValence = -1;
 
@@ -33,14 +35,29 @@ class Stage {
     this.label = label;
   }
 
-  // constructor for xp
-  Stage(int nbSentences, int nbSameValence) {
+  // constructor for xp, create new agent, link it against AgentSpeak if available
+  Stage(AgentSpeak tts, int nbSentences, int nbSameValence) {
+    // init variables, list for likerts 
     type = 1;
     this.nbSentences = nbSentences;
     this.nbSameValence = nbSameValence;
-    // init list for likerts
     likertsAgent = new ArrayList<String>();
     likertsSentence = new ArrayList<String>();
+
+    // create agent
+    this.tts = tts;
+    createAgent();
+  }
+
+  // will create/reset agent
+  private void createAgent() {
+    println("(re)creating agent");
+    // init for drawing / BPM
+    agent = new Agent();
+    // a bit to big by default
+    agent.getPShape().scale(0.8);
+    // point to TTS
+    agent.setTTS(tts);
   }
 
   // high-level function for pushing likert to stack
@@ -89,9 +106,12 @@ class Stage {
       break;
       // xp
     case 1:
-      background(0);
-      fill(255);
-      rect(10, 10, 300, 300);
+      // reset display
+      background(255);
+      // update every part, deals all animations
+      agent.update();
+      // draw (somewhat) in the middle
+      shape(agent.getPShape(), 100, 100);
       break;
       // dummy text if we don't know who we are
     default:

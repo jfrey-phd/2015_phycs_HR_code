@@ -1,6 +1,4 @@
 
-// the current showed agent
-Agent agent;
 // where the sentences comes from, random type
 Corpus corpus_random;
 // pointer to the currently used corpus
@@ -37,7 +35,7 @@ void setup() {
   tts = new AgentSpeak();
 
   // init agent
-  createAgent();
+  //createAgent();
 
   // load sententes
   Corpus corpus_random = new Corpus();
@@ -104,7 +102,7 @@ void loadStages() {
       println("nbSameValence: "+ nbSentences);
 
       // finally, we create our xp stage and add it to list
-      Stage stage = new Stage(nbSentences, nbSameValence);
+      Stage stage = new Stage(tts, nbSentences, nbSameValence);
       stages.add(stage);
 
       // time to look for likert scale and to push them to current stage
@@ -132,28 +130,7 @@ void loadStages() {
   }
 }
 
-// will create/reset agent
-void createAgent() {
-  println("(re)creating agent");
-  // init for drawing / BPM
-  agent = new Agent();
-  // a bit to big by default
-  agent.getPShape().scale(0.8);
-  // point to TTS
-  agent.setTTS(tts);
-}
-
 void draw() {
-  // agent
-
-  // reset display
-  background(255);
-  // update every part, deals all animations
-  agent.update();
-  // draw (somewhat) in the middle
-  shape(agent.getPShape(), 100, 100);
-
-  //stage
   println("Current stage: " + current_stage);
   // be sure to have something to do
   if (current_stage >= 0 && current_stage < stages.size()) {
@@ -181,19 +158,19 @@ void draw() {
 
 // trigger different action for debug
 void keyPressed() {
-  // debug animation
-  if (key == 'b') {
-    agent.eyes.animate();
-  }
-  else if (key == 'm') {
-    agent.mouth.animate();
-  }
-  else if (key == 'h') {
-    agent.heart.animate();
-  }
+  //  // debug animation
+  //  if (key == 'b') {
+  //    agent.eyes.animate();
+  //  }
+  //  else if (key == 'm') {
+  //    agent.mouth.animate();
+  //  }
+  //  else if (key == 'h') {
+  //    agent.heart.animate();
+  //  }
 
   // debug TTS
-  else if (key == 's') {
+  if (key == 's') {
     String mes = "Bonjour tout le monde et bonjour et bonjour !";
     tts.setText(mes);
     thread("speak");
@@ -215,9 +192,9 @@ void keyPressed() {
   }
 
   // debug for agent
-  else if (key == 'r') {
-    createAgent();
-  }
+  //  else if (key == 'r') {
+  //    createAgent();
+  //  }
 }
 
 // tell current stage a click occurred
