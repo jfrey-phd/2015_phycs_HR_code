@@ -24,6 +24,7 @@ class MyOVBox(OVBox):
     
     # for sending data to openvibe
     # WARNING: too high and interpolation will occur, too low and data will be decimated... depending on chunk size.
+    # TODO: set frequency and epochs with openvibe
     self.samplingFrequency = 512
     # big chunk for closer interpolation/decimation
     self.epochSampleCount = 128
