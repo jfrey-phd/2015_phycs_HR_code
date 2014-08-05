@@ -31,6 +31,8 @@ class MyOVBox(OVBox):
     self.signalHeader = None
     # useful if not enough data (0 or 1 value)
     self.lastValue = 0
+    # will spam stdout if True
+    self.debug = False
 
   # the initialize method reads settings and outputs the first header
   def initialize(self):
@@ -44,6 +46,8 @@ class MyOVBox(OVBox):
     self.connect_to_server()
     # FIXME: a list is not efficient
     self.buffer = []
+    # get debug flag from GUI
+    self.debug = (self.setting['Debug']=="true")
     
     #creation of the signal header -- simplified code with one channel at the moment
     self.dimensionLabels.append( 'Chan1')
@@ -77,23 +81,28 @@ class MyOVBox(OVBox):
     start = self.timeBuffer[0]
     end = self.timeBuffer[-1] + 1./self.samplingFrequency
     #bufferElements = self.signalBuffer.reshape(self.epochSampleCount).tolist()
-    print "buffer size: " + str(len(self.buffer))
+    if self.debug:
+      print "buffer size: " + str(len(self.buffer))
     # the chunk we gonna fill
     chunkBuffer = numpy.zeros(self.epochSampleCount);
-    print "chunk size: " + str(self.epochSampleCount)
+    if self.debug:
+      print "chunk size: " + str(self.epochSampleCount)
     
     #if buffer empty, give it at least one element
     if len(self.buffer) < 1:
       self.buffer.append(self.lastValue)
-      print "Empty buffer, put last value: " + str(self.lastValue)
+      if self.debug:
+        print "Empty buffer, put last value: " + str(self.lastValue)
     
     # we will have to adapt sigal to fit openvibe requisite
     if len(self.buffer) != self.epochSampleCount:
-      print "Damn, buffer and chunk len mismatch"
+      if self.debug:
+        print "Damn, buffer and chunk len mismatch"
       chunkBuffer=self.resample(numpy.asarray(self.buffer), self.epochSampleCount)
     # won't happen often, just have to copy
     else:
-      print "Lucky: same size for buffer and chunk"
+      if self.debug:
+        print "Lucky: same size for buffer and chunk"
       for i in range(0, min(len(self.buffer), len(chunkBuffer))):
         chunkBuffer[i]=self.buffer[i]
       
@@ -106,16 +115,18 @@ class MyOVBox(OVBox):
     
     # got no data, won't return any data
     if (len(array) == 0):
-      print "Empty array, can't seek any data"
+      if self.debug:
+        print "Empty array, can't seek any data"
     # with one element we won't interpolate much, just replicate the one item
     elif (len(array) == 1):
       chunkBuffer = chunkBuffer+array[0]
     # the real scenario!
     else:
-      if len(array) < nb_samples:
-        print "Oversampling!"
-      else:
-        print "Decimation!"
+      if self.debug:
+        if len(array) < nb_samples:
+          print "Oversampling!"
+        else:
+          print "Decimation!"
       # two spaces: in and out
       x_in = numpy.linspace(0,1,len(array))
       x_out = numpy.linspace(0,1,nb_samples)
@@ -125,8 +136,9 @@ class MyOVBox(OVBox):
       # fill output with interpolation
       chunkBuffer=f(x_out)
     
-    print "Before:", array
-    print "After:", chunkBuffer
+    if self.debug:
+      print "Before:", array
+      print "After:", chunkBuffer
     return chunkBuffer
     
       
