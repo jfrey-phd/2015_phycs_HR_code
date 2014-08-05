@@ -5,8 +5,10 @@
   </stage>
   <stage type="xp">
     <corpus>random</corpus>
+    <!-- each agent is added "nb" times in the end -->
     <agent>
       <HR>medium</HR>
+      <nb>2</nb>
     </agent>
     <agent>
       <HR>human</HR>
@@ -40,7 +42,11 @@
   </stage>
   <stage type="xp">
     <corpus>order</corpus>
-     <nbSentences>4</nbSentences>
+    <agent>
+      <HR>high</HR>
+      <nb>1</nb>
+    </agent>
+    <nbSentences>2</nbSentences>
     <nbSameValence>2</nbSameValence>
   </stage>
   <stage type="title">

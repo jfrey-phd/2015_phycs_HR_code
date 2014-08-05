@@ -12,8 +12,15 @@ public class Agent {
   // use to check if mouth animation should be played in update()
   private AgentSpeak tts;
 
-  // Create the different parts
+
+  // Create the different parts -- by default HR is set to medium
   Agent() {
+    this(Body.HR.MEDIUM);
+  }
+
+  // Create the different parts. HRType: which kind of beat we got for the heart
+  // TODO: handle human, tune heart rates
+  Agent(Body.HR HRType) {
     // Create and position different parts
     head = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
     head.setPos(0, 0);
@@ -28,7 +35,26 @@ public class Agent {
 
     heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH); 
     heart.setPos(600, 600);
-    heart.setBPM(60);
+
+    // deals with heart rate
+    switch(HRType) {
+    case LOW:
+      heart.setBPM(20);
+      break;
+    case HIGH:
+      heart.setBPM(120);
+      break;
+      // our human is almost dead at the moment
+    case HUMAN:
+      heart.setBPM(1);
+      break;
+      // if not recognized: medium by default
+    default:
+      println("Unknown HR type: " + HRType + ", set to medium");
+    case MEDIUM:
+      heart.setBPM(60);
+      break;
+    }
     heart.setAnimationSpeed(45);
 
     // time to add every part to the agent
@@ -64,3 +90,4 @@ public class Agent {
     return wholeBody;
   }
 }
+

@@ -5,17 +5,33 @@ import processing.data.Table;
 import processing.data.TableRow;
 import java.util.Random; 
 
+
+// wrapper for several enum linked to BodyPart or HR type
+
 public class Body {
 
+  // body part type
   public enum Type {
     HEAD, EYES, MOUTH, HEART
   };
 
+  // body part genre
   public enum Genre {
     FEMALE, MALE, BOTH
   };
 
+  // HR type
+  public enum HR {
+    // exact values to be defined by Agent
+    LOW,
+    MEDIUM,
+    HIGH,
+    // will read input from physio
+    HUMAN
+  };
+
   // return the corresponding id for that name
+  // TODO: useless, enum to string is done by java...
   static public String getTypeName(Type type) {
     String typeName = "";
     switch(type) {
@@ -39,6 +55,7 @@ public class Body {
   }
 
   // return the corresponding id for that genre
+  // TODO: useless, enum to string is done by java...
   static public String getGenreName(Genre genre) {
     String genreName = "";
     switch(genre) {
@@ -109,3 +126,4 @@ public class Body {
     return part_number;
   }
 }
+
