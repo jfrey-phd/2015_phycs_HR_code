@@ -35,6 +35,8 @@ void setup() {
   println("Loaded " + CSV_BODY_FILENAME + ", nb rows: " + body_parts.getRowCount());
   Body.setTableParts(body_parts);
 
+  // start up Ess for AgentSpeak and heartbeat
+  Ess.start(this);
   // init for TTS
   tts = new AgentSpeak();
 
@@ -273,5 +275,13 @@ void mouseReleased() {
 // FIXME: also called by Stage...
 void speak() {
   tts.speak();
+}
+
+// close ESS on exit
+// TODO: cleanup other things...
+// FIXME: should use handler...
+public void dispose () {
+  println("Exiting...");
+  Ess.stop();
 }
 
