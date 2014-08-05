@@ -1,5 +1,4 @@
 
-
 // Simple API to call an external script for TTS
 
 public class AgentSpeak {
@@ -17,6 +16,7 @@ public class AgentSpeak {
   private final String PROGRAM_LOCATION = "code/speak.sh";
 
   AgentSpeak() {
+    // set path for TTS script
     TTS_script_cmd = sketchPath("") + PROGRAM_LOCATION;
     println("TTS script location: " + TTS_script_cmd);
   }
@@ -64,3 +64,4 @@ public class AgentSpeak {
     agentText = text;
   }
 }
+

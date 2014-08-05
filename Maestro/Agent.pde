@@ -33,7 +33,8 @@ public class Agent {
     mouth = new BodyPart(Body.Type.MOUTH, Body.Genre.MALE);
     mouth.setPos(150, 475);
 
-    heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH); 
+    // Special case for heart: will play a sound with each beat
+    heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH, "beat.wav"); 
     heart.setPos(600, 600);
 
     // deals with heart rate
@@ -46,7 +47,7 @@ public class Agent {
       break;
       // our human is almost dead at the moment
     case HUMAN:
-      heart.setBPM(1);
+      heart.setBPM(5);
       break;
       // if not recognized: medium by default
     default:
