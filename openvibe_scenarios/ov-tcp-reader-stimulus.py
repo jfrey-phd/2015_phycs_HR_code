@@ -3,6 +3,11 @@ import socket, select
 
 # Box wich reads a stream of strings from TCP *client* and convert them to stimulus (\n as separator).
 
+# WARNING: all white spaces will be lost (should be ok since no stim has white spaces...)
+# WARNING: will ignore all strings which could not be resolved to stimulations
+
+# FIXME: all labels do not seem to work, eg OVTK_StimulationId_TrainCompleted fail in dict OpenViBE_stimulation
+
 # most of the code taken from http://www.binarytides.com/python-socket-server-code-example/
 BUFFER_SIZE = 1024
 
@@ -11,14 +16,8 @@ class MyOVBox(OVBox):
   # the constructor creates the box and initializes object variables
   def __init__(self):
     OVBox.__init__(self)
-    self.stimLabel = None
-    self.stimCode = None
     # list of socket clients
     self.CONNECTION_LIST = []
-    # pending off stim
-    self.off_stim_to_send = False
-    # if so, when to send
-    self.off_stim_time = -1
 
   # the initialize method reads settings and outputs the first header
   def initialize(self):
@@ -36,34 +35,11 @@ class MyOVBox(OVBox):
     self.CONNECTION_LIST.append(self.server_socket)
     print "Chat server started on port " + str(self.port)
     
-    # the stim label is taken from the box setting
-    self.stimLabel = self.setting['Stimulation']
-    # stim send to "disable" VRPN
-    self.stimLabelOff = self.setting['StimulationEnd']
-    # for how long the stim is "on" after sending response
-    # NB: if too short VRPN client may miss events, if too long we won't process pings fast enough
-    self.stimDelay = self.setting['OffDelay']
-    # we get the corresponding code using the OpenViBE_stimulation dictionnary
-    self.stimCode = OpenViBE_stimulation[self.stimLabel]
-    # same for "off"
-    self.stimCodeOff = OpenViBE_stimulation[self.stimLabelOff]
     # we append to the box output a stimulation header. This is just a header, dates are 0.
     self.output[0].append(OVStimulationHeader(0., 0.))
 
   def process(self):
-    # using timing with stimulations doesn't work well with VRPN and we don't have something similar to LUA box:sleep() (??), work out our own solution to send a delayed stimulation
-
-    # if we have a "off" signal pending, deal with it
-    if (self.off_stim_to_send):
-      # if it's not time yet, just wait
-      if self.off_stim_time > self.getCurrentTime():
-        return
-      # *now* we can work
-      else:
-        self.send_stim_off()
-        self.off_stim_to_send = False
-    # no signal to end, we can deal with network
-    else:
+      # we just listen at the moment
       self.listen_net()
 
   # listen and response to network
@@ -99,13 +75,11 @@ class MyOVBox(OVBox):
               print "Client offline, remove from list"
               sock.close()
               self.CONNECTION_LIST.remove(sock)
-          # we got data, send echo, trigger stim and compute off stim
+          # we got data, trigger stim
           elif data != None:
               print "received data: [", data, "]"
-              sock.send(data)
-              self.send_stim_on()
-              self.off_stim_to_send = True
-              self.off_stim_time = self.getCurrentTime()+float(self.stimDelay)
+              # remove white space at the same time
+              self.send_stim(data.strip())
       
   def uninitialize(self):
     # we send a stream end.
@@ -120,20 +94,23 @@ class MyOVBox(OVBox):
     # close server socket
     self.server_socket.close();
     
-  # send ON stimulation to external world
-  def send_stim_on(self):
-    # A stimulation set is a chunk which starts at current time and end time is the time step between two calls
-    stimSet = OVStimulationSet(self.getCurrentTime(), self.getCurrentTime()+1./self.getClock())
-    # the date of the stimulation is simply the current openvibe time when calling the box process
-    stimSet.append(OVStimulation(self.stimCode, self.getCurrentTime(), 0.))
-    self.output[0].append(stimSet)
-
-  # send OFF stimulation to external world
-  def send_stim_off(self):
-    # New stim to end VRPN button
-    stimSetOff = OVStimulationSet(self.getCurrentTime(), self.getCurrentTime()+1./self.getClock())
-    # the date of the stimulation is simply the current openvibe time when calling the box process
-    stimSetOff.append(OVStimulation(self.stimCodeOff, self.getCurrentTime(), 0.))
-    self.output[0].append(stimSetOff) 
+  # send stimulation to external world
+  # white spaces should have been removed at this point
+  def send_stim(self, label):
+    print "Got label: ", label
+     # we get the corresponding code using the OpenViBE_stimulation dictionnary
+    try:
+      stimCode = OpenViBE_stimulation[label]
+    # an exception means lookup failed in dict label:code
+    except:
+      print "Cannot get corresponding code, ignoring"
+    # at this point we got a stimulation
+    else:
+      print "Corresponding code: ", stimCode
+      # A stimulation set is a chunk which starts at current time and end time is the time step between two calls
+      stimSet = OVStimulationSet(self.getCurrentTime(), self.getCurrentTime()+1./self.getClock())
+      # the date of the stimulation is simply the current openvibe time when calling the box process
+      stimSet.append(OVStimulation(stimCode, self.getCurrentTime(), 0.))
+      self.output[0].append(stimSet)
 
 box = MyOVBox()
