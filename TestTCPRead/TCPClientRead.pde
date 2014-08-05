@@ -9,11 +9,13 @@ public class TCPClientRead {
   // TCP client for openvibe stimulations events
   private Client ov_TCPclient;
   // IP/port info
-  String IP = "127.0.0.1";
-  int Port = 11000;
+  private String IP = "127.0.0.1";
+  private int Port = 11000;
+  // String used to as terminal character while sending messages
+  private final String STIM_SEPARATOR = "\n";
   // pointer to main prog in order to create new Client here... and to inform about beats
   // TODO: improve encapsulation
-  TestTCPRead mainProg;
+  private TestTCPRead mainProg;
 
   // if connection is lost, will wait before tying to reco (in ms)
   private final float TCP_RETRY_DELAY = 2000;
@@ -69,12 +71,12 @@ public class TCPClientRead {
       // append eventual partial message from a previous broken code
       String input = broken_msg+ov_TCPclient.readString();
       // if not terminated by line return, there's a problem
-      if (!input.substring(input.length() - 1).equals("\n")) {
+      if (!input.substring(input.length() - 1).equals(STIM_SEPARATOR)) {
         println("============== Error ===============");
         mes_OK = false;
       }
       // If we only had on code which is broken, add it to buffer and lea
-      String str[]=input.split("\n");
+      String str[]=input.split(STIM_SEPARATOR);
 
       // stop before last, because message can be incomplete
       for (int i=0; i<str.length - 1; i++) {

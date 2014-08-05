@@ -4,5 +4,5 @@
 // config for beat detection
 boolean enableBeatTCP = true; 
 String BeatIP = "127.0.0.1";
-int BeatPort = 11000;
+int BeatPort = 11001;
 

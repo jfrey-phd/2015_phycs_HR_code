@@ -1,5 +1,6 @@
 import processing.net.*;
-import java.util.Stack;
+import java.util.Queue;
+import java.util.LinkedList;
 
 // will connect to a TCP server, wirte stims (strings terminated by '\n')
 // if connection fail, will try again and again every xx seconds
@@ -11,14 +12,16 @@ public class TCPClientWrite {
   // TCP client for openvibe stimulations events
   private Client ov_TCPclient;
   // IP/port info
-  String IP = "127.0.0.1";
-  int Port = 11000;
+  private String IP = "127.0.0.1";
+  private int Port = 11001;
+  // string used to as terminal character while sending messages
+  private final String STIM_SEPARATOR = "\n";
   // pointer to main prog in order to create new Client here
   // TODO: improve encapsulation
-  PApplet mainProg;
+  private PApplet mainProg;
 
   // pending messages
-  private Stack<String> mesStack;
+  private Queue<String> mesQueue;
 
   // if connection is lost, will wait before tying to reco (in ms)
   private final float TCP_RETRY_DELAY = 2000;
@@ -41,8 +44,8 @@ public class TCPClientWrite {
       println( "Connection failed, will try again in " + TCP_RETRY_DELAY + "ms.");
       TCPlastAttempt = millis();
     }
-    // new stack for our messages if something goes wrong
-    mesStack = new Stack<String>();
+    // new queue for our messages if something goes wrong
+    mesQueue = new LinkedList<String>();
   }
 
   // try to reconnect if connection is broken
@@ -61,15 +64,15 @@ public class TCPClientWrite {
     }
 
     // try to send messages in queue if connection is active
-    if (!mesStack.empty() && ov_TCPclient.active()) {
-      println("Time to free stack.");
-      while (!mesStack.empty ()) {
-        println(mesStack.size() + " messages pending");
+    if (mesQueue.size() > 0 && ov_TCPclient.active()) {
+      println("Time to free queue.");
+      while (mesQueue.size () > 0) {
+        println(mesQueue.size() + " messages pending");
         // get ref to oldest message
-        String heap = mesStack.peek();
+        String heap = mesQueue.peek();
         // if we manage to send it now, remove it for good
         if (writeOrQueue(heap, false)) {
-          mesStack.pop();
+          mesQueue.remove();
         }
         // no need to try furthermore if an error occured
         else {
@@ -81,8 +84,9 @@ public class TCPClientWrite {
   }
 
   // write stim code to socket, enqueue if can't do that
-  // enqueue: adds message to stack if true (we do not want to push a message already in the stack that we're trying to re-send)
+  // enqueue: adds message to queue if true (we do not want to push a message already in the queue that we're trying to re-send)
   // return true if message sent
+  // NB: adds separator '\n'
   private boolean writeOrQueue(String stimCode, boolean enqueue) {
     // has me message gone through?
     boolean sent = false;
@@ -93,7 +97,7 @@ public class TCPClientWrite {
     if (ov_TCPclient.active()) {
       // double check
       try {
-        ov_TCPclient.write(stimCode);
+        ov_TCPclient.write(stimCode+STIM_SEPARATOR);
         // if we got here, it's all good
         sent = true;
       }
@@ -106,17 +110,17 @@ public class TCPClientWrite {
       println("Connection disabled");
     }
 
-    // time to check if we need to add message to stack
+    // time to check if we need to add message to queue
     if (!sent && enqueue) {
-      mesStack.push(stimCode);
-      println("Message adedd to stack, now " + mesStack.size() + " pending.");
+      mesQueue.add(stimCode);
+      println("Message adedd to queue, now " + mesQueue.size() + " pending.");
     }
 
     return sent;
   }
 
-  // return true if message sent right away
-  // false if put in stack
+  // send stimCode to TCP (will handle separator '\n')
+  // return true if message sent right away, false if put in queue
   // WARNING: do not send message which contain '\n', will split stim in the end
   public boolean write(String stimCode) {
     // we don't want to loose messages from clients

@@ -17,11 +17,11 @@ void draw() {
 void keyPressed() {
   // debug TTS
   if (key == ' ') {
-    writeStims.write("into_space!\n");
+    writeStims.write("into_space!");
   }
   // speak sad
   else {
-    writeStims.write("unknown_key\n");
+    writeStims.write("unknown_key");
   }
 }
 
