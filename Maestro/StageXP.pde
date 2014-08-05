@@ -1,21 +1,27 @@
 
-
+import java.util.Locale;
 
 // a stage which handles agents, will disable by itself when job's done
+// agents are randomely generated, exept for HR which is set by XML.
+// once agents (HR conditions) are added to the list, the new agent will be randomely 
 
 public class StageXP extends Stage {
 
   // state for keeping track of what we have to do
   private StageState.XP curState = StageState.XP.INIT;
 
-  // array list of likert scale for sentences
-  ArrayList<LikertScale> likertsSentence; 
-  // array list of  likert scale for agent
-  ArrayList<LikertScale> likertsAgent; 
+  // array list for agents conditions -- here we just to store HR
+  // NB: element of lists are removed when a new agent is created
+  private ArrayList<Body.HR> HRs;
 
-  // for XP
-  Agent agent;
-  AgentSpeak tts;
+  // array list of likert scale for sentences
+  private ArrayList<LikertScale> likertsSentence; 
+  // array list of  likert scale for agent
+  private ArrayList<LikertScale> likertsAgent; 
+
+  // current agent and tts system
+  private Agent agent;
+  private AgentSpeak tts;
   // total number of sentence per agent/same valence in a raw
   private int nbSentences = -1;
   private int nbSameValence = -1;
@@ -28,9 +34,10 @@ public class StageXP extends Stage {
 
   // constructor for xp, create new agent, link it against AgentSpeak if available
   StageXP(AgentSpeak tts, int nbSentences, int nbSameValence) {
-    // init variables, list for likerts 
+    // init variables, list for likerts and HRs
     this.nbSentences = nbSentences;
     this.nbSameValence = nbSameValence;
+    HRs = new ArrayList<Body.HR>();
     likertsAgent = new ArrayList<LikertScale>();
     likertsSentence = new ArrayList<LikertScale>();
 
@@ -39,12 +46,37 @@ public class StageXP extends Stage {
   }
 
   // will create/reset agent
+  // new agent, randomely selected among HR conditions left, removing from stack
+  // TODO: randomize TTS
   private void createAgent() {
-    println("(re)creating agent");
-    // init for drawing / BPM
-    agent = new Agent();
-    // point to TTS
-    agent.setTTS(tts);
+    if (HRs.size() > 0) {
+      // randomely select an index from array and get element
+      int index = int(random(HRs.size()));
+      Body.HR HRType = HRs.get(index);
+      println("Creating new agent: selects id=" + (index + 1) + "/" + HRs.size() + ", type: " + HRType);
+      // creates according agent, remove HR condition from list
+      agent = new Agent(HRType);
+      HRs.remove(index);
+      // point to TTS
+      agent.setTTS(tts);
+    }
+    // should not happen -- update() in START already checks this
+    else {
+      println("Error: no more HR conditions for new agents");
+    }
+  }
+
+  // add a new agent condition to the stage * nbTimes
+  // at least one for something to appear...
+  public void pushAgent(String type, int nbTimes) {
+    // convert from lower case string to enum
+    // see javadoc for comment about locale selection
+    Body.HR HRType = Body.HR.valueOf(type.toUpperCase(Locale.ENGLISH));
+    println("Adding " + nbTimes + " agents of type " + HRType);
+    // as many agent as they want
+    for (int i = 0; i < nbTimes; i++) {
+      HRs.add(HRType);
+    }
   }
 
   // high-level function for pushing likert to stack
@@ -105,12 +137,21 @@ public class StageXP extends Stage {
       curState = StageState.XP.START;
       println("State: " + curState);
       break;
-      // new agent
-      // TODO: handle agent list
+      // will ask for the creation of a new agent, reset sentences counters
+      // if no more agents: END of xp
     case START:
-      createAgent();
-      curState = StageState.XP.AGENT_START;
-      println("State: " + curState);
+      if (HRs.size() == 0) {
+        curState = StageState.XP.STOP;
+        println("State: " + curState);
+      }
+      else {
+        createAgent();
+        curState = StageState.XP.AGENT_START;
+        println("State: " + curState);
+        // start a new batch
+        curSentenceNb = 0;
+        curSameValence = 0;
+      }
       break;
     case AGENT_START:
       // still at least one sentence to be told
@@ -219,14 +260,13 @@ public class StageXP extends Stage {
         startTimer(TIMER_DURATION);
       }
       break; 
-      // likert done: stop agent, reset agent likerts for next use (? should not happen)
-      // TODO: back to start when agent list
+      // likert done: stop agent, reset agent likerts for next use (? should not happen), back to START
     case LIKERT_AGENT_STOP:
       if (isTimeOver()) {
         for (int i = 0; i < likertsAgent.size(); i++) {
           likertsAgent.get(i).reset();
         }
-        curState = StageState.XP.STOP;
+        curState = StageState.XP.START;
         println("State: " + curState);
       }
       break;
@@ -357,3 +397,4 @@ public class StageXP extends Stage {
     }
   }
 } 
+

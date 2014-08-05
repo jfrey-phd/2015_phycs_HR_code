@@ -108,7 +108,6 @@ void loadStages() {
 
       // time to look for likert scale and to push them to current stage
       XML likerts[] = child.getChildren("likert");
-
       println("Found " + likerts.length + " likert scales");
 
       for (int j = 0; j < likerts.length; j++) {
@@ -135,6 +134,36 @@ void loadStages() {
 
         println("Likert: " + question, ", likert type: " + likert_type);
         stage.pushLikert(likert_type, question, nbButtons, from, neutral, to);
+      }
+
+      // last but not least: check for agents
+      XML agents[] = child.getChildren("agent");
+      println("Found " + agents.length + " agents");
+
+      for (int j = 0; j < agents.length; j++) {
+        XML agent_xml = agents[j];
+        // try to find HR tag
+        String HRType = "";
+        try {
+          HRType = agent_xml.getChild("HR").getContent();
+          println("Found HR="+HRType);
+        }
+        catch(Exception e) {
+          println("Can't find HR condition");
+        }
+
+        // try to find how may times we show it -- by default once
+        int timesAgent = 1;
+        try {
+          timesAgent = agent_xml.getChild("nb").getIntContent();
+          println("Found nb times agent="+timesAgent);
+        }
+        catch(Exception e) {
+          println("Can't find nb times agent condition");
+        }
+
+        // push to stage
+        stage.pushAgent(HRType, timesAgent);
       }
     }
     else {
@@ -240,9 +269,9 @@ void mouseReleased() {
   }
 }
 
-
 // wrapper for tts.speak in order to use thread()
 // FIXME: also called by Stage...
 void speak() {
   tts.speak();
 }
+
