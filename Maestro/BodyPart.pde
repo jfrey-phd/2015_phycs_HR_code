@@ -1,8 +1,8 @@
 
 // A body part will draw and animate a specific element of the agent
 
-// HEART is a special type: will trigger an audio sound via ESS
-// WARING: ESS need to be initialized beforehand ; put "Ess.start(this)" in setup()
+// Possible to trigger an audio sound via ESS with each beat
+// WARING: In this case ESS need to be initialized beforehand ; put "Ess.start(this)" in setup()
 
 public class BodyPart {
 
@@ -36,11 +36,16 @@ public class BodyPart {
   private int part_number;
 
   // use ESS r2 lib to read audio file
-  // TODO: make it generic
   AudioChannel beat;  
 
   // set type and load model (randomize part if loadParts() has been called)
   BodyPart(Body.Type type, Body.Genre genre) {
+    // no ref to an audio file by default
+    this(type, genre, null);
+  }
+
+  // with this constructor, possible to define a sound to be played for each animation
+  BodyPart(Body.Type type, Body.Genre genre, String beatAudioFile) {
     this.type = type;
     this.genre = genre;
     // get randomized number
@@ -60,10 +65,11 @@ public class BodyPart {
       frames.get(current_frame).setVisible(true);
     }
 
-    // if it's an heart, special case, will use audio
-    if (type == Body.Type.HEART) {
+    // if option is set, will use audio
+    if (beatAudioFile != null && !beatAudioFile.equals("")) {
+      println("Will use audio file for beats: " + beatAudioFile);
       // load audio beat
-      beat = new AudioChannel("beat.wav");
+      beat = new AudioChannel(beatAudioFile);
     }
   }
 
@@ -181,9 +187,9 @@ public class BodyPart {
     if (current_frame != 0 || frames.size() < 2) {
       return false;
     }
-    if (type == Body.Type.HEART) {
-      beat();
-    }
+    // tries to trigger audio
+    beat();
+    // return and set flag to true for update()
     return start_anim = true;
   }
 
@@ -196,14 +202,15 @@ public class BodyPart {
     return bodyPart;
   }
 
-  // plays the heartbeat sound
+  // plays the heartbeat sound if option set
   // (does not interrupt program)
   private void beat() {
-    // don't mess with null pointer if not initialized -- we are not a heart, obviously
+    // don't go further if no audio file has been set
     if (beat == null) {
       return;
     }
     //reset beat -- with 3ms we avoid noise when play() too close??
+    // FIXE: little chance it's the same fore every audio file
     beat.cue(beat.frames(3));
     // got the beat !
     beat.play();

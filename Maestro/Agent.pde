@@ -33,7 +33,8 @@ public class Agent {
     mouth = new BodyPart(Body.Type.MOUTH, Body.Genre.MALE);
     mouth.setPos(150, 475);
 
-    heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH); 
+    // Special case for heart: will play a sound with each beat
+    heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH, "beat.wav"); 
     heart.setPos(600, 600);
 
     // deals with heart rate
