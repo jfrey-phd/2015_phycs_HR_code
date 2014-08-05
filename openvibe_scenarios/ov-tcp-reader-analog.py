@@ -2,11 +2,16 @@
 import socket, traceback, numpy
 from scipy.interpolate import interp1d
 
+# Box wich reads a stream of strings from TCP and convert them to signal (\n as separator).
+
+# Select Interpolation method in openvibe, use an int:
+# 0: linear (default)
+# 1: cubic
+# 2: nearest
+
 BUFFER_SIZE = 2048
 # in seconds, how long do we wait between two connection attempts
 WAITTIME_BEFORE_RECO = 0.5
-
-connected =  False
 
 # NB: does not write anyting, simply listen to server data
 
@@ -33,6 +38,8 @@ class MyOVBox(OVBox):
     self.lastValue = 0
     # will spam stdout if True
     self.debug = False
+    # interpolation method, see class header for help
+    self.interpolation = 'linear'
 
   # the initialize method reads settings and outputs the first header
   def initialize(self):
@@ -49,6 +56,29 @@ class MyOVBox(OVBox):
     # get debug flag from GUI
     self.debug = (self.setting['Debug']=="true")
     
+    interpolation_code = 0
+    # try to recover interpolation method
+    interpolation_code = 0
+    try:
+      # set as an int from box settings
+      interpolation_code = int(self.setting['Interpolation method'])
+    except:
+      print "Couldn't find interpolation method"
+    else:
+      # only 0/1/2, otherwise back to default 0
+      if (interpolation_code < 0) or (interpolation_code > 2):
+        print "Bad interpolation selected (" + str(interpolation_code) + "), back to default"
+        interpolation_code = 0
+    
+    # convert code to method name
+    if interpolation_code == 1:
+      self.interpolation = 'cubic'
+    elif interpolation_code == 2:
+      self.interpolation = 'nearest'
+    else:
+      self.interpolation = 'linear'
+    print "Interpolation method: " + str(self.interpolation)
+
     #creation of the signal header -- simplified code with one channel at the moment
     self.dimensionLabels.append( 'Chan1')
     self.dimensionLabels += self.epochSampleCount*['']
@@ -130,9 +160,8 @@ class MyOVBox(OVBox):
       # two spaces: in and out
       x_in = numpy.linspace(0,1,len(array))
       x_out = numpy.linspace(0,1,nb_samples)
-      # use cubic interpolation for smoother data
-      # TODO: box parameter for interpolation kind
-      f = interp1d(x_in, array, kind='cubic')
+      # interpolation data, using the method seleced by the user
+      f = interp1d(x_in, array, kind=self.interpolation)
       # fill output with interpolation
       chunkBuffer=f(x_out)
     
