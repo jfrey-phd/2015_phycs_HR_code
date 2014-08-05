@@ -2,7 +2,7 @@
 import socket, traceback, numpy
 from scipy.interpolate import interp1d
 
-# Box wich reads a stream of strings from TCP and convert them to signal (\n as separator).
+# Box wich reads a stream of strings from TCP *server* and convert them to signal (\n as separator).
 
 # Select Interpolation method in openvibe, use an int:
 # 0: linear (default)
@@ -249,9 +249,9 @@ class MyOVBox(OVBox):
       self.broken_msg=""
     # last code
     last = strs[len(strs)-1]
-    # if message is broken, then save it in the right buffer (which could hold already something if the same code is split across several "packets")
+    # if message is broken, then save it in the right buffer (won't lost data if one code is split across several "packets", because buffer has already be concatenated to input_message)
     if not(mes_OK):
-      self.broken_msg += last
+      self.broken_msg = last
       #print "====partial code: " +  self.broken_msg
     # everything ok, treat the same the last element
     else:
