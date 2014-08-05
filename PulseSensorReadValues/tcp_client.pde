@@ -72,9 +72,9 @@ void listen_TCP()
     }
     // last code
     String last = str[str.length - 1];
-    // if message is broken, then save it in the right buffer (which could hold already something if the same code is split across several "packets")
+    // if message is broken, then save it in the right buffer (won't lost data if one code is split across several "packets", because buffer has already be concatenated to input_message)
     if (!mes_OK) {
-      broken_msg += last;
+      broken_msg = last;
       println("====partial code: " +  broken_msg);
     }
     // everything ok, treat the same the last element
