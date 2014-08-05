@@ -18,6 +18,8 @@ class MyOVBox(OVBox):
     OVBox.__init__(self)
     # list of socket clients
     self.CONNECTION_LIST = []
+    # each client has its corresponding broken message
+    self.broken_msg = {}
 
   # the initialize method reads settings and outputs the first header
   def initialize(self):
@@ -33,6 +35,7 @@ class MyOVBox(OVBox):
     self.server_socket.listen(1)
     # Add server socket to the list of readable connections
     self.CONNECTION_LIST.append(self.server_socket)
+    self.broken_msg[self.server_socket] = ""
     print "Chat server started on port " + str(self.port)
     
     # we append to the box output a stimulation header. This is just a header, dates are 0.
@@ -54,6 +57,8 @@ class MyOVBox(OVBox):
           # Handle the case in which there is a new connection recieved through server_socket
           sockfd, addr = self.server_socket.accept()
           self.CONNECTION_LIST.append(sockfd)
+          # init corresponding value for broken_msg
+          self.broken_msg[sockfd]=""
           print "Client (%s, %s) connected" % addr
       #data pending
       else:
@@ -68,19 +73,63 @@ class MyOVBox(OVBox):
               #broadcast_data(sock, "Client (%s, %s) is offline" % addr)
               print "Error while reading, remove client"
               sock.close()
+              # remove socket from list and cleanup dictionnary
               self.CONNECTION_LIST.remove(sock)
+              del self.broken_msg[sock]
               continue
           # empty string == deco
           if data != None and data == "":
               print "Client offline, remove from list"
               sock.close()
               self.CONNECTION_LIST.remove(sock)
-          # we got data, trigger stim
+              del self.broken_msg[sock]
+          # we got data, dig into ittrigger stim
           elif data != None:
               print "received data: [", data, "]"
-              # remove white space at the same time
-              self.send_stim(data.strip())
+              self.process_data(data, sock)
       
+  # get data from network and makes proper label (split strings/reconstruct messages if needed)
+  # since each client has its own state, need socket
+  # (code from ov-tcp-reader-analog)
+  def process_data(self, data, sock):
+    # debug
+    if self.broken_msg[sock] != "":
+      print "====concatenating [" + self.broken_msg[sock] + "]"
+      
+    # flag to check for carriage return
+    mes_OK = True
+    # Retrieve data, each line should correspond to one stimulation
+    # append eventual partial message from a previous broken code
+    input_message = self.broken_msg[sock]+data
+    # if not terminated by line return, there's a problem
+    if input_message[len(input_message)-1] != '\n':
+      print "============== Error ==============="
+      mes_OK = False
+    
+    # on carriage return == one value
+    # WARNING: compared to java algo, trailing \n will produce empty elements
+    strs=input_message.split('\n')
+
+    # stop before last, because message can be incomplete
+    for i in range(0, len(strs)-1):
+      print "received: [" + strs[i] + "]"
+      # see what it can do...
+      self.send_stim(strs[i])
+      # if we are in this loop (at least one code ending with line return), then last broken message has been sent
+      self.broken_msg[sock]=""
+    # last code
+    last = strs[len(strs)-1]
+    # if message is broken, then save it in the right buffer (which could hold already something if the same code is split across several "packets")
+    if not(mes_OK):
+      self.broken_msg[sock] += last
+      print "====partial code: " +  self.broken_msg[sock]
+    # everything ok, treat the same the last element
+    else:
+      print "received: [" + last + "]"
+      self.send_stim(last)
+      # if the last chunk is ok, we don't have any pending broken message
+      self.broken_msg[sock]=""
+    
   def uninitialize(self):
     # we send a stream end.
     end = self.getCurrentTime()
@@ -97,20 +146,22 @@ class MyOVBox(OVBox):
   # send stimulation to external world
   # white spaces should have been removed at this point
   def send_stim(self, label):
-    print "Got label: ", label
-     # we get the corresponding code using the OpenViBE_stimulation dictionnary
-    try:
-      stimCode = OpenViBE_stimulation[label]
-    # an exception means lookup failed in dict label:code
-    except:
-      print "Cannot get corresponding code, ignoring"
-    # at this point we got a stimulation
-    else:
-      print "Corresponding code: ", stimCode
-      # A stimulation set is a chunk which starts at current time and end time is the time step between two calls
-      stimSet = OVStimulationSet(self.getCurrentTime(), self.getCurrentTime()+1./self.getClock())
-      # the date of the stimulation is simply the current openvibe time when calling the box process
-      stimSet.append(OVStimulation(stimCode, self.getCurrentTime(), 0.))
-      self.output[0].append(stimSet)
+    # don't bother with empty value (split does that)
+    if label != '':
+      print "Got label: ", label
+      # we get the corresponding code using the OpenViBE_stimulation dictionnary
+      try:
+        stimCode = OpenViBE_stimulation[label]
+      # an exception means lookup failed in dict label:code
+      except:
+        print "Cannot get corresponding code, ignoring"
+      # at this point we got a stimulation
+      else:
+        print "Corresponding code: ", stimCode
+        # A stimulation set is a chunk which starts at current time and end time is the time step between two calls
+        stimSet = OVStimulationSet(self.getCurrentTime(), self.getCurrentTime()+1./self.getClock())
+        # the date of the stimulation is simply the current openvibe time when calling the box process
+        stimSet.append(OVStimulation(stimCode, self.getCurrentTime(), 0.))
+        self.output[0].append(stimSet)
 
 box = MyOVBox()

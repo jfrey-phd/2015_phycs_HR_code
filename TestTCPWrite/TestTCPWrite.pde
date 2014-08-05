@@ -15,13 +15,13 @@ void draw() {
 
 // send stims when key press
 void keyPressed() {
-  // debug TTS
+  // send label 1
   if (key == ' ') {
-    writeStims.write("into_space!");
+    writeStims.write("OVTK_StimulationId_Label_01");
   }
-  // speak sad
+  // default code
   else {
-    writeStims.write("unknown_key");
+    writeStims.write("OVTK_GDF_Incorrect");
   }
 }
 
