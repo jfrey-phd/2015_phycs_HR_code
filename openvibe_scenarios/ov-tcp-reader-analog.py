@@ -2,11 +2,16 @@
 import socket, traceback, numpy
 from scipy.interpolate import interp1d
 
+# Box wich reads a stream of strings from TCP and convert them to signal (\n as separator).
+
+# Select Interpolation method in openvibe, use an int:
+# 0: linear (default)
+# 1: cubic
+# 2: nearest
+
 BUFFER_SIZE = 2048
 # in seconds, how long do we wait between two connection attempts
 WAITTIME_BEFORE_RECO = 0.5
-
-connected =  False
 
 # NB: does not write anyting, simply listen to server data
 
@@ -19,6 +24,7 @@ class MyOVBox(OVBox):
     
     # for sending data to openvibe
     # WARNING: too high and interpolation will occur, too low and data will be decimated... depending on chunk size.
+    # TODO: set frequency and epochs with openvibe
     self.samplingFrequency = 512
     # big chunk for closer interpolation/decimation
     self.epochSampleCount = 128
@@ -31,6 +37,10 @@ class MyOVBox(OVBox):
     self.signalHeader = None
     # useful if not enough data (0 or 1 value)
     self.lastValue = 0
+    # will spam stdout if True
+    self.debug = False
+    # interpolation method, see class header for help
+    self.interpolation = 'linear'
 
   # the initialize method reads settings and outputs the first header
   def initialize(self):
@@ -44,7 +54,32 @@ class MyOVBox(OVBox):
     self.connect_to_server()
     # FIXME: a list is not efficient
     self.buffer = []
+    # get debug flag from GUI
+    self.debug = (self.setting['Debug']=="true")
     
+    interpolation_code = 0
+    # try to recover interpolation method
+    interpolation_code = 0
+    try:
+      # set as an int from box settings
+      interpolation_code = int(self.setting['Interpolation method'])
+    except:
+      print "Couldn't find interpolation method"
+    else:
+      # only 0/1/2, otherwise back to default 0
+      if (interpolation_code < 0) or (interpolation_code > 2):
+        print "Bad interpolation selected (" + str(interpolation_code) + "), back to default"
+        interpolation_code = 0
+    
+    # convert code to method name
+    if interpolation_code == 1:
+      self.interpolation = 'cubic'
+    elif interpolation_code == 2:
+      self.interpolation = 'nearest'
+    else:
+      self.interpolation = 'linear'
+    print "Interpolation method: " + str(self.interpolation)
+
     #creation of the signal header -- simplified code with one channel at the moment
     self.dimensionLabels.append( 'Chan1')
     self.dimensionLabels += self.epochSampleCount*['']
@@ -77,23 +112,28 @@ class MyOVBox(OVBox):
     start = self.timeBuffer[0]
     end = self.timeBuffer[-1] + 1./self.samplingFrequency
     #bufferElements = self.signalBuffer.reshape(self.epochSampleCount).tolist()
-    print "buffer size: " + str(len(self.buffer))
+    if self.debug:
+      print "buffer size: " + str(len(self.buffer))
     # the chunk we gonna fill
     chunkBuffer = numpy.zeros(self.epochSampleCount);
-    print "chunk size: " + str(self.epochSampleCount)
+    if self.debug:
+      print "chunk size: " + str(self.epochSampleCount)
     
     #if buffer empty, give it at least one element
     if len(self.buffer) < 1:
       self.buffer.append(self.lastValue)
-      print "Empty buffer, put last value: " + str(self.lastValue)
+      if self.debug:
+        print "Empty buffer, put last value: " + str(self.lastValue)
     
     # we will have to adapt sigal to fit openvibe requisite
     if len(self.buffer) != self.epochSampleCount:
-      print "Damn, buffer and chunk len mismatch"
+      if self.debug:
+        print "Damn, buffer and chunk len mismatch"
       chunkBuffer=self.resample(numpy.asarray(self.buffer), self.epochSampleCount)
     # won't happen often, just have to copy
     else:
-      print "Lucky: same size for buffer and chunk"
+      if self.debug:
+        print "Lucky: same size for buffer and chunk"
       for i in range(0, min(len(self.buffer), len(chunkBuffer))):
         chunkBuffer[i]=self.buffer[i]
       
@@ -106,27 +146,29 @@ class MyOVBox(OVBox):
     
     # got no data, won't return any data
     if (len(array) == 0):
-      print "Empty array, can't seek any data"
+      if self.debug:
+        print "Empty array, can't seek any data"
     # with one element we won't interpolate much, just replicate the one item
     elif (len(array) == 1):
       chunkBuffer = chunkBuffer+array[0]
     # the real scenario!
     else:
-      if len(array) < nb_samples:
-        print "Oversampling!"
-      else:
-        print "Decimation!"
+      if self.debug:
+        if len(array) < nb_samples:
+          print "Oversampling!"
+        else:
+          print "Decimation!"
       # two spaces: in and out
       x_in = numpy.linspace(0,1,len(array))
       x_out = numpy.linspace(0,1,nb_samples)
-      # use cubic interpolation for smoother data
-      # TODO: box parameter for interpolation kind
-      f = interp1d(x_in, array, kind='cubic')
+      # interpolation data, using the method seleced by the user
+      f = interp1d(x_in, array, kind=self.interpolation)
       # fill output with interpolation
       chunkBuffer=f(x_out)
     
-    print "Before:", array
-    print "After:", chunkBuffer
+    if self.debug:
+      print "Before:", array
+      print "After:", chunkBuffer
     return chunkBuffer
     
       
