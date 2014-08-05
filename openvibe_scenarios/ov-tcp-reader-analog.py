@@ -2,7 +2,7 @@
 import socket, traceback, numpy
 from scipy.interpolate import interp1d
 
-# Box wich reads a stream of strings from TCP and convert them to signal (\n as separator).
+# Box wich reads a stream of strings from TCP *server* and convert them to signal (\n as separator).
 
 # Select Interpolation method in openvibe, use an int:
 # 0: linear (default)
