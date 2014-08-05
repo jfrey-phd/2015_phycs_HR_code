@@ -2,7 +2,7 @@ import processing.net.*;
 
 // will connect to a TCP server, listen for data (strings terminated by '\n') and trigger events
 // if connection fail, will try again and again every xx seconds
-// NB: do no write nothing
+// NB: do not write nothing
 
 public class TCPClientRead {
 
