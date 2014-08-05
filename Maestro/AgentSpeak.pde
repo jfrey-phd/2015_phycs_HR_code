@@ -1,9 +1,5 @@
 
-
 // Simple API to call an external script for TTS
-// ...and to play heart beat for simplification sake
-
-// WARING: ESS need to be initialized beforehand ; put "Ess.start(this)" in setup()
 
 public class AgentSpeak {
 
@@ -19,15 +15,10 @@ public class AgentSpeak {
   // in case I want to move it elsewhere...
   private final String PROGRAM_LOCATION = "code/speak.sh";
 
-  // use ESS r2 lib to read audio file
-  AudioChannel beat;  
-
   AgentSpeak() {
     // set path for TTS script
     TTS_script_cmd = sketchPath("") + PROGRAM_LOCATION;
     println("TTS script location: " + TTS_script_cmd);
-    // load audio beat
-    beat = new AudioChannel("beat.wav");
   }
 
   // will interrupt program if not called with thread()
@@ -71,15 +62,6 @@ public class AgentSpeak {
   // set next text to be spoke
   public void setText(String text) {
     agentText = text;
-  }
-
-  // plays the heartbeat sound
-  // (does not interrupt program)
-  public void beat() {
-    //reset beat -- with 3ms we avoid noise when play() too close??
-    beat.cue(beat.frames(3));
-    // got the beat !
-    beat.play();
   }
 }
 

@@ -46,7 +46,7 @@ public class Agent {
       break;
       // our human is almost dead at the moment
     case HUMAN:
-      heart.setBPM(1);
+      heart.setBPM(5);
       break;
       // if not recognized: medium by default
     default:

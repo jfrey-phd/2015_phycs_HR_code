@@ -1,5 +1,9 @@
 
 // A body part will draw and animate a specific element of the agent
+
+// HEART is a special type: will trigger an audio sound via ESS
+// WARING: ESS need to be initialized beforehand ; put "Ess.start(this)" in setup()
+
 public class BodyPart {
 
   private Body.Type type;
@@ -31,6 +35,10 @@ public class BodyPart {
   // which part ID we are
   private int part_number;
 
+  // use ESS r2 lib to read audio file
+  // TODO: make it generic
+  AudioChannel beat;  
+
   // set type and load model (randomize part if loadParts() has been called)
   BodyPart(Body.Type type, Body.Genre genre) {
     this.type = type;
@@ -50,6 +58,12 @@ public class BodyPart {
     if (frames.size() > 0) {
       current_frame = 0;
       frames.get(current_frame).setVisible(true);
+    }
+
+    // if it's an heart, special case, will use audio
+    if (type == Body.Type.HEART) {
+      // load audio beat
+      beat = new AudioChannel("beat.wav");
     }
   }
 
@@ -96,7 +110,8 @@ public class BodyPart {
     int tick = millis();
 
     if (next_BPM > 0 && tick > last_beat + 60000/next_BPM) {
-      start_anim = true;
+      // set anim flag and play audio beat if exists
+      animate();
       last_beat = tick;
       // adjust BPM with variability
       next_BPM = BPM + random(-BPM_variability, BPM_variability);
@@ -160,11 +175,14 @@ public class BodyPart {
     return Body.getTypeName(type) + Body.getGenreName(genre);
   }
 
-  // start a new animation
+  // start a new animation, triggers beat sound for heart
   // return false if it is not possible -- already ocurring or no more than 1 frame
   public boolean animate() {
     if (current_frame != 0 || frames.size() < 2) {
       return false;
+    }
+    if (type == Body.Type.HEART) {
+      beat();
     }
     return start_anim = true;
   }
@@ -177,4 +195,18 @@ public class BodyPart {
   public PShape getPShape() {
     return bodyPart;
   }
+
+  // plays the heartbeat sound
+  // (does not interrupt program)
+  private void beat() {
+    // don't mess with null pointer if not initialized -- we are not a heart, obviously
+    if (beat == null) {
+      return;
+    }
+    //reset beat -- with 3ms we avoid noise when play() too close??
+    beat.cue(beat.frames(3));
+    // got the beat !
+    beat.play();
+  }
 }
+
