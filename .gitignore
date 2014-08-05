@@ -8,3 +8,6 @@ build/*
 # don't want everyone to use tweak mode
 sketch.properties
 
+# we don't care about recondings
+recordings
+
