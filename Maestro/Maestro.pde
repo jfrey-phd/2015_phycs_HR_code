@@ -27,6 +27,7 @@ int WINDOW_Y = 1000;
 void setup() {
   // init logs
   Diary.applet = this;
+  Diary.printStack = printStack;
   // using 2D backend as we won't venture in 3D realm
   size(WINDOW_X, WINDOW_Y, P2D);
   smooth();
@@ -312,13 +313,14 @@ public static String getCallerClassName() {
   return null;
 }
 
-// override println() in order to get calling class
+// override println() in order to get Diary facilitation (ie calling class if flag set)
+// WARNING: as long as Diary.applet is not set, will discard every println
 static void println(String str) {
+  // Set stack depth for caller name
   // 0: getStack
-  // 1: Maersto.println
-  // 2: what we want to know
-  StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
-  String header = caller.getClassName() + "." + caller.getMethodName() + ": ";
-  PApplet.println(header + str);
+  // 1: Diary.println(String text, int stackDepth)
+  // 2: this function
+  // 3: what we want to know
+  Diary.println(str, 3);
 }
 
