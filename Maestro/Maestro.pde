@@ -8,6 +8,9 @@ Corpus corpus_random;
 Corpus corpus_current;
 // TTS engine
 AgentSpeak tts;
+// Beat reader from TCP
+HeartManager hrMan;
+
 // which file gives info about available body parts
 final String CSV_BODY_FILENAME = "body_parts.csv";
 
@@ -29,6 +32,11 @@ void setup() {
   smooth();
   // we don't choose our font but we want smooth text -- should not work with P2P from doc??
   textMode(SHAPE);
+
+  // init TCP reading if option is set
+  if (enableBeatTCP) {
+    hrMan = new HeartManager();
+  }
 
   // init for body parts randomness -- got headers, fields separated by tabs
   Table body_parts = loadTable(CSV_BODY_FILENAME, "header, tsv");
@@ -181,7 +189,13 @@ void loadStages() {
   }
 }
 
+// draw... and update recursively a lot of stuf
 void draw() {
+  // update Beats reading from TCP if option is set
+  if (enableBeatTCP) {
+    hrMan.update();
+  }
+
   //println("Current stage: " + current_stage);
   // be sure to have something to do
   if (current_stage >= 0 && current_stage < stages.size()) {
