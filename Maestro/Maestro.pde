@@ -299,3 +299,26 @@ public void dispose () {
   Ess.stop();
 }
 
+public static String getCallerClassName() { 
+  StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
+  for (int i=1; i<stElements.length; i++) {
+    StackTraceElement ste = stElements[i];
+    println(i);
+    println(ste);
+    if (!ste.getClassName().equals(Maestro.class.getName()) && ste.getClassName().indexOf("java.lang.Thread")!=0) {
+      return ste.getClassName();
+    }
+  }
+  return null;
+}
+
+// override println() in order to get calling class
+static void println(String str) {
+  // 0: getStack
+  // 1: Maersto.println
+  // 2: what we want to know
+  StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
+  String header = caller.getClassName() + "." + caller.getMethodName() + ": ";
+  PApplet.println(header + str);
+}
+
