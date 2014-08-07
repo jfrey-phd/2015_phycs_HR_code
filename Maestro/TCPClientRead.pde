@@ -32,17 +32,31 @@ public class TCPClientRead {
     this.IP = IP;
     this.Port = Port;
     this.trig = trig;
+    // tries to connect already
+    reco();
+  }
+
+  // Connect/reconnect
+  private void reco() {
     println( "Will connect to: " + IP + ":" + Port);
     // use PApplet pointer of outer class to create client
-    ov_TCPclient = new Client(Maestro.this, IP, Port);
-    if (ov_TCPclient.active()) {
+    try {
+      ov_TCPclient = new ClientTaciturne(Maestro.this, IP, Port);
+    }
+    // we'll mostly catch NullPointer if socket failed in ClientTaciturne
+    catch (Exception e) {
+      println("Couldn't create ClientTaciturne, exception: " + e);
+    }
+
+    // check state    
+    if (ov_TCPclient != null && ov_TCPclient.active()) {
       println( "Connected!");
     } 
     else {
       // can't use try/catch with processing layer, use status 
       println( "Connection failed, will try again in " + TCP_RETRY_DELAY + "ms.");
-      TCPlastAttempt = millis();
     }
+    TCPlastAttempt = millis();
   }
 
   // listen to data coming from server. Special processing done to ensure we got complete commands
@@ -50,19 +64,17 @@ public class TCPClientRead {
   // if connection is broken, will try again to reco every TCP_RETRY_DELAY seconds
   public void update() 
   {
-    // if connection inactive, try to reco after TCPRetryDelay has been reached
+    // if connection is inactive, try to reco after TCPRetryDelay has been reached
     // FIXME: another way than creating a client? No reco in processing?
-    if (!ov_TCPclient .active() && millis() - TCPlastAttempt > TCP_RETRY_DELAY) {
-      println( "Trying to reconnect...");
-      ov_TCPclient = new Client(Maestro.this, IP, Port);
-      TCPlastAttempt = millis();
-      if (ov_TCPclient.active()) {
-        println( "Connected!");
-      }
+    if ( 
+    (ov_TCPclient == null  || !ov_TCPclient.active()) // object not created or deco happend
+    && millis() - TCPlastAttempt > TCP_RETRY_DELAY // and times up
+    ) {
+      reco();
     }
 
     // Receive data from server
-    if (ov_TCPclient.available() > 0) {
+    if (ov_TCPclient != null && ov_TCPclient.available() > 0) {
       // debug
       if (!broken_msg.equals("")) {
         println("====concatenating [" + broken_msg + "]");
