@@ -57,11 +57,11 @@ void setup() {
   Corpus corpus_random = new Corpus();
   corpus_current = corpus_random;
 
+  // xp starts (loadStages launches a stage, so for clarity have to put it before)
+  stimMan.sendMes("OVTK_StimulationId_ExperimentStart");
+
   // load stages
   loadStages();
-
-  // xp starts
-  stimMan.sendMes("OVTK_StimulationId_ExperimentStart");
 }
 
 // load stages for XP
@@ -95,7 +95,7 @@ void loadStages() {
       }
       println("label: "+ stage_label);
 
-      stages.add(new StageTitle(stage_label));
+      stages.add(new StageTitle(stimMan, stage_label));
     }
     else if (type.equals("xp")) {
       println("Create type XP");
@@ -121,7 +121,7 @@ void loadStages() {
       println("nbSameValence: "+ nbSameValence);
 
       // finally, we create our xp stage and add it to list
-      StageXP stage = new StageXP(tts, nbSentences, nbSameValence);
+      StageXP stage = new StageXP(stimMan, tts, nbSentences, nbSameValence);
       stages.add(stage);
 
       // time to look for likert scale and to push them to current stage

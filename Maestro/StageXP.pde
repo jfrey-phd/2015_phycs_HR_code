@@ -33,7 +33,11 @@ public class StageXP extends Stage {
   final private int TIMER_DURATION = 1000;
 
   // constructor for xp, create new agent, link it against AgentSpeak if available
-  StageXP(AgentSpeak tts, int nbSentences, int nbSameValence) {
+  StageXP(Trigger trig, AgentSpeak tts, int nbSentences, int nbSameValence) {
+    super(trig);
+    // Tell them what we are !
+    // FIXME: handle other corpus
+    sendCode("OVTK_GDF_Artifact_Breathing");
     // init variables, list for likerts and HRs
     this.nbSentences = nbSentences;
     this.nbSameValence = nbSameValence;
@@ -154,6 +158,7 @@ public class StageXP extends Stage {
       }
       break;
     case AGENT_START:
+      sendCode("OVTK_StimulationId_TrialStart");
       // still at least one sentence to be told
       if (curSentenceNb < nbSentences) {
         curSentenceNb++;
@@ -266,6 +271,7 @@ public class StageXP extends Stage {
         for (int i = 0; i < likertsAgent.size(); i++) {
           likertsAgent.get(i).reset();
         }
+        sendCode("OVTK_StimulationId_TrialStop");
         curState = StageState.XP.START;
         println("State: " + curState);
       }
