@@ -10,7 +10,7 @@ public class StageTitle extends Stage {
   StageTitle(Trigger trig, String label) {
     super(trig);
     // Tell them what we are !
-    sendCode("OVTK_GDF_Artifact_Breathing");
+    sendStim("OVTK_GDF_Artifact_Breathing");
 
     this.label = label;
   }

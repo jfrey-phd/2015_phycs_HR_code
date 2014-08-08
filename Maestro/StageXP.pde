@@ -37,7 +37,7 @@ public class StageXP extends Stage {
     super(trig);
     // Tell them what we are !
     // FIXME: handle other corpus
-    sendCode("OVTK_GDF_Artifact_Breathing");
+    sendStim("OVTK_GDF_Artifact_Breathing");
     // init variables, list for likerts and HRs
     this.nbSentences = nbSentences;
     this.nbSameValence = nbSameValence;
@@ -155,10 +155,12 @@ public class StageXP extends Stage {
         // start a new batch
         curSentenceNb = 0;
         curSameValence = 0;
+        sendStim("OVTK_StimulationId_TrialStart");
+        // we need to be a little more precise than that, pass code of HR type directly to trigger
+        sendStim(agent.getHRType().code);
       }
       break;
     case AGENT_START:
-      sendCode("OVTK_StimulationId_TrialStart");
       // still at least one sentence to be told
       if (curSentenceNb < nbSentences) {
         curSentenceNb++;
@@ -271,7 +273,7 @@ public class StageXP extends Stage {
         for (int i = 0; i < likertsAgent.size(); i++) {
           likertsAgent.get(i).reset();
         }
-        sendCode("OVTK_StimulationId_TrialStop");
+        sendStim("OVTK_StimulationId_TrialStop");
         curState = StageState.XP.START;
         println("State: " + curState);
       }

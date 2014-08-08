@@ -12,6 +12,8 @@ public class Agent {
   // use to check if mouth animation should be played in update()
   private AgentSpeak tts;
 
+  // agent type, our independent variable
+  private Body.HR HRType;
 
   // Create the different parts -- by default HR is set to medium
   Agent() {
@@ -21,6 +23,7 @@ public class Agent {
   // Create the different parts. HRType: which kind of beat we got for the heart
   // TODO: handle human, tune heart rates
   Agent(Body.HR HRType) {
+    this.HRType = HRType;
     // Create and position different parts
     head = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
     head.setPos(0, 0);
@@ -38,24 +41,9 @@ public class Agent {
     heart.setPos(600, 600);
 
     // deals with heart rate
-    switch(HRType) {
-    case LOW:
-      heart.setBPM(20);
-      break;
-    case HIGH:
-      heart.setBPM(120);
-      break;
-      // our human is almost dead at the moment
-    case HUMAN:
-      heart.setBPM(5);
-      break;
-      // if not recognized: medium by default
-    default:
-      println("Unknown HR type: " + HRType + ", set to medium");
-    case MEDIUM:
-      heart.setBPM(60);
-      break;
-    }
+    // FIXME: at the moment "human" BPM will be set to default
+    heart.setBPM(HRType.BPM);
+
     heart.setAnimationSpeed(45);
 
     // time to add every part to the agent
@@ -89,6 +77,11 @@ public class Agent {
   // access to master shape for transformations and drawing
   public PShape getPShape() {
     return wholeBody;
+  }
+
+  // StageXP wants to know type for sending codes
+  public Body.HR getHRType() {
+    return HRType;
   }
 }
 
