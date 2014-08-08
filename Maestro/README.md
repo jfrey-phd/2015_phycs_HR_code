@@ -1,0 +1,20 @@
+ 
+# Stimulation codes
+
+* When the program finished loading and the experiment is gonna begin: OVTK_StimulationId_ExperimentStart (0x00008001)
+    * When a new stage begins: OVTK_StimulationId_SegmentStart (0x00008003)
+    * Type of the stage: for a title screen it's OVTK_GDF_Artifact_Breathing (0x108), for random corpus it's OVTK_GDF_Artifact_Sweat (0x106), for sequential corpus it's OVTK_GDF_Artifact_Movement (0x104)
+        * When a new agent is shown: OVTK_StimulationId_TrialStart (0x00008005)
+        * Agent type, for low/medium/high/human respectively we got: OVTK_GDF_Stage_1 (0x411), OVTK_GDF_Stage_2 (0x411), OVTK_GDF_Stage_3 (0x411), OVTK_GDF_Stage_4 (0x411)
+            * A sentence is spoken: OVTK_StimulationId_VisualStimulationStart (0x0000800b)
+                * Valence type for negative/neutral/positive: OVTK_GDF_Left (0x301), OVTK_GDF_Foot (0x303), OVTK_GDF_Right (0x302)
+            * Sentence finished: OVTK_StimulationId_VisualStimulationStop (0x0000800c)
+            * Question about sentence appears: OVTK_GDF_Cross_On_Screen  (0x312)
+                * Question answered: OVTK_GDF_Correct (0x381)
+                * Level of the likert scale: -3 to +3 (7 buttons) makes to 7 labels, from OVTK_StimulationId_Label_01 (0x00008101), to OVTK_StimulationId_Label_07 (0x00008107)
+            * Questions about the agent appears: OVTK_GDF_Flashing_Light (0x313)
+                * There should be 3 questions, with 7 points likert scale for each one. 21 labels for the answers ranging from OVTK_StimulationId_Label_08 (0x00008108) to OVTK_StimulationId_Label_1C (0x0000811c)
+                * Last question answered: OVTK_GDF_Correct (0x381)  
+        * When agent disappears: OVTK_StimulationId_TrialStop (0x00008006)
+    * When a stage ends: OVTK_StimulationId_SegmentStop (0x00008004)
+* When program is about to close: OVTK_StimulationId_ExperimentStop (0x00008002)

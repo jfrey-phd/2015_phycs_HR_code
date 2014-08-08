@@ -12,7 +12,7 @@ class HeartManager implements Trigger {
 
   HeartManager() {
     // give pointer to this class for Trigger interface
-    readBeats = new TCPClientRead(BeatIP, BeatPort, this);
+    readBeats = new TCPClientRead(beatIP, beatPort, this);
   }
 
   // update TCP stream, compute HR

@@ -10,6 +10,8 @@ Corpus corpus_current;
 AgentSpeak tts;
 // Beat reader from TCP
 HeartManager hrMan;
+// Write stimulation -- could be to TCP with TCPClientWrite if enableStimtTCP, or only to stdout otherwise
+StimManager stimMan;
 
 // which file gives info about available body parts
 final String CSV_BODY_FILENAME = "body_parts.csv";
@@ -38,6 +40,8 @@ void setup() {
   if (enableBeatTCP) {
     hrMan = new HeartManager();
   }
+  // same for writing TCP, but it'll be up to StimManager to hande that, only need Trigger interface elsewhere
+  stimMan = new StimManager();
 
   // init for body parts randomness -- got headers, fields separated by tabs
   Table body_parts = loadTable(CSV_BODY_FILENAME, "header, tsv");
@@ -55,6 +59,9 @@ void setup() {
 
   // load stages
   loadStages();
+
+  // xp starts
+  stimMan.sendMes("OVTK_StimulationId_ExperimentStart");
 }
 
 // load stages for XP
@@ -217,11 +224,16 @@ void draw() {
   }
   // all done ?
   else {
+    stimMan.sendMes("OVTK_StimulationId_ExperimentStop");
     //println("No more stages");
     background(0);
     fill(255);
     text("The END", 50, 50);
   }
+
+  // messages may need to be pushed to TCP
+  // TODO: more handy to push at the end of draw, but if we have cleanup to do at the end of XP, don't forget to move up
+  stimMan.update();
 }
 
 // trigger different action for debug
