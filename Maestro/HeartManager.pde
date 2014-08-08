@@ -61,7 +61,7 @@ class HeartManager implements Trigger {
     int tick=millis();
     float perio_ms = (tick-lastBeat);
     float perio_m = perio_ms /(1000*60);
-    int new_HR=(int)(1/perio_m);
+    int new_HR=round((1/perio_m));
     // clamp values to previous BPM +/- 10% and to min/max HR to avoid noise 
     new_HR=round(min(new_HR, HR+0.1*HR, MAX_HR));
     new_HR=round(max(new_HR, HR-0.1*HR, MIN_HR));
@@ -79,7 +79,8 @@ class HeartManager implements Trigger {
     int tick=millis();
     float perio_ms = (tick-lastFakeBeat);
     float perio_m = perio_ms /(1000*60);
-    int fakeHR=(int)(1/perio_m);
+    println("1/perio: "+1/perio_m );
+    int fakeHR=round((1/perio_m));
     // do not clamp or anything: just report what's going one, we don't compute
     println("Feedback pulsed! t=" + millis() + ", new fakeHR: " + fakeHR);
     lastFakeBeat = tick;
