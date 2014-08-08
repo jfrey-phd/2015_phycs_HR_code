@@ -48,7 +48,7 @@ public class Agent {
 
     // deals with heart rate ; special case if human type and got HRManager
     if (HRType == Body.HR.HUMAN && hrMan != null) {
-      heart.setBPM(hrMan.getBPM());
+      heart.setBPM(hrMan.getHR());
     }
     // will be constant otherwise
     else {
@@ -84,7 +84,7 @@ public class Agent {
     mouth.update();
     // tries to update HR if human type and got HRManager
     if (HRType == Body.HR.HUMAN && hrMan != null) {
-      heart.setBPM(hrMan.getBPM());
+      heart.setBPM(hrMan.getHR());
     }
     heart.update();
   }
