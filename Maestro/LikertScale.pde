@@ -5,8 +5,12 @@
 class LikertScale {
   // holds our precious buttons
   ArrayList<LikertButton> buttons;
+  // how many buttons we got
+  public final int nbButtons;
   // which one is selected ?
   int clicked_ID = -1;
+  // has clicked button already been sent with getLastClick() ?
+  boolean sentClicked = false;
   // won't change after click (nor select more than one button) if true
   private boolean disable_on_click;
   // remember the current active state of the likert scale
@@ -34,6 +38,7 @@ class LikertScale {
   // fade out will automatically occur if disable_on_click is set
   // WARNING: fade smoothness depends on FPS
   LikertScale(String label, int nbButtons, float posX, float posY, float size, boolean disable_on_click, float fade) {
+    this.nbButtons = nbButtons;
     this.label = label;
     this.posX = posX;
     this.posY = posY;
@@ -127,6 +132,7 @@ class LikertScale {
         if (button.isMouseHover() && button.isPressed()) {
           button.setClicked();
           clicked_ID = button.getID();
+          sentClicked = false;
         }
         button.setPressed(false);
       }
@@ -147,6 +153,16 @@ class LikertScale {
     return clicked_ID;
   }
 
+  // a bit different than getClickedButton(): here will return *once* the last clicked button, then reset to -1
+  // handy when you want to poll and trigger at each new selection
+  public int getLastClick() {
+    if (!sentClicked) {
+      sentClicked = true;
+      return clicked_ID;
+    }
+    return -1;
+  }
+
   // client can know if it is useful to send event or take click into account
   public boolean isDisabled() {
     return disabled;
@@ -157,6 +173,7 @@ class LikertScale {
     // our variables first, as in header
     disabled = false;
     clicked_ID = -1;
+    sentClicked = false;
     // to transparent color if fade effect set
     if (this.fade_step > 0) {
       current_alpha = 0;
@@ -170,3 +187,4 @@ class LikertScale {
     }
   }
 }
+

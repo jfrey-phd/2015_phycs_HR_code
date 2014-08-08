@@ -7,7 +7,8 @@ public class StageTitle extends Stage {
   private String label = "";
 
   // constructor for a screen
-  StageTitle(String label) {
+  StageTitle(Trigger trig, String label) {
+    super(trig);
     this.label = label;
   }
 
@@ -18,8 +19,15 @@ public class StageTitle extends Stage {
     text(label, 30, 30);
   }
 
+  // Tell them what we are !
+  public void activate() {
+    super.activate();
+    sendStim("OVTK_GDF_Artifact_Breathing");
+  }
+
   // time to go when clicked
   public void clicked() {
     desactivate();
   }
 } 
+

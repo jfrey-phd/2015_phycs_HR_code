@@ -8,6 +8,11 @@ Corpus corpus_random;
 Corpus corpus_current;
 // TTS engine
 AgentSpeak tts;
+// Beat reader from TCP
+HeartManager hrMan;
+// Write stimulation -- could be to TCP with TCPClientWrite if enableStimtTCP, or only to stdout otherwise
+StimManager stimMan;
+
 // which file gives info about available body parts
 final String CSV_BODY_FILENAME = "body_parts.csv";
 
@@ -24,11 +29,19 @@ int WINDOW_Y = 1000;
 void setup() {
   // init logs
   Diary.applet = this;
+  Diary.printStack = printStack;
   // using 2D backend as we won't venture in 3D realm
   size(WINDOW_X, WINDOW_Y, P2D);
   smooth();
   // we don't choose our font but we want smooth text -- should not work with P2P from doc??
   textMode(SHAPE);
+
+  // init TCP reading if option is set
+  if (enableBeatTCP) {
+    hrMan = new HeartManager();
+  }
+  // same for writing TCP, but it'll be up to StimManager to hande that, only need Trigger interface elsewhere
+  stimMan = new StimManager();
 
   // init for body parts randomness -- got headers, fields separated by tabs
   Table body_parts = loadTable(CSV_BODY_FILENAME, "header, tsv");
@@ -43,6 +56,9 @@ void setup() {
   // load sententes
   Corpus corpus_random = new Corpus();
   corpus_current = corpus_random;
+
+  // xp starts (loadStages launches a stage, so for clarity have to put it before)
+  stimMan.sendMes("OVTK_StimulationId_ExperimentStart");
 
   // load stages
   loadStages();
@@ -79,7 +95,7 @@ void loadStages() {
       }
       println("label: "+ stage_label);
 
-      stages.add(new StageTitle(stage_label));
+      stages.add(new StageTitle(stimMan, stage_label));
     }
     else if (type.equals("xp")) {
       println("Create type XP");
@@ -105,7 +121,7 @@ void loadStages() {
       println("nbSameValence: "+ nbSameValence);
 
       // finally, we create our xp stage and add it to list
-      StageXP stage = new StageXP(tts, nbSentences, nbSameValence);
+      StageXP stage = new StageXP(stimMan, tts, nbSentences, nbSameValence);
       stages.add(stage);
 
       // time to look for likert scale and to push them to current stage
@@ -181,7 +197,13 @@ void loadStages() {
   }
 }
 
+// draw... and update recursively a lot of stuf
 void draw() {
+  // update Beats reading from TCP if option is set
+  if (enableBeatTCP) {
+    hrMan.update();
+  }
+
   //println("Current stage: " + current_stage);
   // be sure to have something to do
   if (current_stage >= 0 && current_stage < stages.size()) {
@@ -202,11 +224,16 @@ void draw() {
   }
   // all done ?
   else {
+    stimMan.sendMes("OVTK_StimulationId_ExperimentStop");
     //println("No more stages");
     background(0);
     fill(255);
     text("The END", 50, 50);
   }
+
+  // messages may need to be pushed to TCP
+  // TODO: more handy to push at the end of draw, but if we have cleanup to do at the end of XP, don't forget to move up
+  stimMan.update();
 }
 
 // trigger different action for debug
@@ -283,5 +310,29 @@ void speak() {
 public void dispose () {
   println("Exiting...");
   Ess.stop();
+}
+
+public static String getCallerClassName() { 
+  StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
+  for (int i=1; i<stElements.length; i++) {
+    StackTraceElement ste = stElements[i];
+    println(i);
+    println(ste);
+    if (!ste.getClassName().equals(Maestro.class.getName()) && ste.getClassName().indexOf("java.lang.Thread")!=0) {
+      return ste.getClassName();
+    }
+  }
+  return null;
+}
+
+// override println() in order to get Diary facilitation (ie calling class if flag set)
+// WARNING: as long as Diary.applet is not set, will discard every println
+static void println(String str) {
+  // Set stack depth for caller name
+  // 0: getStack
+  // 1: Diary.println(String text, int stackDepth)
+  // 2: this function
+  // 3: what we want to know
+  Diary.println(str, 3);
 }
 

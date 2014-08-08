@@ -14,6 +14,14 @@ public abstract class Stage {
   // how many time in ms should the timer be set
   private int timerDuration = 0;
 
+  // tell the exterior world what's going on
+  protected Trigger trig;
+
+  // child class should call this constructor, we need to set trigger!
+  Stage (Trigger trig) {
+    this.trig = trig;
+  }
+
   // before draw: update internal states
   // by default: nothing
   public void update() {
@@ -43,16 +51,20 @@ public abstract class Stage {
   }
 
   // to die is a private thing
+  // child class should call this method -- sends code
   // TODO: cleanup agent maybe...
   protected void desactivate() {
     println("I'm letting it go!");
     active = false;
+    sendStim("OVTK_StimulationId_SegmentStop");
   }
 
   // tell it to go on-stage
   // creates agent if type XP
+  // child class should call this method -- sends code
   public void activate() {
     active = true;
+    sendStim("OVTK_StimulationId_SegmentStart");
   }
 
   // sent click event
@@ -69,4 +81,10 @@ public abstract class Stage {
   // by default, does nothing
   public void released() {
   }
+
+  // wrapper for Trigger.sendMes for child classes
+  final protected void sendStim(String code) {
+    trig.sendMes(code);
+  }
 }
+

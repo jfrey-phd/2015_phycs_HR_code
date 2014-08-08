@@ -21,13 +21,24 @@ public class Body {
   };
 
   // HR type
+  // Give two information: BPM and stimulation code
   public enum HR {
-    // exact values to be defined by Agent
-    LOW,
-    MEDIUM,
-    HIGH,
-    // will read input from physio
-    HUMAN
+    LOW(20, "OVTK_GDF_Stage_1"), 
+    MEDIUM(60, "OVTK_GDF_Stage_2"), 
+    HIGH(120, "OVTK_GDF_Stage_3"), 
+    // default BPM value (almost dead!) but should read input from physio
+    HUMAN(5, "OVTK_GDF_Stage_4");
+
+    // BPM for body part
+    public final int BPM;
+    // stimulation code for openvibe
+    public final String code;
+
+
+    HR(int BPM, String code) {
+      this.BPM = BPM;
+      this.code = code;
+    }
   };
 
   // return the corresponding id for that name

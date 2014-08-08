@@ -33,7 +33,8 @@ public class StageXP extends Stage {
   final private int TIMER_DURATION = 1000;
 
   // constructor for xp, create new agent, link it against AgentSpeak if available
-  StageXP(AgentSpeak tts, int nbSentences, int nbSameValence) {
+  StageXP(Trigger trig, AgentSpeak tts, int nbSentences, int nbSameValence) {
+    super(trig);
     // init variables, list for likerts and HRs
     this.nbSentences = nbSentences;
     this.nbSameValence = nbSameValence;
@@ -151,6 +152,9 @@ public class StageXP extends Stage {
         // start a new batch
         curSentenceNb = 0;
         curSameValence = 0;
+        sendStim("OVTK_StimulationId_TrialStart");
+        // we need to be a little more precise than that, pass code of HR type directly to trigger
+        sendStim(agent.getHRType().code);
       }
       break;
     case AGENT_START:
@@ -166,6 +170,7 @@ public class StageXP extends Stage {
         println("There is " + likertsAgent.size() + " likerts for agents");
         curState = StageState.XP.LIKERT_AGENT_START;
         println("State: " + curState);
+        sendStim("OVTK_GDF_Flashing_Light");
       }
       // no sentence and no likert: stop agent
       // TODO: back to start when agent list
@@ -180,12 +185,16 @@ public class StageXP extends Stage {
       thread("speak");
       curState = StageState.XP.SPEAKING;
       println("State: " + curState);
+      sendStim("OVTK_StimulationId_VisualStimulationStart");
+      // FIXME: valence
+      sendStim("OVTK_GDF_Foot");
       break;
       // wait untill tts is done
     case SPEAKING:
       if (!tts.isSpeaking()) {
         curState = StageState.XP.SPEAK_STOP;
         println("State: " + curState);
+        sendStim("OVTK_StimulationId_VisualStimulationStop");
       }
       break;
       // check for likert
@@ -195,6 +204,7 @@ public class StageXP extends Stage {
         println("There is " + likertsSentence.size() + " likerts for sentence");
         curState = StageState.XP.LIKERT_SENTENCE_START;
         println("State: " + curState);
+        sendStim("OVTK_GDF_Cross_On_Screen");
       } 
       // if  no likert, back to agent
       else {
@@ -211,10 +221,26 @@ public class StageXP extends Stage {
     case LIKERT_SENTENCE:
       boolean sentence_active = false;
       for (int i = 0; i < likertsSentence.size(); i++) {
-        // one is active, change flag, stop loop
-        if (!likertsSentence.get(i).isDisabled()) {
+        LikertScale lik = likertsSentence.get(i);
+        // one is active, change flag
+        if (!lik.isDisabled()) {
           sentence_active = true;
-          break;
+        }
+        // if not, checks if new answers should be aknowledge
+        else {
+          // we got once the last button clicked, compute corresponding stim code and send
+          int lastClick = lik.getLastClick();
+          if (lastClick != -1) {
+            // buttons are sequentially numbered between the scales
+            int butNumber = i*lik.nbButtons + lastClick;
+            // which is the first label dedicated to this likert scale
+            // TODO: not scalable with number of likerts
+            int labelStart = 1;
+            // we have to convert button number to hexa for openvibe stim code (need only 2 digits)
+            String stimCode = "OVTK_StimulationId_Label_" + hex(labelStart + butNumber, 2);
+            println("Button click for Stage: " + butNumber + ", code: " + stimCode);
+            sendStim(stimCode);
+          }
         }
       }
       // if no active state, then can go
@@ -223,6 +249,7 @@ public class StageXP extends Stage {
         println("State: " + curState);
         // launch timer
         startTimer(TIMER_DURATION);
+        sendStim("OVTK_GDF_Correct");
       }
       break;
       // reset sentence likerts for next use
@@ -246,10 +273,26 @@ public class StageXP extends Stage {
     case LIKERT_AGENT:
       boolean agent_active = false;
       for (int i = 0; i < likertsAgent.size(); i++) {
+        LikertScale lik = likertsAgent.get(i);
         // one is active, change flag, stop loop
-        if (!likertsAgent.get(i).isDisabled()) {
+        if (!lik.isDisabled()) {
           agent_active = true;
-          break;
+        }
+        // if not, checks if new answers should be aknowledge
+        else {
+          // we got once the last button clicked, compute corresponding stim code and send
+          int lastClick = lik.getLastClick();
+          if (lastClick != -1) {
+            // buttons are sequentially numbered between the scales
+            int butNumber = i*lik.nbButtons + lastClick;
+            // which is the first label dedicated to this likert scale
+            // TODO: not scalable with number of likerts
+            int labelStart = 8;
+            // we have to convert button number to hexa for openvibe stim code (need only 2 digits)
+            String stimCode = "OVTK_StimulationId_Label_" + hex(labelStart + butNumber, 2);
+            println("Button click for Stage: " + butNumber + ", code: " + stimCode);
+            sendStim(stimCode);
+          }
         }
       }
       // if no active state, then can go
@@ -258,6 +301,7 @@ public class StageXP extends Stage {
         println("State: " + curState);
         // launch timer
         startTimer(TIMER_DURATION);
+        sendStim("OVTK_GDF_Correct");
       }
       break; 
       // likert done: stop agent, reset agent likerts for next use (? should not happen), back to START
@@ -266,6 +310,7 @@ public class StageXP extends Stage {
         for (int i = 0; i < likertsAgent.size(); i++) {
           likertsAgent.get(i).reset();
         }
+        sendStim("OVTK_StimulationId_TrialStop");
         curState = StageState.XP.START;
         println("State: " + curState);
       }
@@ -285,6 +330,9 @@ public class StageXP extends Stage {
     super.activate();
     curState = StageState.XP.START;
     println("State: " + curState);
+    // Tell them what we are !
+    // FIXME: handle other corpus
+    sendStim("OVTK_GDF_Artifact_Sweat");
   }
 
   // draw for xp type
