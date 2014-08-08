@@ -31,8 +31,7 @@ int WINDOW_Y = 1000;
 
 void setup() {
   // init logs
-  Diary.applet = this;
-  Diary.printStack = printStack;
+  Diary.setup(this, printStack, printToFile, sketchPath("")+stdoutFileBasename);
   // using 2D backend as we won't venture in 3D realm
   size(WINDOW_X, WINDOW_Y, P2D);
   smooth();
@@ -317,6 +316,9 @@ void speak() {
 // FIXME: should use handler...
 public void dispose () {
   println("Exiting...");
+  // beyond this point, no println should be called (will not be written to disk if flag get)
+  Diary.dispose();
+  // FIXME: this one seems to freeze regurarely app :\
   Ess.stop();
 }
 

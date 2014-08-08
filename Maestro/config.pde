@@ -2,7 +2,11 @@
 // various config for the experiment
 
 // add caller name to each "println"
-boolean printStack = false;
+boolean printStack = true;
+// also write stdout to file on disk?
+boolean printToFile = true;
+// basename (no extenntion) of the file for "piping" stdout (relative to sketch folder)
+String stdoutFileBasename = "../recordings/stdout";
 
 /* config for beat detection */
 // true for reading beats from TCP, false for a default value
