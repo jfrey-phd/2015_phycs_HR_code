@@ -9,9 +9,6 @@ public class StageTitle extends Stage {
   // constructor for a screen
   StageTitle(Trigger trig, String label) {
     super(trig);
-    // Tell them what we are !
-    sendStim("OVTK_GDF_Artifact_Breathing");
-
     this.label = label;
   }
 
@@ -20,6 +17,12 @@ public class StageTitle extends Stage {
     background(0);
     fill(255);
     text(label, 30, 30);
+  }
+
+  // Tell them what we are !
+  public void activate() {
+    super.activate();
+    sendStim("OVTK_GDF_Artifact_Breathing");
   }
 
   // time to go when clicked

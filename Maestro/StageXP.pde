@@ -35,9 +35,6 @@ public class StageXP extends Stage {
   // constructor for xp, create new agent, link it against AgentSpeak if available
   StageXP(Trigger trig, AgentSpeak tts, int nbSentences, int nbSameValence) {
     super(trig);
-    // Tell them what we are !
-    // FIXME: handle other corpus
-    sendStim("OVTK_GDF_Artifact_Breathing");
     // init variables, list for likerts and HRs
     this.nbSentences = nbSentences;
     this.nbSameValence = nbSameValence;
@@ -173,6 +170,7 @@ public class StageXP extends Stage {
         println("There is " + likertsAgent.size() + " likerts for agents");
         curState = StageState.XP.LIKERT_AGENT_START;
         println("State: " + curState);
+        sendStim("OVTK_GDF_Flashing_Light");
       }
       // no sentence and no likert: stop agent
       // TODO: back to start when agent list
@@ -187,12 +185,16 @@ public class StageXP extends Stage {
       thread("speak");
       curState = StageState.XP.SPEAKING;
       println("State: " + curState);
+      sendStim("OVTK_StimulationId_VisualStimulationStart");
+      // FIXME: valence
+      sendStim("OVTK_GDF_Foot");
       break;
       // wait untill tts is done
     case SPEAKING:
       if (!tts.isSpeaking()) {
         curState = StageState.XP.SPEAK_STOP;
         println("State: " + curState);
+        sendStim("OVTK_StimulationId_VisualStimulationStop");
       }
       break;
       // check for likert
@@ -202,6 +204,7 @@ public class StageXP extends Stage {
         println("There is " + likertsSentence.size() + " likerts for sentence");
         curState = StageState.XP.LIKERT_SENTENCE_START;
         println("State: " + curState);
+        sendStim("OVTK_GDF_Cross_On_Screen");
       } 
       // if  no likert, back to agent
       else {
@@ -230,6 +233,7 @@ public class StageXP extends Stage {
         println("State: " + curState);
         // launch timer
         startTimer(TIMER_DURATION);
+        sendStim("OVTK_GDF_Correct");
       }
       break;
       // reset sentence likerts for next use
@@ -276,6 +280,7 @@ public class StageXP extends Stage {
         sendStim("OVTK_StimulationId_TrialStop");
         curState = StageState.XP.START;
         println("State: " + curState);
+        sendStim("OVTK_GDF_Correct");
       }
       break;
       // time to desactivate stage 
@@ -293,6 +298,9 @@ public class StageXP extends Stage {
     super.activate();
     curState = StageState.XP.START;
     println("State: " + curState);
+    // Tell them what we are !
+    // FIXME: handle other corpus
+    sendStim("OVTK_GDF_Artifact_Sweat");
   }
 
   // draw for xp type
