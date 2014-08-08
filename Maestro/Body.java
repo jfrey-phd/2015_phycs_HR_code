@@ -34,7 +34,6 @@ public class Body {
     // stimulation code for openvibe
     public final String code;
 
-
     HR(int BPM, String code) {
       this.BPM = BPM;
       this.code = code;

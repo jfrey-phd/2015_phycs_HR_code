@@ -21,6 +21,8 @@ public class StageXP extends Stage {
 
   // current agent and tts system
   private Agent agent;
+  // we need to pass HR information to agents
+  private HeartManager hrMan;
   private AgentSpeak tts;
   // total number of sentence per agent/same valence in a raw
   private int nbSentences = -1;
@@ -33,8 +35,9 @@ public class StageXP extends Stage {
   final private int TIMER_DURATION = 1000;
 
   // constructor for xp, create new agent, link it against AgentSpeak if available
-  StageXP(Trigger trig, AgentSpeak tts, int nbSentences, int nbSameValence) {
+  StageXP(Trigger trig, HeartManager hrMan, AgentSpeak tts, int nbSentences, int nbSameValence) {
     super(trig);
+    this.hrMan = hrMan;
     // init variables, list for likerts and HRs
     this.nbSentences = nbSentences;
     this.nbSameValence = nbSameValence;
@@ -56,7 +59,7 @@ public class StageXP extends Stage {
       Body.HR HRType = HRs.get(index);
       println("Creating new agent: selects id=" + (index + 1) + "/" + HRs.size() + ", type: " + HRType);
       // creates according agent, remove HR condition from list
-      agent = new Agent(HRType);
+      agent = new Agent(HRType, hrMan);
       HRs.remove(index);
       // point to TTS
       agent.setTTS(tts);

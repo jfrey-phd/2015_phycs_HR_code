@@ -22,6 +22,9 @@ ArrayList<Stage> stages;
 int current_stage = -1;
 final String XP_SCRIPT_FILENAME = "xp.xml";
 
+// we'll send the last stimulation once
+boolean endXPSent = false;
+
 int WINDOW_X = 1000;
 int WINDOW_Y = 1000;
 
@@ -121,7 +124,7 @@ void loadStages() {
       println("nbSameValence: "+ nbSameValence);
 
       // finally, we create our xp stage and add it to list
-      StageXP stage = new StageXP(stimMan, tts, nbSentences, nbSameValence);
+      StageXP stage = new StageXP(stimMan, hrMan, tts, nbSentences, nbSameValence);
       stages.add(stage);
 
       // time to look for likert scale and to push them to current stage
@@ -224,7 +227,11 @@ void draw() {
   }
   // all done ?
   else {
-    stimMan.sendMes("OVTK_StimulationId_ExperimentStop");
+    // we don't want send an infinite number of end signal
+    if (!endXPSent) {
+      stimMan.sendMes("OVTK_StimulationId_ExperimentStop");
+      endXPSent = true;
+    }
     //println("No more stages");
     background(0);
     fill(255);

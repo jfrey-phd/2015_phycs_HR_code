@@ -35,5 +35,10 @@ class HeartManager implements Trigger {
       println("Unknown code: [" + code + "] -- size: " + code.length() + ", time: " + millis());
     }
   }
+
+  // return current BPM. used by agent to get heart body part
+  public int getBPM() {
+    return 90;
+  }
 }
 
