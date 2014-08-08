@@ -221,10 +221,26 @@ public class StageXP extends Stage {
     case LIKERT_SENTENCE:
       boolean sentence_active = false;
       for (int i = 0; i < likertsSentence.size(); i++) {
-        // one is active, change flag, stop loop
-        if (!likertsSentence.get(i).isDisabled()) {
+        LikertScale lik = likertsSentence.get(i);
+        // one is active, change flag
+        if (!lik.isDisabled()) {
           sentence_active = true;
-          break;
+        }
+        // if not, checks if new answers should be aknowledge
+        else {
+          // we got once the last button clicked, compute corresponding stim code and send
+          int lastClick = lik.getLastClick();
+          if (lastClick != -1) {
+            // buttons are sequentially numbered between the scales
+            int butNumber = i*lik.nbButtons + lastClick;
+            // which is the first label dedicated to this likert scale
+            // TODO: not scalable with number of likerts
+            int labelStart = 1;
+            // we have to convert button number to hexa for openvibe stim code (need only 2 digits)
+            String stimCode = "OVTK_StimulationId_Label_" + hex(labelStart + butNumber, 2);
+            println("Button click for Stage: " + butNumber + ", code: " + stimCode);
+            sendStim(stimCode);
+          }
         }
       }
       // if no active state, then can go
@@ -257,10 +273,26 @@ public class StageXP extends Stage {
     case LIKERT_AGENT:
       boolean agent_active = false;
       for (int i = 0; i < likertsAgent.size(); i++) {
+        LikertScale lik = likertsAgent.get(i);
         // one is active, change flag, stop loop
-        if (!likertsAgent.get(i).isDisabled()) {
+        if (!lik.isDisabled()) {
           agent_active = true;
-          break;
+        }
+        // if not, checks if new answers should be aknowledge
+        else {
+          // we got once the last button clicked, compute corresponding stim code and send
+          int lastClick = lik.getLastClick();
+          if (lastClick != -1) {
+            // buttons are sequentially numbered between the scales
+            int butNumber = i*lik.nbButtons + lastClick;
+            // which is the first label dedicated to this likert scale
+            // TODO: not scalable with number of likerts
+            int labelStart = 8;
+            // we have to convert button number to hexa for openvibe stim code (need only 2 digits)
+            String stimCode = "OVTK_StimulationId_Label_" + hex(labelStart + butNumber, 2);
+            println("Button click for Stage: " + butNumber + ", code: " + stimCode);
+            sendStim(stimCode);
+          }
         }
       }
       // if no active state, then can go
@@ -269,6 +301,7 @@ public class StageXP extends Stage {
         println("State: " + curState);
         // launch timer
         startTimer(TIMER_DURATION);
+        sendStim("OVTK_GDF_Correct");
       }
       break; 
       // likert done: stop agent, reset agent likerts for next use (? should not happen), back to START
@@ -280,7 +313,6 @@ public class StageXP extends Stage {
         sendStim("OVTK_StimulationId_TrialStop");
         curState = StageState.XP.START;
         println("State: " + curState);
-        sendStim("OVTK_GDF_Correct");
       }
       break;
       // time to desactivate stage 
