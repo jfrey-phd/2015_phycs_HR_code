@@ -1,12 +1,9 @@
 
-// will compute HR -- no more than 10% variations beatween beats, min and max values set, fall back to "medium" HR if timeout
-// FIXME: check HR algo, evolution if noise or deco (eg. sudden from last HR to default if timeout ; and back to previous with first beat. maybe go smoother)
+// will compute HR -- no more than 10% variations beatween beats, min and max values set, fallback smoothly to "medium" HR if timeout
+// FIXME: check HR algo, evolution if noise or deco not equally smooth (harmonize update() and trueBeat())
 
 // does the same for the feedback given to user for debug
-// FIXME: when agent changes, the first value of fakeHR will probably be wrong (we don't have a hint about current agent type, may be fixed)
-
-
-
+// WARNING: when agent changes, the first value of fakeHR will probably be wrong (we don't have a hint about current agent type, may be fixed)
 
 // read network host/port from config file
 
@@ -24,6 +21,9 @@ class HeartManager implements Trigger {
   private final int HR_TIMEOUT = 3000;
   // keep record of current timeout situation to avoid useless updates
   private boolean timeout = false;
+  // once timedout, will bring smoothly HR back to default, between each update wil wait few ms
+  // TODO: check if consistant with physiology
+  private final int REFRACTORY_DELAY = 1000;
 
   // read TCP inputs
   private TCPClientRead readBeats;
@@ -31,9 +31,11 @@ class HeartManager implements Trigger {
   private Trigger trig;
 
   // last time we saw a beat
-  int lastBeat = 0;
+  private int lastBeat = 0;
   // last time we saw a *fake* beat
-  int lastFakeBeat = 0;
+  private int lastFakeBeat = 0;
+  // last time we *created* a beat (used during timeout)
+  private int lastTimeoutBeat;
 
   // Takes itself a trigger in order to pass Agent's beats to exterior...
   HeartManager(Trigger trig) {
@@ -45,11 +47,20 @@ class HeartManager implements Trigger {
   // update TCP stream, compute HR
   public void update() {
     readBeats.update();
-    // if not already timedout, got back to default pulse
+    // if not alrdeay timedout, start to bring HR toward default value
     if (!timeout && lastBeat + HR_TIMEOUT < millis()) {
-      HR = Body.HR.MEDIUM.BPM;
-      println("Timeout while waiting for beat, back to default: HR=" + HR);
       timeout = true;
+    }
+
+    // if timedout and not reached default pulse yet, go back there step by step
+    if (timeout && HR != Body.HR.MEDIUM.BPM && lastTimeoutBeat + REFRACTORY_DELAY < millis()) {
+      int new_HR = Body.HR.MEDIUM.BPM;
+      // to smooth a bit transition, clamp around last real HR +/- 10%
+      new_HR=round(min(new_HR, HR+0.1*HR));
+      new_HR=round(max(new_HR, HR-0.1*HR));
+      HR = new_HR;
+      lastTimeoutBeat = millis();
+      println("Timeout while waiting for beat, back to default: HR=" + HR);
     }
   }
 
@@ -79,7 +90,6 @@ class HeartManager implements Trigger {
     int tick=millis();
     float perio_ms = (tick-lastFakeBeat);
     float perio_m = perio_ms /(1000*60);
-    println("1/perio: "+1/perio_m );
     int fakeHR=round((1/perio_m));
     // do not clamp or anything: just report what's going one, we don't compute
     println("Feedback pulsed! t=" + millis() + ", new fakeHR: " + fakeHR);
