@@ -20,14 +20,15 @@ public class Agent {
 
   // Create the different parts -- by default HR is set to medium and no HeartManager
   Agent() {
-    this(Body.HR.MEDIUM, null);
+    this(Body.HR.MEDIUM, null, null);
   }
 
   // Create the different parts.
   // HRType: which kind of beat we got for the heart
   // hrMan: tune heart rates with human type
+  // trig: forward stim code sender to heart
   // TODO: could set to null if fot human type ; but not pretty. new constructor or  class instead.
-  Agent(Body.HR HRType, HeartManager hrMan) {
+  Agent(Body.HR HRType, HeartManager hrMan, Trigger trig) {
     this.HRType = HRType;
     this.hrMan = hrMan;
     // Create and position different parts
@@ -42,8 +43,8 @@ public class Agent {
     mouth = new BodyPart(Body.Type.MOUTH, Body.Genre.MALE);
     mouth.setPos(150, 475);
 
-    // Special case for heart: will play a sound with each beat
-    heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH, "beat.wav"); 
+    // Special case for heart: will play a sound with each beat -- pass "hrMan" as a Trigger, *not* "trig", because in-between we want to compute fakeHR 
+    heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH, "beat.wav", hrMan); 
     heart.setPos(600, 600);
 
     // deals with heart rate ; special case if human type and got HRManager

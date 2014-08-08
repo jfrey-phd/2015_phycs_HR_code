@@ -39,12 +39,13 @@ void setup() {
   // we don't choose our font but we want smooth text -- should not work with P2P from doc??
   textMode(SHAPE);
 
+  // it writing TCP, but it'll be up to StimManager to handle that, only need Trigger interface that the other component could directly give their codes
+  stimMan = new StimManager();
+
   // init TCP reading if option is set
   if (enableBeatTCP) {
-    hrMan = new HeartManager();
+    hrMan = new HeartManager(stimMan);
   }
-  // same for writing TCP, but it'll be up to StimManager to hande that, only need Trigger interface elsewhere
-  stimMan = new StimManager();
 
   // init for body parts randomness -- got headers, fields separated by tabs
   Table body_parts = loadTable(CSV_BODY_FILENAME, "header, tsv");

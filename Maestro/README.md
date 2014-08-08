@@ -6,6 +6,7 @@
     * Type of the stage: for a title screen it's OVTK_GDF_Artifact_Breathing (0x108), for random corpus it's OVTK_GDF_Artifact_Sweat (0x106), for sequential corpus it's OVTK_GDF_Artifact_Movement (0x104)
         * When a new agent is shown: OVTK_StimulationId_TrialStart (0x00008005)
         * Agent type, for low/medium/high/human respectively we got: OVTK_GDF_Stage_1 (0x411), OVTK_GDF_Stage_2 (0x411), OVTK_GDF_Stage_3 (0x411), OVTK_GDF_Stage_4 (0x411)
+            * the heart of the agent pulses: OVTK_GDF_Artifact_Pulse (0x109)
             * A sentence is spoken: OVTK_StimulationId_VisualStimulationStart (0x0000800b)
                 * Valence type for negative/neutral/positive: OVTK_GDF_Left (0x301), OVTK_GDF_Foot (0x303), OVTK_GDF_Right (0x302)
             * Sentence finished: OVTK_StimulationId_VisualStimulationStop (0x0000800c)

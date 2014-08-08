@@ -58,8 +58,10 @@ public class StageXP extends Stage {
       int index = int(random(HRs.size()));
       Body.HR HRType = HRs.get(index);
       println("Creating new agent: selects id=" + (index + 1) + "/" + HRs.size() + ", type: " + HRType);
-      // creates according agent, remove HR condition from list
-      agent = new Agent(HRType, hrMan);
+      // creates according agent, remove HR condition from list.
+      // "trig" ref comes from parent class... and passed by this one during creation
+      // TODO: make way better use of trig for HR
+      agent = new Agent(HRType, hrMan, trig);
       HRs.remove(index);
       // point to TTS
       agent.setTTS(tts);
