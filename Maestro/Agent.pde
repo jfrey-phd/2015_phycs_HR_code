@@ -15,15 +15,22 @@ public class Agent {
   // agent type, our independent variable
   private Body.HR HRType;
 
-  // Create the different parts -- by default HR is set to medium
+  // for "human" type agent we want to recover hear rate
+  HeartManager hrMan;
+
+  // Create the different parts -- by default HR is set to medium and no HeartManager
   Agent() {
-    this(Body.HR.MEDIUM);
+    this(Body.HR.MEDIUM, null, null);
   }
 
-  // Create the different parts. HRType: which kind of beat we got for the heart
-  // TODO: handle human, tune heart rates
-  Agent(Body.HR HRType) {
+  // Create the different parts.
+  // HRType: which kind of beat we got for the heart
+  // hrMan: tune heart rates with human type
+  // trig: forward stim code sender to heart
+  // TODO: could set to null if fot human type ; but not pretty. new constructor or  class instead.
+  Agent(Body.HR HRType, HeartManager hrMan, Trigger trig) {
     this.HRType = HRType;
+    this.hrMan = hrMan;
     // Create and position different parts
     head = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
     head.setPos(0, 0);
@@ -36,13 +43,18 @@ public class Agent {
     mouth = new BodyPart(Body.Type.MOUTH, Body.Genre.MALE);
     mouth.setPos(150, 475);
 
-    // Special case for heart: will play a sound with each beat
-    heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH, "beat.wav"); 
+    // Special case for heart: will play a sound with each beat -- pass "hrMan" as a Trigger, *not* "trig", because in-between we want to compute fakeHR 
+    heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH, "beat.wav", hrMan); 
     heart.setPos(600, 600);
 
-    // deals with heart rate
-    // FIXME: at the moment "human" BPM will be set to default
-    heart.setBPM(HRType.BPM);
+    // deals with heart rate ; special case if human type and got HRManager
+    if (HRType == Body.HR.HUMAN && hrMan != null) {
+      heart.setBPM(hrMan.getHR());
+    }
+    // will be constant otherwise
+    else {
+      heart.setBPM(HRType.BPM);
+    }
 
     heart.setAnimationSpeed(45);
 
@@ -71,6 +83,10 @@ public class Agent {
     head.update();
     eyes.update();
     mouth.update();
+    // tries to update HR if human type and got HRManager
+    if (HRType == Body.HR.HUMAN && hrMan != null) {
+      heart.setBPM(hrMan.getHR());
+    }
     heart.update();
   }
 

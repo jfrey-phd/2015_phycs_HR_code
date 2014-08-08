@@ -22,6 +22,9 @@ ArrayList<Stage> stages;
 int current_stage = -1;
 final String XP_SCRIPT_FILENAME = "xp.xml";
 
+// we'll send the last stimulation once
+boolean endXPSent = false;
+
 int WINDOW_X = 1000;
 int WINDOW_Y = 1000;
 
@@ -36,12 +39,13 @@ void setup() {
   // we don't choose our font but we want smooth text -- should not work with P2P from doc??
   textMode(SHAPE);
 
+  // it writing TCP, but it'll be up to StimManager to handle that, only need Trigger interface that the other component could directly give their codes
+  stimMan = new StimManager();
+
   // init TCP reading if option is set
   if (enableBeatTCP) {
-    hrMan = new HeartManager();
+    hrMan = new HeartManager(stimMan);
   }
-  // same for writing TCP, but it'll be up to StimManager to hande that, only need Trigger interface elsewhere
-  stimMan = new StimManager();
 
   // init for body parts randomness -- got headers, fields separated by tabs
   Table body_parts = loadTable(CSV_BODY_FILENAME, "header, tsv");
@@ -121,7 +125,7 @@ void loadStages() {
       println("nbSameValence: "+ nbSameValence);
 
       // finally, we create our xp stage and add it to list
-      StageXP stage = new StageXP(stimMan, tts, nbSentences, nbSameValence);
+      StageXP stage = new StageXP(stimMan, hrMan, tts, nbSentences, nbSameValence);
       stages.add(stage);
 
       // time to look for likert scale and to push them to current stage
@@ -224,7 +228,11 @@ void draw() {
   }
   // all done ?
   else {
-    stimMan.sendMes("OVTK_StimulationId_ExperimentStop");
+    // we don't want send an infinite number of end signal
+    if (!endXPSent) {
+      stimMan.sendMes("OVTK_StimulationId_ExperimentStop");
+      endXPSent = true;
+    }
     //println("No more stages");
     background(0);
     fill(255);

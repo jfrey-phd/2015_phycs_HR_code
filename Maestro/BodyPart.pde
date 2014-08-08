@@ -37,6 +37,8 @@ public class BodyPart {
 
   // use ESS r2 lib to read audio file
   AudioChannel beat;  
+  // send stim code for heart
+  Trigger trig;
 
   // set type and load model (randomize part if loadParts() has been called)
   BodyPart(Body.Type type, Body.Genre genre) {
@@ -46,8 +48,16 @@ public class BodyPart {
 
   // with this constructor, possible to define a sound to be played for each animation
   BodyPart(Body.Type type, Body.Genre genre, String beatAudioFile) {
+    // no ref to trigger by default
+    this(type, genre, beatAudioFile, null);
+  }
+
+  // For heart: will use trigger to send stim code for effective beat
+  // NB: it's a bit messy but you'll want to use HeartManager as a Trigger, as it will computes the actual HR for debug
+  BodyPart(Body.Type type, Body.Genre genre, String beatAudioFile, Trigger trig) {
     this.type = type;
     this.genre = genre;
+    this.trig = trig;
     // get randomized number
     part_number = Body.getRandomPart(type, genre);
 
@@ -189,6 +199,10 @@ public class BodyPart {
     }
     // tries to trigger audio
     beat();
+    // send stim if heart part
+    if (type == Body.Type.HEART && trig != null) {
+      trig.sendMes("OVTK_GDF_Artifact_Pulse");
+    }
     // return and set flag to true for update()
     return start_anim = true;
   }
