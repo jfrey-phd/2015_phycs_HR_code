@@ -1,6 +1,9 @@
 
 // various config for the experiment
 
+// how often do we compute FPS (in seconds, 0 to disable)
+final float FPS_WINDOW = 5;
+
 // add caller name to each "println"
 boolean printStack = true;
 // also write stdout to file on disk?
