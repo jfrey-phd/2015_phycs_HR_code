@@ -31,7 +31,7 @@ int WINDOW_Y = 1000;
 
 void setup() {
   // init logs
-  Diary.setup(this, printStack, printToFile, sketchPath("")+stdoutFileBasename);
+  Diary.setup(this, printStack, printToFile, sketchPath("")+stdoutFileBasename, exportCSV, sketchPath("")+CSVFileBasename);
   // using 2D backend as we won't venture in 3D realm
   size(WINDOW_X, WINDOW_Y, P2D);
   smooth();
