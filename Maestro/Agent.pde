@@ -99,7 +99,7 @@ public class Agent {
     return wholeBody;
   }
 
-  // StageXP wants to know type for sending codes
+  // StageXP wants to know type for sending codes and CSV
   public Body.HR getHRType() {
     return HRType;
   }

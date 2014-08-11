@@ -1,9 +1,11 @@
 
 import java.util.Locale;
 
-// a stage which handles agents, will disable by itself when job's done
-// agents are randomely generated, exept for HR which is set by XML.
-// once agents (HR conditions) are added to the list, the new agent will be randomely 
+// A stage which handles agents, will disable by itself when job's done.
+// Agents are randomely generated, exept for HR which is set by XML.
+// Once agents (HR conditions) are added to the list, the new agent will be randomely. 
+
+// If option is set, will write data in CSV format about each answer of the subject.
 
 public class StageXP extends Stage {
 
@@ -234,18 +236,10 @@ public class StageXP extends Stage {
         }
         // if not, checks if new answers should be aknowledge
         else {
-          // we got once the last button clicked, compute corresponding stim code and send
+          // we got once the last button clicked, pass info for stims/CSV
           int lastClick = lik.getLastClick();
           if (lastClick != -1) {
-            // buttons are sequentially numbered between the scales
-            int butNumber = i*lik.nbButtons + lastClick;
-            // which is the first label dedicated to this likert scale
-            // TODO: not scalable with number of likerts
-            int labelStart = 1;
-            // we have to convert button number to hexa for openvibe stim code (need only 2 digits)
-            String stimCode = "OVTK_StimulationId_Label_" + hex(labelStart + butNumber, 2);
-            println("Button click for Stage: " + butNumber + ", code: " + stimCode);
-            sendStim(stimCode);
+            likertAnswered(true, i, lik.nbButtons, lastClick);
           }
         }
       }
@@ -286,18 +280,10 @@ public class StageXP extends Stage {
         }
         // if not, checks if new answers should be aknowledge
         else {
-          // we got once the last button clicked, compute corresponding stim code and send
+          // we got once the last button clicked, pass info for stims/CSV
           int lastClick = lik.getLastClick();
           if (lastClick != -1) {
-            // buttons are sequentially numbered between the scales
-            int butNumber = i*lik.nbButtons + lastClick;
-            // which is the first label dedicated to this likert scale
-            // TODO: not scalable with number of likerts
-            int labelStart = 8;
-            // we have to convert button number to hexa for openvibe stim code (need only 2 digits)
-            String stimCode = "OVTK_StimulationId_Label_" + hex(labelStart + butNumber, 2);
-            println("Button click for Stage: " + butNumber + ", code: " + stimCode);
-            sendStim(stimCode);
+            likertAnswered(false, i, lik.nbButtons, lastClick);
           }
         }
       }
@@ -339,6 +325,44 @@ public class StageXP extends Stage {
     // Tell them what we are !
     // FIXME: handle other corpus
     sendStim("OVTK_GDF_Artifact_Sweat");
+  }
+
+  // will send the correct stim and export to CSV once a quesiton has been answerd
+  // likertSentence: true if the likert is about a sentence, false for an agent
+  // likertNumber, buttonNumber: code for selected button of selected likert
+  // nbButtons: how many buttons holds the scale (used for stims)
+  // TODO: stims not scalable with number of likerts
+  private void likertAnswered(boolean likertSentence, int likertNumber, int nbButtons, int buttonNumber) {
+    // buttons are sequentially numbered between the scales
+    int butCode = likertNumber*nbButtons + buttonNumber;
+
+    // which is the first label dedicated to this likert scale...
+    int labelStart;
+    // ...and an associated plain text name... 
+    String questionType = "";
+    // ...if comes from likertsSentence
+    if (likertSentence) {
+      labelStart = 1;
+      questionType = "sentence";
+    }
+    // ...if comes from likertsAgent
+    else {
+      labelStart = 8;
+      questionType = "agent";
+    }
+
+    // send stim, we have to convert button number to hexa for openvibe stim code (need only 2 digits)
+    String stimCode = "OVTK_StimulationId_Label_" + hex(labelStart + butCode, 2);
+    println("Button click for Stage: " + butCode + ", code: " + stimCode);
+    sendStim(stimCode);
+
+    // will write CSV file now if option set
+    // TODO: we do not deal with the flag for stim in here, better think of that
+    if (exportCSV) {
+      // FIXME: only one type of stage right now
+      // FIXME: no valenec
+      Diary.logCSV(0, agent.getHRType(), questionType, likertNumber, 0, buttonNumber);
+    }
   }
 
   // draw for xp type

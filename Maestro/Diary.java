@@ -121,7 +121,7 @@ public class Diary {
   }
 
   // record subject's answers and current experimental conditions into CSV file
-  public static void logCSV(int stage, Body.Type condition, String question_type, int question_code, int valence, int answer) {
+  public static void logCSV(int stage, Body.HR condition, String question_type, int question_code, int valence, int answer) {
     // could be more detailed, but luckily such a problem will be quickly tracked down
     if (outputCSV == null) {
       System.out.println("CSV logs: error, logs not initialized or option not set.");

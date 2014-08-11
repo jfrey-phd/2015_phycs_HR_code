@@ -8,14 +8,14 @@ public class StimManager implements Trigger {
 
   StimManager() {
     // init output socket if needed
-    if (enableStimtTCP) {
+    if (enableStimTCP) {
       tcpWriter = new TCPClientWrite(Maestro.this, stimIP, stimPort);
     }
   }
 
   // update tcpWriter stream if applicable
   public void update() {
-    if (enableStimtTCP) {
+    if (enableStimTCP) {
       tcpWriter.update();
     }
   }
@@ -23,7 +23,7 @@ public class StimManager implements Trigger {
   // Trigger interface, chooses the right stream
   public void sendMes(String mes) {
     // init output socket if needed
-    if (enableStimtTCP) {
+    if (enableStimTCP) {
       tcpWriter.write(mes);
     }
     else {
