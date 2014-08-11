@@ -8,6 +8,10 @@ boolean printToFile = true;
 // basename (no extenntion) of the file for "piping" stdout (relative to sketch folder)
 String stdoutFileBasename = "../recordings/stdout";
 
+// conf for CSV
+boolean exportCSV = true;
+String CSVFileBasename = "../recordings/subject";
+
 /* config for beat detection */
 // true for reading beats from TCP, false for a default value
 final boolean enableBeatTCP = true; 
