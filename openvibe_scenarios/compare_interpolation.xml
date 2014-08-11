@@ -1,8 +1,8 @@
 <OpenViBE-Scenario>
 	<Boxes>
 		<Box>
-			<Identifier>(0x0abdfe93, 0x77b87f96)</Identifier>
-			<Name>nearest</Name>
+			<Identifier>(0x0f9033b6, 0x48a0cd3f)</Identifier>
+			<Name>cubic</Name>
 			<AlgorithmClassIdentifier>(0x0055be5f, 0x087bdd12)</AlgorithmClassIdentifier>
 			<Inputs>
 				<Input>
@@ -62,7 +62,7 @@
 				</Attribute>
 				<Attribute>
 					<Identifier>(0x207c9054, 0x3c841b63)</Identifier>
-					<Value>480.000000</Value>
+					<Value>672.000000</Value>
 				</Attribute>
 				<Attribute>
 					<Identifier>(0x4e7b798a, 0x183beafb)</Identifier>
@@ -74,7 +74,7 @@
 				</Attribute>
 				<Attribute>
 					<Identifier>(0xc46b3d00, 0x3e0454e1)</Identifier>
-					<Value>(0x00000000, 0x0008a693)</Value>
+					<Value>(0x00000000, 0x00091c0a)</Value>
 				</Attribute>
 				<Attribute>
 					<Identifier>(0xc73e83ec, 0xf855c5bc)</Identifier>
@@ -91,7 +91,7 @@
 			</Attributes>
 		</Box>
 		<Box>
-			<Identifier>(0x39f89a7f, 0x3abb929b)</Identifier>
+			<Identifier>(0x22328876, 0x5f8f5379)</Identifier>
 			<Name>TCP reader analog</Name>
 			<AlgorithmClassIdentifier>(0x5dc4f669, 0xd3fd4d64)</AlgorithmClassIdentifier>
 			<Outputs>
@@ -112,7 +112,7 @@
 					<TypeIdentifier>(0xb0d0db45, 0x49cbc34a)</TypeIdentifier>
 					<Name>Script</Name>
 					<DefaultValue></DefaultValue>
-					<Value>${__volatile_ScenarioDir}/ov-tcp-reader-analog.py</Value>
+					<Value>${__volatile_ScenarioDir}/ov-tcp-reader-analog-client.py</Value>
 					<Modifiability>false</Modifiability>
 				</Setting>
 				<Setting>
@@ -204,8 +204,8 @@
 			</Attributes>
 		</Box>
 		<Box>
-			<Identifier>(0x6944872d, 0x6990fbc3)</Identifier>
-			<Name>cubic</Name>
+			<Identifier>(0x308e1ed5, 0x61ac487f)</Identifier>
+			<Name>nearest</Name>
 			<AlgorithmClassIdentifier>(0x0055be5f, 0x087bdd12)</AlgorithmClassIdentifier>
 			<Inputs>
 				<Input>
@@ -265,7 +265,7 @@
 				</Attribute>
 				<Attribute>
 					<Identifier>(0x207c9054, 0x3c841b63)</Identifier>
-					<Value>672.000000</Value>
+					<Value>480.000000</Value>
 				</Attribute>
 				<Attribute>
 					<Identifier>(0x4e7b798a, 0x183beafb)</Identifier>
@@ -277,7 +277,7 @@
 				</Attribute>
 				<Attribute>
 					<Identifier>(0xc46b3d00, 0x3e0454e1)</Identifier>
-					<Value>(0x00000000, 0x00091c0a)</Value>
+					<Value>(0x00000000, 0x0008a693)</Value>
 				</Attribute>
 				<Attribute>
 					<Identifier>(0xc73e83ec, 0xf855c5bc)</Identifier>
@@ -294,7 +294,7 @@
 			</Attributes>
 		</Box>
 		<Box>
-			<Identifier>(0x709181b4, 0x0b1a9dd7)</Identifier>
+			<Identifier>(0x3d0260dd, 0x572af38a)</Identifier>
 			<Name>linear</Name>
 			<AlgorithmClassIdentifier>(0x0055be5f, 0x087bdd12)</AlgorithmClassIdentifier>
 			<Inputs>
@@ -384,7 +384,7 @@
 			</Attributes>
 		</Box>
 		<Box>
-			<Identifier>(0x79962894, 0x72b9e82d)</Identifier>
+			<Identifier>(0x3ebda273, 0x004c00a0)</Identifier>
 			<Name>TCP reader analog</Name>
 			<AlgorithmClassIdentifier>(0x5dc4f669, 0xd3fd4d64)</AlgorithmClassIdentifier>
 			<Outputs>
@@ -405,7 +405,7 @@
 					<TypeIdentifier>(0xb0d0db45, 0x49cbc34a)</TypeIdentifier>
 					<Name>Script</Name>
 					<DefaultValue></DefaultValue>
-					<Value>${__volatile_ScenarioDir}/ov-tcp-reader-analog.py</Value>
+					<Value>${__volatile_ScenarioDir}/ov-tcp-reader-analog-client.py</Value>
 					<Modifiability>false</Modifiability>
 				</Setting>
 				<Setting>
@@ -479,6 +479,10 @@
 					<Value>(0x00000000, 0x0af76e63)</Value>
 				</Attribute>
 				<Attribute>
+					<Identifier>(0xc67a01dc, 0x28ce06c1)</Identifier>
+					<Value></Value>
+				</Attribute>
+				<Attribute>
 					<Identifier>(0xc73e83ec, 0xf855c5bc)</Identifier>
 					<Value>false</Value>
 				</Attribute>
@@ -497,7 +501,7 @@
 			</Attributes>
 		</Box>
 		<Box>
-			<Identifier>(0x7fa1384d, 0x4f73f1e4)</Identifier>
+			<Identifier>(0x760d754c, 0x72581279)</Identifier>
 			<Name>TCP reader analog</Name>
 			<AlgorithmClassIdentifier>(0x5dc4f669, 0xd3fd4d64)</AlgorithmClassIdentifier>
 			<Outputs>
@@ -518,7 +522,7 @@
 					<TypeIdentifier>(0xb0d0db45, 0x49cbc34a)</TypeIdentifier>
 					<Name>Script</Name>
 					<DefaultValue></DefaultValue>
-					<Value>${__volatile_ScenarioDir}/ov-tcp-reader-analog.py</Value>
+					<Value>${__volatile_ScenarioDir}/ov-tcp-reader-analog-client.py</Value>
 					<Modifiability>false</Modifiability>
 				</Setting>
 				<Setting>
@@ -612,13 +616,13 @@
 	</Boxes>
 	<Links>
 		<Link>
-			<Identifier>(0x5301fa83, 0x10dc6d54)</Identifier>
+			<Identifier>(0x5835dac6, 0x2d4377c8)</Identifier>
 			<Source>
-				<BoxIdentifier>(0x7fa1384d, 0x4f73f1e4)</BoxIdentifier>
+				<BoxIdentifier>(0x760d754c, 0x72581279)</BoxIdentifier>
 				<BoxOutputIndex>0</BoxOutputIndex>
 			</Source>
 			<Target>
-				<BoxIdentifier>(0x0abdfe93, 0x77b87f96)</BoxIdentifier>
+				<BoxIdentifier>(0x308e1ed5, 0x61ac487f)</BoxIdentifier>
 				<BoxInputIndex>0</BoxInputIndex>
 			</Target>
 			<Attributes>
@@ -641,13 +645,13 @@
 			</Attributes>
 		</Link>
 		<Link>
-			<Identifier>(0x5d15c6f2, 0x5c0f8697)</Identifier>
+			<Identifier>(0x6d62e429, 0x2b720fc6)</Identifier>
 			<Source>
-				<BoxIdentifier>(0x39f89a7f, 0x3abb929b)</BoxIdentifier>
+				<BoxIdentifier>(0x22328876, 0x5f8f5379)</BoxIdentifier>
 				<BoxOutputIndex>0</BoxOutputIndex>
 			</Source>
 			<Target>
-				<BoxIdentifier>(0x709181b4, 0x0b1a9dd7)</BoxIdentifier>
+				<BoxIdentifier>(0x3d0260dd, 0x572af38a)</BoxIdentifier>
 				<BoxInputIndex>0</BoxInputIndex>
 			</Target>
 			<Attributes>
@@ -670,13 +674,13 @@
 			</Attributes>
 		</Link>
 		<Link>
-			<Identifier>(0x774f82ff, 0x36ef3825)</Identifier>
+			<Identifier>(0x72d948a2, 0x20ffe72f)</Identifier>
 			<Source>
-				<BoxIdentifier>(0x79962894, 0x72b9e82d)</BoxIdentifier>
+				<BoxIdentifier>(0x3ebda273, 0x004c00a0)</BoxIdentifier>
 				<BoxOutputIndex>0</BoxOutputIndex>
 			</Source>
 			<Target>
-				<BoxIdentifier>(0x6944872d, 0x6990fbc3)</BoxIdentifier>
+				<BoxIdentifier>(0x0f9033b6, 0x48a0cd3f)</BoxIdentifier>
 				<BoxInputIndex>0</BoxInputIndex>
 			</Target>
 			<Attributes>
@@ -702,7 +706,7 @@
 	<MessageLinks></MessageLinks>
 	<Comments>
 		<Comment>
-			<Identifier>(0x7c7db34c, 0x2b5fd0ae)</Identifier>
+			<Identifier>(0x25dd782c, 0x687d001f)</Identifier>
 			<Text>Use with openvibe 0.18
 
 Read data from ser2sock, try each one of the interpolation method.</Text>
@@ -720,14 +724,28 @@ Read data from ser2sock, try each one of the interpolation method.</Text>
 	</Comments>
 	<VisualisationTree>
 		<VisualisationWidget>
-			<Identifier>(0x0a0cb674, 0x7076ee33)</Identifier>
+			<Identifier>(0x359cba5d, 0x229c1879)</Identifier>
 			<Type>3</Type>
 			<ParentIdentifier>(0xffffffff, 0xffffffff)</ParentIdentifier>
-			<BoxIdentifier>(0x6944872d, 0x6990fbc3)</BoxIdentifier>
+			<BoxIdentifier>(0x3d0260dd, 0x572af38a)</BoxIdentifier>
 			<NumChildren>0</NumChildren>
 		</VisualisationWidget>
 		<VisualisationWidget>
-			<Identifier>(0x2424e13e, 0x47d65431)</Identifier>
+			<Identifier>(0x53058bb1, 0x656688c1)</Identifier>
+			<Type>3</Type>
+			<ParentIdentifier>(0xffffffff, 0xffffffff)</ParentIdentifier>
+			<BoxIdentifier>(0x308e1ed5, 0x61ac487f)</BoxIdentifier>
+			<NumChildren>0</NumChildren>
+		</VisualisationWidget>
+		<VisualisationWidget>
+			<Identifier>(0x56f3650c, 0x0a30678b)</Identifier>
+			<Type>3</Type>
+			<ParentIdentifier>(0xffffffff, 0xffffffff)</ParentIdentifier>
+			<BoxIdentifier>(0x0f9033b6, 0x48a0cd3f)</BoxIdentifier>
+			<NumChildren>0</NumChildren>
+		</VisualisationWidget>
+		<VisualisationWidget>
+			<Identifier>(0x68e347bc, 0x037e5967)</Identifier>
 			<Name>Default window</Name>
 			<Type>1</Type>
 			<ParentIdentifier>(0xffffffff, 0xffffffff)</ParentIdentifier>
@@ -745,33 +763,19 @@ Read data from ser2sock, try each one of the interpolation method.</Text>
 			</Attributes>
 		</VisualisationWidget>
 		<VisualisationWidget>
-			<Identifier>(0x27885ccf, 0x6b3befad)</Identifier>
-			<Type>3</Type>
-			<ParentIdentifier>(0xffffffff, 0xffffffff)</ParentIdentifier>
-			<BoxIdentifier>(0x0abdfe93, 0x77b87f96)</BoxIdentifier>
-			<NumChildren>0</NumChildren>
-		</VisualisationWidget>
-		<VisualisationWidget>
-			<Identifier>(0x5439e153, 0x180c4999)</Identifier>
-			<Type>3</Type>
-			<ParentIdentifier>(0xffffffff, 0xffffffff)</ParentIdentifier>
-			<BoxIdentifier>(0x709181b4, 0x0b1a9dd7)</BoxIdentifier>
-			<NumChildren>0</NumChildren>
-		</VisualisationWidget>
-		<VisualisationWidget>
-			<Identifier>(0x0e095fbd, 0x1743a885)</Identifier>
+			<Identifier>(0x719686db, 0x4487efad)</Identifier>
 			<Name>Default tab</Name>
 			<Type>2</Type>
-			<ParentIdentifier>(0x2424e13e, 0x47d65431)</ParentIdentifier>
+			<ParentIdentifier>(0x68e347bc, 0x037e5967)</ParentIdentifier>
 			<Index>0</Index>
 			<BoxIdentifier>(0xffffffff, 0xffffffff)</BoxIdentifier>
 			<NumChildren>1</NumChildren>
 		</VisualisationWidget>
 		<VisualisationWidget>
-			<Identifier>(0x67a391f4, 0x7cb57b5d)</Identifier>
+			<Identifier>(0x683970db, 0x2224a5b0)</Identifier>
 			<Name>Empty</Name>
 			<Type>0</Type>
-			<ParentIdentifier>(0x0e095fbd, 0x1743a885)</ParentIdentifier>
+			<ParentIdentifier>(0x719686db, 0x4487efad)</ParentIdentifier>
 			<Index>0</Index>
 			<BoxIdentifier>(0xffffffff, 0xffffffff)</BoxIdentifier>
 			<NumChildren>0</NumChildren>
