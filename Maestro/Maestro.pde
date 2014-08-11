@@ -41,10 +41,8 @@ void setup() {
   // it writing TCP, but it'll be up to StimManager to handle that, only need Trigger interface that the other component could directly give their codes
   stimMan = new StimManager();
 
-  // init TCP reading if option is set
-  if (enableBeatTCP) {
-    hrMan = new HeartManager(stimMan);
-  }
+  // will init TCP reading if option is set, otherwise serve as a relay for fake beats  with 
+  hrMan = new HeartManager(stimMan, enableBeatTCP);
 
   // init for body parts randomness -- got headers, fields separated by tabs
   Table body_parts = loadTable(CSV_BODY_FILENAME, "header, tsv");
