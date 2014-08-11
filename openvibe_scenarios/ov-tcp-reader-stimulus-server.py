@@ -20,12 +20,22 @@ class MyOVBox(OVBox):
     self.CONNECTION_LIST = []
     # each client has its corresponding broken message
     self.broken_msg = {}
+    # will spam stdout if True
+    self.debug = False
 
   # the initialize method reads settings and outputs the first header
   def initialize(self):
     # connection infos
     self.ip = self.setting['IP']
     self.port = int(self.setting['Port'])
+    # try get debug flag from GUI
+    try:
+      debug = (self.setting['Debug']=="true")
+    except:
+      print "Couldn't find debug flag"
+    else:
+      self.debug=debug
+    print "Debug flag:" + str(self.debug)
     # init server
     self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # this has no effect, why ?
@@ -85,7 +95,8 @@ class MyOVBox(OVBox):
               del self.broken_msg[sock]
           # we got data, dig into ittrigger stim
           elif data != None:
-              print "received data: [", data, "]"
+              if self.debug:
+                print "received data: [", data, "]"
               self.process_data(data, sock)
       
   # get data from network and makes proper label (split strings/reconstruct messages if needed)
@@ -94,7 +105,8 @@ class MyOVBox(OVBox):
   def process_data(self, data, sock):
     # debug
     if self.broken_msg[sock] != "":
-      print "====concatenating [" + self.broken_msg[sock] + "]"
+      if self.debug:
+        print "====concatenating [" + self.broken_msg[sock] + "]"
       
     # flag to check for carriage return
     mes_OK = True
@@ -103,7 +115,8 @@ class MyOVBox(OVBox):
     input_message = self.broken_msg[sock]+data
     # if not terminated by line return, there's a problem
     if input_message[len(input_message)-1] != '\n':
-      print "============== Error ==============="
+      if self.debug:
+        print "============== Error ==============="
       mes_OK = False
     
     # on carriage return == one value
@@ -112,7 +125,8 @@ class MyOVBox(OVBox):
 
     # stop before last, because message can be incomplete
     for i in range(0, len(strs)-1):
-      print "received: [" + strs[i] + "]"
+      if self.debug:
+        print "received: [" + strs[i] + "]"
       # see what it can do...
       self.send_stim(strs[i])
       # if we are in this loop (at least one code ending with line return), then last broken message has been sent
@@ -122,10 +136,12 @@ class MyOVBox(OVBox):
     # if message is broken, then save it in the right buffer (won't lost data if one code is split across several "packets", because buffer has already be concatenated to input_message)
     if not(mes_OK):
       self.broken_msg[sock] = last
-      print "====partial code: " +  self.broken_msg[sock]
+      if self.debug:
+        print "====partial code: " +  self.broken_msg[sock]
     # everything ok, treat the same the last element
     else:
-      print "received: [" + last + "]"
+      if self.debug:
+        print "received: [" + last + "]"
       self.send_stim(last)
       # if the last chunk is ok, we don't have any pending broken message
       self.broken_msg[sock]=""

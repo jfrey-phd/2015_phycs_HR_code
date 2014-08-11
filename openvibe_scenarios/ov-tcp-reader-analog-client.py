@@ -54,8 +54,14 @@ class MyOVBox(OVBox):
     self.connect_to_server()
     # FIXME: a list is not efficient
     self.buffer = []
-    # get debug flag from GUI
-    self.debug = (self.setting['Debug']=="true")
+    # try get debug flag from GUI
+    try:
+      debug = (self.setting['Debug']=="true")
+    except:
+      print "Couldn't find debug flag"
+    else:
+      self.debug=debug
+    print "Debug flag:" + str(self.debug)
     
     interpolation_code = 0
     # try to recover interpolation method
@@ -259,8 +265,7 @@ class MyOVBox(OVBox):
       self.trigger(last)
       # if the last chunk is ok, we don't have any pending broken message
       self.broken_msg=""
-    
-    
+  
   # called by process_data for each value received
   def trigger(self, value):
     # don't bother with empty value (split does that)
