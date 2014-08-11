@@ -43,6 +43,11 @@ void setup() {
   // we don't choose our font but we want smooth text -- should not work with P2P from doc??
   textMode(SHAPE);
 
+  // limit FPS in case we have a slow machine (or too greedy programs)
+  if (FPS_LIMIT > 0) {
+    frameRate(FPS_LIMIT);
+  }
+
   // it writing TCP, but it'll be up to StimManager to handle that, only need Trigger interface that the other component could directly give their codes
   stimMan = new StimManager();
 
@@ -212,7 +217,7 @@ void monitorFPS () {
     // avoid division by 0
   && now != FPSTick) {
     float fps = (frameCount - frameTick) / ((now - FPSTick) / 1000);
-    println("FPS over " + FPS_WINDOW + "s : " + fps);
+    println("FPS over " + FPS_WINDOW + "s: " + fps + " (" + frameRate + " reported, " + FPS_LIMIT + " set)");
     // reset counters
     frameTick = frameCount;
     FPSTick = now;
