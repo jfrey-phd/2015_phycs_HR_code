@@ -148,9 +148,8 @@ class MyOVBox(OVBox):
     try:
       # create connection
       self.client_socket.connect((self.ip, self.port))
-    except:
-      traceback.print_exc()
-      print "Failed to connect"
+    except Exception as e:
+      print "Failed to connect" + " -- " + str(e)
       self.connected = False
     else:
       print "Connected"
