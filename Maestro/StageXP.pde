@@ -62,6 +62,7 @@ public class StageXP extends Stage {
       // "trig" ref comes from parent class... and passed by this one during creation
       // TODO: make way better use of trig for HR
       agent = new Agent(HRType, hrMan, trig);
+      println("Selected agent: " + agent);
       HRs.remove(index);
       // point to TTS
       agent.setTTS(tts);

@@ -188,7 +188,7 @@ public class BodyPart {
 
   // a hint of true java under the hood
   public String toString() {
-    return Body.getTypeName(type) + Body.getGenreName(genre);
+    return type + "_" + genre + "_" + part_number;
   }
 
   // start a new animation, triggers beat sound for heart

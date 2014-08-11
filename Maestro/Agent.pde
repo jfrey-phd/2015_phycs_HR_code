@@ -6,6 +6,8 @@ public class Agent {
 
   // FIXME: public for debug through keyboard
   public BodyPart head, eyes, mouth, heart;
+  // what kind of man/female we are!
+  private Body.Genre genre;
   // Every elemet will be connected to it
   private PShape wholeBody;
 
@@ -31,6 +33,8 @@ public class Agent {
   Agent(Body.HR HRType, HeartManager hrMan, Trigger trig) {
     this.HRType = HRType;
     this.hrMan = hrMan;
+    // FIXME: random male/female    
+    this.genre = Body.Genre.MALE;
     // Create and position different parts
     head = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
     head.setPos(0, 0);
@@ -98,6 +102,11 @@ public class Agent {
   // StageXP wants to know type for sending codes
   public Body.HR getHRType() {
     return HRType;
+  }
+
+  // will build an indenty from HR type, genre and every body parts details
+  public String toString() {
+    return HRType + "_" + genre + "-" + head + "-" + eyes + "-" + mouth + "-" + heart;
   }
 }
 
