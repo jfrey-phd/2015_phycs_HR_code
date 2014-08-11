@@ -1,4 +1,6 @@
 
+// if enableBeatTCP == false, will just serve as a relay between BodyPart and stimulations for fake beats.
+
 // will compute HR -- no more than 10% variations beatween beats, min and max values set, fallback smoothly to "medium" HR if timeout
 // FIXME: check HR algo, evolution if noise or deco not equally smooth (harmonize update() and trueBeat())
 
@@ -38,29 +40,35 @@ class HeartManager implements Trigger {
   private int lastTimeoutBeat;
 
   // Takes itself a trigger in order to pass Agent's beats to exterior...
-  HeartManager(Trigger trig) {
+  HeartManager(Trigger trig, boolean enableBeatTCP) {
     this.trig = trig;
-    // give pointer to this class for Trigger interface
-    readBeats = new TCPClientRead(beatIP, beatPort, this);
+    // init TCP client only if we need to read something...
+    if (enableBeatTCP) {
+      // give pointer to this class for Trigger interface
+      readBeats = new TCPClientRead(beatIP, beatPort, this);
+    }
   }
 
   // update TCP stream, compute HR
   public void update() {
-    readBeats.update();
-    // if not alrdeay timedout, start to bring HR toward default value
-    if (!timeout && lastBeat + HR_TIMEOUT < millis()) {
-      timeout = true;
-    }
+    // do not update if no socket (enableBeatTCP == false)
+    if (readBeats!=null) {
+      readBeats.update();
+      // if not alrdeay timedout, start to bring HR toward default value
+      if (!timeout && lastBeat + HR_TIMEOUT < millis()) {
+        timeout = true;
+      }
 
-    // if timedout and not reached default pulse yet, go back there step by step
-    if (timeout && HR != Body.HR.MEDIUM.BPM && lastTimeoutBeat + REFRACTORY_DELAY < millis()) {
-      int new_HR = Body.HR.MEDIUM.BPM;
-      // to smooth a bit transition, clamp around last real HR +/- 10%
-      new_HR=round(min(new_HR, HR+0.1*HR));
-      new_HR=round(max(new_HR, HR-0.1*HR));
-      HR = new_HR;
-      lastTimeoutBeat = millis();
-      println("Timeout while waiting for beat, back to default: HR=" + HR);
+      // if timedout and not reached default pulse yet, go back there step by step
+      if (timeout && HR != Body.HR.MEDIUM.BPM && lastTimeoutBeat + REFRACTORY_DELAY < millis()) {
+        int new_HR = Body.HR.MEDIUM.BPM;
+        // to smooth a bit transition, clamp around last real HR +/- 10%
+        new_HR=round(min(new_HR, HR+0.1*HR));
+        new_HR=round(max(new_HR, HR-0.1*HR));
+        HR = new_HR;
+        lastTimeoutBeat = millis();
+        println("Timeout while waiting for beat, back to default: HR=" + HR);
+      }
     }
   }
 
