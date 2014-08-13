@@ -39,7 +39,7 @@ public class Agent {
     this.hrMan = hrMan;
     // FIXME: random male/female    
     this.genre = Body.Genre.MALE;
-    voicePitch = round(random(PITCH_BASE - PITCH_RANGE, PITCH_BASE + PITCH_RANGE));
+    voicePitch = floor(random(PITCH_BASE - PITCH_RANGE, PITCH_BASE + PITCH_RANGE + 1));
     // Create and position different parts
     head = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
     head.setPos(0, 0);
