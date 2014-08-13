@@ -38,3 +38,7 @@ final boolean enableStimTCP = true;
 String stimIP = "127.0.0.1";
 int stimPort = 11001;
 
+/* for debug only -- every option should be "false" for real run */
+// if true, prevent HeartManager to send fake beats stims (too verbose for tracking stdout) 
+final boolean DEBUG_PREVENT_FAKE_BEATS = false;
+
