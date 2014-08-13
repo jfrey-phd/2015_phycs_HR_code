@@ -298,19 +298,14 @@ void draw() {
 
 // trigger different action for debug
 void keyPressed() {
-  //  // debug animation
-  //  if (key == 'b') {
-  //    agent.eyes.animate();
-  //  }
-  //  else if (key == 'm') {
-  //    agent.mouth.animate();
-  //  }
-  //  else if (key == 'h') {
-  //    agent.heart.animate();
-  //  }
-
+  // trap for esc key
+  if (key == ESC) {
+    println("Escape attempt!");
+    // if key variable not modified, "esc" event will be capture anyway
+    key = 0;
+  }
   // debug TTS
-  if (key == 's') {
+  else if (key == 's') {
     String mes = "Bonjour tout le monde et bonjour et bonjour !";
     tts.setText(mes);
     thread("speak");
@@ -329,12 +324,7 @@ void keyPressed() {
   else if (key == '3') {
     tts.setText(corpus_current.drawText(1));
     thread("speak");
-  }  
-
-  // debug for agent
-  //  else if (key == 'r') {
-  //    createAgent();
-  //  }
+  }
 }
 
 // tell current stage a click occurred

@@ -94,8 +94,8 @@ class LikertButton {
     // put black text on the center bottom, with a margin
     fill(0, alpha);
     textAlign(CENTER, TOP);
-    // Text height: 1/3 of size
-    textSize(size/3);
+    // Text height: 2/5 of size
+    textSize(size/2.5);
     // space between button and label, proportionnal to size: 20%
     float margin = size*1/5;
     text(label, posX+size/2, posY+size+margin);
