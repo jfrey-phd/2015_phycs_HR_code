@@ -13,6 +13,11 @@ HeartManager hrMan;
 // Write stimulation -- could be to TCP with TCPClientWrite if enableStimtTCP, or only to stdout otherwise
 StimManager stimMan;
 
+// how many loops we had last time we checked FPS?
+long frameTick = 0;
+// last time we've checked FPS
+long FPSTick = 0;
+
 // which file gives info about available body parts
 final String CSV_BODY_FILENAME = "body_parts.csv";
 
@@ -37,6 +42,11 @@ void setup() {
   smooth();
   // we don't choose our font but we want smooth text -- should not work with P2P from doc??
   textMode(SHAPE);
+
+  // limit FPS in case we have a slow machine (or too greedy programs)
+  if (FPS_LIMIT > 0) {
+    frameRate(FPS_LIMIT);
+  }
 
   // it writing TCP, but it'll be up to StimManager to handle that, only need Trigger interface that the other component could directly give their codes
   stimMan = new StimManager();
@@ -198,6 +208,22 @@ void loadStages() {
   }
 }
 
+// count loops number and print FPS when needed
+void monitorFPS () {
+  // timestamp NOW!
+  long now = millis();
+  // reached time to compute new FPS
+  if (now - FPSTick - FPS_WINDOW * 1000 > 0 
+    // avoid division by 0
+  && now != FPSTick) {
+    float fps = (frameCount - frameTick) / ((now - FPSTick) / 1000);
+    println("FPS over " + FPS_WINDOW + "s: " + fps + " (" + frameRate + " reported, " + FPS_LIMIT + " set)");
+    // reset counters
+    frameTick = frameCount;
+    FPSTick = now;
+  }
+}
+
 // draw... and update recursively a lot of stuf
 void draw() {
   // update Beats reading from TCP if option is set
@@ -234,6 +260,11 @@ void draw() {
     background(0);
     fill(255);
     text("The END", 50, 50);
+  }
+
+  // let's have a look at how FPS are going if asked to
+  if (FPS_WINDOW > 0) {
+    monitorFPS();
   }
 
   // messages may need to be pushed to TCP
