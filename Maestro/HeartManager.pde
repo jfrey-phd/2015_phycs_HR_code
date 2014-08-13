@@ -90,7 +90,12 @@ class HeartManager implements Trigger {
   }
 
   // agent produced a pulse, compute displayed HR for debug and forward stim code
+  // possible to disable this verbose feeback with a debug flag 
   private void fakeBeat(String code) {
+    // dirty but handy
+    if (DEBUG_PREVENT_FAKE_BEATS) {
+      return;
+    }
     if (trig != null) {
       trig.sendMes(code);
     }
@@ -113,8 +118,7 @@ class HeartManager implements Trigger {
     // OVTK_GDF_Artifact_Pulse is the code for produced beat
     else if (code.equals("OVTK_GDF_Artifact_Pulse")) {
       fakeBeat(code);
-    }
-    else {
+    } else {
       println("Unknown code: [" + code + "] -- size: " + code.length() + ", time: " + millis());
     }
   }
