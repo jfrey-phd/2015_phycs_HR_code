@@ -27,7 +27,6 @@ public class Diary {
   // we init once
   private static boolean init = false;
   // Goes back to processing PApplet
-  // TODO: use System.out.println()?
   private static PApplet applet = null;
   // add caller name to each "println"
   private static boolean printStack = true;
@@ -126,7 +125,7 @@ public class Diary {
   public static void logCSV(int stage, Body.HR condition, String question_type, int question_code, int valence, int answer) {
     // could be more detailed, but luckily such a problem will be quickly tracked down
     if (outputCSV == null) {
-      System.out.println("CSV logs: error, logs not initialized or option not set.");
+      println("CSV logs: error, logs not initialized or option not set.");
       return;
     }
 
@@ -138,7 +137,7 @@ public class Diary {
         + "\t" + Integer.toString(valence) + "\t" + Integer.toString(answer);
 
     // Let's write it!
-    System.out.println("CSV record: " + record);
+    println("CSV record: " + record);
     outputCSV.println(record);
     // extra care
     outputCSV.flush();
