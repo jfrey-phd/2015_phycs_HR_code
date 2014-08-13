@@ -307,23 +307,19 @@ void keyPressed() {
   // debug TTS
   else if (key == 's') {
     String mes = "Bonjour tout le monde et bonjour et bonjour !";
-    tts.setText(mes);
-    thread("speak");
+    tts.speak(mes);
   }
   // speak sad
   else if (key == '1') {
-    tts.setText(corpus_current.drawText(-1));
-    thread("speak");
+    tts.speak(corpus_current.drawText(-1));
   }
   // speak neutral
   else if (key == '2') {
-    tts.setText(corpus_current.drawText(0));
-    thread("speak");
+    tts.speak(corpus_current.drawText(0));
   }
   // speak happy
   else if (key == '3') {
-    tts.setText(corpus_current.drawText(1));
-    thread("speak");
+    tts.speak(corpus_current.drawText(1));
   }
 }
 
@@ -349,9 +345,9 @@ void mouseReleased() {
 }
 
 // wrapper for tts.speak in order to use thread()
-// FIXME: also called by Stage...
-void speak() {
-  tts.speak();
+// WARNING: do not call, only AgentSpeak should use that
+void threadSpeak() {
+  tts.execSpeak();
 }
 
 // close ESS on exit
