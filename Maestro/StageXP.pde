@@ -53,7 +53,6 @@ public class StageXP extends Stage {
 
   // will create/reset agent
   // new agent, randomely selected among HR conditions left, removing from stack
-  // TODO: randomize TTS
   private void createAgent() {
     if (HRs.size() > 0) {
       // randomely select an index from array and get element
@@ -66,7 +65,7 @@ public class StageXP extends Stage {
       agent = new Agent(HRType, hrMan, trig);
       println("Selected agent: " + agent);
       HRs.remove(index);
-      // point to TTS
+      // point to TTS (for mouth animation)
       agent.setTTS(tts);
     }
     // should not happen -- update() in START already checks this
@@ -150,7 +149,7 @@ public class StageXP extends Stage {
         curSameValence = 0;
         sendStim("OVTK_StimulationId_TrialStart");
         // we need to be a little more precise than that, pass code of HR type directly to trigger
-        sendStim(agent.getHRType().code);
+        sendStim(agent.HRType.code);
       }
       break;
     case AGENT_START:
@@ -178,7 +177,7 @@ public class StageXP extends Stage {
       // initiate next sentence or next step if no more in valence/agent
       // TODO: select valence, use corpus
     case SPEAK_START:
-      thread("speak");
+      tts.speak("Bonjour tout le monde", agent.genre, agent.voicePitch);
       curState = StageState.XP.SPEAKING;
       println("State: " + curState);
       sendStim("OVTK_StimulationId_VisualStimulationStart");
@@ -349,7 +348,7 @@ public class StageXP extends Stage {
     if (exportCSV) {
       // FIXME: only one type of stage right now
       // FIXME: no valenec
-      Diary.logCSV(0, agent.getHRType(), questionType, likertNumber, 0, buttonNumber);
+      Diary.logCSV(0, agent.HRType, questionType, likertNumber, 0, buttonNumber);
     }
   }
 
