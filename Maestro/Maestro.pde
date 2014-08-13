@@ -1,6 +1,11 @@
 
 // coordinates all the different modules
 
+// FIXME: prone to crash if resized (?? even with simple content)
+
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+
 // where the sentences comes from, random type
 Corpus corpus_random;
 // pointer to the currently used corpus
@@ -30,15 +35,35 @@ final String XP_SCRIPT_FILENAME = "xp.xml";
 // we'll send the last stimulation once
 boolean endXPSent = false;
 
-int WINDOW_X = 1000;
-int WINDOW_Y = 1000;
-
+// deals with window properties
+void init() {
+  // if going fullscreen, we do not need decoration
+  if (START_FULLSCREEN) {
+    frame.removeNotify();
+    frame.setUndecorated(true); 
+    frame.addNotify();
+  }
+  // if not fullscreen, enable resize
+  // FIXME: dangerous behavior, will probably crash upon resize
+  else if (ENABLE_RESIZE) {
+    if (frame != null) {
+      frame.setResizable(true);
+    }
+  }
+  super.init();
+}
 
 void setup() {
+  // two possible size if we go fullscreen or not
+  if (START_FULLSCREEN) {
+    // using 2D backend as we won't venture in 3D realm
+    size(displayWidth, displayHeight, P2D);
+  } else {
+    size(WINDOW_X, WINDOW_Y, P2D);
+  }
   // init logs
   Diary.setup(this, printStack, printToFile, sketchPath("")+stdoutFileBasename, exportCSV, sketchPath("")+CSVFileBasename);
-  // using 2D backend as we won't venture in 3D realm
-  size(WINDOW_X, WINDOW_Y, P2D);
+  // tries to avoid aliasing
   smooth();
   // we don't choose our font but we want smooth text -- should not work with P2P from doc??
   textMode(SHAPE);
@@ -107,8 +132,7 @@ void loadStages() {
       println("label: "+ stage_label);
 
       stages.add(new StageTitle(stimMan, stage_label));
-    }
-    else if (type.equals("xp")) {
+    } else if (type.equals("xp")) {
       println("Create type XP");
 
       // tries to catch the number of sentences per agent
@@ -161,7 +185,7 @@ void loadStages() {
           println("Can't find some of the likret parameters...");
         }
 
-        println("Likert: " + question, ", likert type: " + likert_type);
+        println("Likert: " + question + ", likert type: " + likert_type);
         stage.pushLikert(likert_type, question, nbButtons, from, neutral, to);
       }
 
@@ -194,8 +218,7 @@ void loadStages() {
         // push to stage
         stage.pushAgent(HRType, timesAgent);
       }
-    }
-    else {
+    } else {
       println("Error: don't know how to handle stage type \"" + type + "\", set default one.");
     }
   }
@@ -259,6 +282,7 @@ void draw() {
     //println("No more stages");
     background(0);
     fill(255);
+    textSize(20);
     text("The END", 50, 50);
   }
 
@@ -274,19 +298,14 @@ void draw() {
 
 // trigger different action for debug
 void keyPressed() {
-  //  // debug animation
-  //  if (key == 'b') {
-  //    agent.eyes.animate();
-  //  }
-  //  else if (key == 'm') {
-  //    agent.mouth.animate();
-  //  }
-  //  else if (key == 'h') {
-  //    agent.heart.animate();
-  //  }
-
+  // trap for esc key
+  if (key == ESC) {
+    println("Escape attempt!");
+    // if key variable not modified, "esc" event will be capture anyway
+    key = 0;
+  }
   // debug TTS
-  if (key == 's') {
+  else if (key == 's') {
     String mes = "Bonjour tout le monde et bonjour et bonjour !";
     tts.setText(mes);
     thread("speak");
@@ -306,11 +325,6 @@ void keyPressed() {
     tts.setText(corpus_current.drawText(1));
     thread("speak");
   }
-
-  // debug for agent
-  //  else if (key == 'r') {
-  //    createAgent();
-  //  }
 }
 
 // tell current stage a click occurred
@@ -351,19 +365,6 @@ public void dispose () {
   Ess.stop();
 }
 
-public static String getCallerClassName() { 
-  StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
-  for (int i=1; i<stElements.length; i++) {
-    StackTraceElement ste = stElements[i];
-    println(i);
-    println(ste);
-    if (!ste.getClassName().equals(Maestro.class.getName()) && ste.getClassName().indexOf("java.lang.Thread")!=0) {
-      return ste.getClassName();
-    }
-  }
-  return null;
-}
-
 // override println() in order to get Diary facilitation (ie calling class if flag set)
 // WARNING: as long as Diary.applet is not set, will discard every println
 static void println(String str) {
@@ -373,5 +374,10 @@ static void println(String str) {
   // 2: this function
   // 3: what we want to know
   Diary.println(str, 3);
+}
+
+// catch println of objects, see println(String str) for comments
+static void println(Object o) {
+  Diary.println(o.toString(), 3);
 }
 

@@ -16,10 +16,6 @@ class LikertButton {
 
   // position and size
   float posX, posY, size;
-  // space between button and label
-  private float margin;
-  // vertical space allocated for text
-  private float TEXT_HEIGHT = 20;
 
   // status of mouse pressed/click
   private boolean pressed = false;
@@ -40,17 +36,10 @@ class LikertButton {
   LikertButton(String label, int ID, float posX, float posY, float size, boolean disable_on_click) {
     this.label = label;
     this.ID = ID;
-    this.posX=posX;
-    this.posY=posY;
-    this.size=size;
+    // set position, create button shape
+    move(posX, posY, size);
     this.disable_on_click = disable_on_click;
     println(this);
-    // margin proportionnal to size: 20%
-    margin = size*1/5;
-    // the shape of our button is a square
-    button =  createShape(RECT, 0, 0, size, size);
-    // set default outline 
-    button.setStrokeWeight(4);
   }
 
   // returns true if the mouse is on the button
@@ -78,8 +67,7 @@ class LikertButton {
     if (isMouseHover()) {
       if (pressed) {
         current_color_fill=PRESS_COLOR;
-      }
-      else {
+      } else {
         current_color_fill=HOVER_COLOR;
       }
     }
@@ -106,7 +94,10 @@ class LikertButton {
     // put black text on the center bottom, with a margin
     fill(0, alpha);
     textAlign(CENTER, TOP);
-    textSize(TEXT_HEIGHT);
+    // Text height: 2/5 of size
+    textSize(size/2.5);
+    // space between button and label, proportionnal to size: 20%
+    float margin = size*1/5;
     text(label, posX+size/2, posY+size+margin);
   }
 
@@ -181,4 +172,16 @@ class LikertButton {
     pressed = false;
     clicked = false;
   }
+
+  // change button coordinates -- (re)create button shape
+  public void move(float posX, float posY, float size) {
+    this.posX=posX;
+    this.posY=posY;
+    this.size=size;
+    // the shape of our button is a square
+    button =  createShape(RECT, 0, 0, size, size);
+    // set default outline, a fraction of size
+    button.setStrokeWeight(size/20);
+  }
 }
+

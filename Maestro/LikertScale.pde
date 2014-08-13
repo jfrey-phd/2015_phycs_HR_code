@@ -21,7 +21,7 @@ class LikertScale {
   // associated question
   private String label = "?";
   // vertical space allocated for text
-  private float TEXT_HEIGHT = 40;
+  private float textHeight;
 
   // fade step seleced for appearance/disappearance
   private float fade_step;
@@ -43,6 +43,8 @@ class LikertScale {
     this.posX = posX;
     this.posY = posY;
     this.size = size;
+    // text height is proportional to size, 10%
+    this.textHeight = size/10;
     this.disable_on_click = disable_on_click;
     // really, should not happen, but since we divide by nbButtons later...
     if (nbButtons < 1) {
@@ -59,7 +61,7 @@ class LikertScale {
       println("Create button: " + button_label);
       // X position depends on button number, Y position makes room for the question
       float buttonX = i * (size/nbButtons) + posX;
-      float buttonY = posY + TEXT_HEIGHT*1.5;
+      float buttonY = posY + textHeight*1.5;
       // push button to stack
       buttons.add(new LikertButton(button_label, i, buttonX, buttonY, button_size, disable_on_click));
     }
@@ -76,7 +78,7 @@ class LikertScale {
   // FIXME: results could be weird with an even number of buttons or if < 3
   void setLabels(String from, String neutral, String to) {
     // first pass: empty everything exept begining and end
-    for (int i=1; i<buttons.size()-1; i++) {
+    for (int i=1; i<buttons.size ()-1; i++) {
       buttons.get(i).setLabel("");
     }
     // then replace firt, last and middle
@@ -100,12 +102,12 @@ class LikertScale {
     // draw question text in the top middle
     fill(0, (int)current_alpha);
     textAlign(CENTER, TOP);
-    textSize(TEXT_HEIGHT);
+    textSize(textHeight);
     text(label, posX+size/2, posY);
     // a line for positionning debug
     //line(posX, posY, size, posY);
     // then draw each button
-    for (int i=0; i<buttons.size(); i++) {
+    for (int i=0; i<buttons.size (); i++) {
       buttons.get(i).draw((int)current_alpha);
     }
   }
@@ -120,7 +122,7 @@ class LikertScale {
       return;
     }
     // first update press/detect click
-    for (int i=0; i<buttons.size(); i++) {
+    for (int i=0; i<buttons.size (); i++) {
       LikertButton button = buttons.get(i);
       // if it just a "press", then update only this status
       if (flag) {
@@ -140,7 +142,7 @@ class LikertScale {
 
     // if a click occurred and disable_on_click is set, we have to disable every button
     if (clicked_ID >= 0 && disable_on_click) {
-      for (int i=0; i<buttons.size(); i++) {
+      for (int i=0; i<buttons.size (); i++) {
         buttons.get(i).disable();
       }
       disabled=true;
@@ -182,8 +184,27 @@ class LikertScale {
     else {
       current_alpha = 255;
     }
-    for (int i=0; i<buttons.size(); i++) {
+    for (int i=0; i<buttons.size (); i++) {
       buttons.get(i).reset();
+    }
+  }
+
+  // change likert coordinates
+  // TODO: refactorize with constructor
+  public void move(float posX, float posY, float size) {
+    this.posX = posX;
+    this.posY = posY;
+    this.size = size;
+    this.textHeight = size/10;
+    // push changes to buttons
+    for (int i=0; i<buttons.size (); i++) {
+      // each space allocated to the buttons will have 80% of actual button and 20% of space around
+      float button_size = (size/nbButtons) * 4/5;
+      // X position depends on button number, Y position makes room for the question
+      float buttonX = i * (size/buttons.size()) + posX;
+      float buttonY = posY + textHeight*1.5;
+      // set pos/size
+      buttons.get(i).move(buttonX, buttonY, button_size);
     }
   }
 }

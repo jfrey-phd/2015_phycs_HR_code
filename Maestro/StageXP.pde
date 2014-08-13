@@ -93,27 +93,20 @@ public class StageXP extends Stage {
   public void pushLikert(String type, String question, int nbButtons, String from, String neutral, String to) {
     if (type.equals("sentence")) {
       pushLikertSentence(question, nbButtons, from, neutral, to);
-    }
-    else if (type.equals("agent")) {
+    } else if (type.equals("agent")) {
       pushLikertAgent(question, nbButtons, from, neutral, to);
-    }
-    else {
+    } else {
       println("Error, unknown likert type, ignore it.");
     }
   }
 
   // push likert for sentences
   // question + how may answers + labels for answers
-  // FIXME: will fix positions here...
+  // NB: likert postion computed in fitScreen()
   private void pushLikertSentence(String question, int nbButtons, String from, String neutral, String to) {
     println("New likert for sentences. Question: " + question + ", [" + nbButtons + "], labels " + from + ", " + neutral + ", " + to);
-    // set width and position
-    float likertSize = 500;
-    float likertX = 100;
-    // magic numbers + give room for previous likerts
-    float likertY = 800 +  100*likertsSentence.size();
-    // disable on click and fade
-    LikertScale likert = new LikertScale(question, nbButtons, likertX, likertY, likertSize, true, 5);
+    // disable on click and fade, dummy positions
+    LikertScale likert = new LikertScale(question, nbButtons, 0, 0, 100, true, 5);
     // set labels
     likert.setLabels(from, neutral, to);
     likertsSentence.add(likert);
@@ -121,16 +114,11 @@ public class StageXP extends Stage {
 
   // push likert for agent
   // question + how may answers + labels for answers
-  // FIXME: will fix positions here...
+  // NB: likert postion computed in fitScreen()
   private void pushLikertAgent(String question, int nbButtons, String from, String neutral, String to) {
     println("New likert for agent. Question: " + question + ", [" + nbButtons + "], labels " + from + ", " + neutral + ", " + to);
-    // set width and position
-    float likertSize = 500;
-    float likertX = 100;
-    // magic numbers + give room for previous likerts
-    float likertY = 400 +  200*likertsAgent.size();
-    // disable on click and fade
-    LikertScale likert = new LikertScale(question, nbButtons, likertX, likertY, likertSize, true, 5);
+    // disable on click and fade, dummy positions
+    LikertScale likert = new LikertScale(question, nbButtons, 0, 0, 100, true, 5);
     // set labels
     likert.setLabels(from, neutral, to);
     likertsAgent.add(likert);
@@ -140,6 +128,7 @@ public class StageXP extends Stage {
   // NB: could takes few loop to reach a useful state
   // see StageState for a diagram  of the state
   public void update() {
+    super.update();
     switch(curState) {
       // automatically switch to START...
     case INIT:
@@ -152,8 +141,7 @@ public class StageXP extends Stage {
       if (HRs.size() == 0) {
         curState = StageState.XP.STOP;
         println("State: " + curState);
-      }
-      else {
+      } else {
         createAgent();
         curState = StageState.XP.AGENT_START;
         println("State: " + curState);
@@ -228,7 +216,7 @@ public class StageXP extends Stage {
       // show likert for sentence while at least one is active
     case LIKERT_SENTENCE:
       boolean sentence_active = false;
-      for (int i = 0; i < likertsSentence.size(); i++) {
+      for (int i = 0; i < likertsSentence.size (); i++) {
         LikertScale lik = likertsSentence.get(i);
         // one is active, change flag
         if (!lik.isDisabled()) {
@@ -256,7 +244,7 @@ public class StageXP extends Stage {
       // wait for time's up before proeceeding
     case LIKERT_SENTENCE_STOP:
       if (isTimeOver()) {
-        for (int i = 0; i < likertsSentence.size(); i++) {
+        for (int i = 0; i < likertsSentence.size (); i++) {
           likertsSentence.get(i).reset();
         }
         curState = StageState.XP.AGENT_START;
@@ -272,7 +260,7 @@ public class StageXP extends Stage {
       // show likert for agent while at least one is active
     case LIKERT_AGENT:
       boolean agent_active = false;
-      for (int i = 0; i < likertsAgent.size(); i++) {
+      for (int i = 0; i < likertsAgent.size (); i++) {
         LikertScale lik = likertsAgent.get(i);
         // one is active, change flag, stop loop
         if (!lik.isDisabled()) {
@@ -299,7 +287,7 @@ public class StageXP extends Stage {
       // likert done: stop agent, reset agent likerts for next use (? should not happen), back to START
     case LIKERT_AGENT_STOP:
       if (isTimeOver()) {
-        for (int i = 0; i < likertsAgent.size(); i++) {
+        for (int i = 0; i < likertsAgent.size (); i++) {
           likertsAgent.get(i).reset();
         }
         sendStim("OVTK_StimulationId_TrialStop");
@@ -373,12 +361,11 @@ public class StageXP extends Stage {
     // reset display
     background(255);
 
-    // agent position and scale may change -- if likert agent
-    // should be only one likert for sentence, no need to scale -- or would distrub user
-    // by default, draw (somewhat) in the middle
-    float agentX = 100, agentY = 100;
-    // ...and a bit too big on loading
-    float agentScale = 0.8;
+    // By default, agent takes 4/5 of the screen
+    // (leave space for likert sentence no matter what even if not shown, too frequent change in position would disturb user)
+    // TODO: adapt with number of likert sentence
+    float agentSpace = 0.8;
+
     // on special case (init and stop), will not show agent to avoid glithes (change in scale for few frames)
     boolean showAgent = true;
 
@@ -394,20 +381,19 @@ public class StageXP extends Stage {
     case LIKERT_AGENT:
     case LIKERT_AGENT_STOP:
       // loop on likerts to draw them
-      for (int i=0; i < likertsAgent.size(); i++) {
+      for (int i=0; i < likertsAgent.size (); i++) {
         likertsAgent.get(i).draw();
       }
     case LIKERT_AGENT_START:
-      // agent top left corder
-      agentX = 10;
-      agentY = 10;
-      agentScale = 0.3;
+      // there will be many likerts for agent, reduce space
+      // TODO: adapt with number of likert agent
+      agentSpace = 0.4;
       break;
       // loop on sentence likerts to draw them
     case LIKERT_SENTENCE:
     case LIKERT_SENTENCE_STOP:
       // loop on likerts to draw them
-      for (int i=0; i < likertsSentence.size(); i++) {
+      for (int i=0; i < likertsSentence.size (); i++) {
         likertsSentence.get(i).draw();
       }
       break;
@@ -415,6 +401,15 @@ public class StageXP extends Stage {
 
     // if the current state don't prevent agent diplay, show the beautiful baby
     if (showAgent && agent != null) {
+
+      // original agent size is 1000x1000 (see Agent). Center on X, scale on Y.
+      // The real scale of agent is a little less than "agentSpace" because there is space left above and under
+      float agentScale = (agentSpace * 18/20) * height / 1000;
+      // center by hand on X, on top on Y
+      float agentX = (width - (height*agentScale)) / 2;
+      // 1/20 margin
+      float agentY = height * (agentScale * 1/20);
+
       // update every part, deals all animations
       agent.update();
       // reset previous scale, apply new one
@@ -430,7 +425,7 @@ public class StageXP extends Stage {
   public void pressed() {
     // loop for sentence
     if (curState == StageState.XP.LIKERT_SENTENCE) {
-      for (int i=0; i < likertsSentence.size(); i++) {
+      for (int i=0; i < likertsSentence.size (); i++) {
         // if enabled, send event
         likertsSentence.get(i).sendMousePress(true);
       }
@@ -438,7 +433,7 @@ public class StageXP extends Stage {
     // loop for agent
     else if (curState == StageState.XP.LIKERT_AGENT)
     {
-      for (int i=0; i < likertsAgent.size(); i++) {
+      for (int i=0; i < likertsAgent.size (); i++) {
         // send event
         likertsAgent.get(i).sendMousePress(true);
       }
@@ -449,7 +444,7 @@ public class StageXP extends Stage {
   public void released() {
     // loop for sentence
     if (curState == StageState.XP.LIKERT_SENTENCE) {
-      for (int i=0; i < likertsSentence.size(); i++) {
+      for (int i=0; i < likertsSentence.size (); i++) {
         // if enabled, send event
         LikertScale likert =  likertsSentence.get(i);
         if (!likert.isDisabled()) {
@@ -462,7 +457,7 @@ public class StageXP extends Stage {
     }
     // loop for agent
     else if (curState == StageState.XP.LIKERT_AGENT) {
-      for (int i=0; i < likertsAgent.size(); i++) {
+      for (int i=0; i < likertsAgent.size (); i++) {
         // if enabled, send event
         LikertScale likert =  likertsAgent.get(i);
         if (!likert.isDisabled()) {
@@ -473,6 +468,35 @@ public class StageXP extends Stage {
         }
       }
     }
+  }
+
+  // called by fitScreen, resize one of the sets of likerts, leaving agentRatio space for agent display
+  private void resizeLikerts(ArrayList<LikertScale> likerts, float agentRatio) {
+    // TODO: the ratio height=width*2.5 for likerts is a bit guessed, could be computed from buttons/likerts
+    float likertWidthHeightRatio = 2.5;
+    for (int i=0; i < likerts.size (); i++) {
+      // how much space left for likert in Y
+      float likertSpaceY = height*(1-agentRatio);
+      // compute how much space il allocated per likert
+      float likertHeight = likertSpaceY/likerts.size ();
+      // compute corresponding width to pass to likert to make it fit the space -- not more than screen width though
+      float likertWidth = min(width, likertHeight * likertWidthHeightRatio);
+      // give room for previous likerts
+      float likertY = height*agentRatio +  likertHeight*i;
+      // center in X
+      float likertX = (width - likertWidth)/2;
+      // send positions
+      likerts.get(i).move(likertX, likertY, likertWidth);
+    }
+  }
+
+  // call when window size change, update likerts positions
+  public void fitScreen() {
+    super.fitScreen();
+    // for likert sentences, agent fills 4/5 of the screen
+    resizeLikerts(likertsSentence, 0.8);
+    // for likert agent, agent fills 2/5 of the screen
+    resizeLikerts(likertsAgent, 0.4);
   }
 } 
 
