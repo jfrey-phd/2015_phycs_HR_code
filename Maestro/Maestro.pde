@@ -311,15 +311,24 @@ void keyPressed() {
   }
   // speak sad
   else if (key == '1') {
-    tts.speak(corpus_current.drawText(-1));
+    Corpus.Sentence sentence = corpus_current.drawText(-1);
+    if (sentence != null) {
+      tts.speak(sentence.text);
+    }
   }
   // speak neutral
   else if (key == '2') {
-    tts.speak(corpus_current.drawText(0));
+    Corpus.Sentence sentence = corpus_current.drawText(0);
+    if (sentence != null) {
+      tts.speak(sentence.text);
+    }
   }
   // speak happy
   else if (key == '3') {
-    tts.speak(corpus_current.drawText(1));
+    Corpus.Sentence sentence = corpus_current.drawText(1);
+    if (sentence != null) {
+      tts.speak(sentence.text);
+    }
   }
 }
 
