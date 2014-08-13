@@ -185,7 +185,7 @@ void loadStages() {
           println("Can't find some of the likret parameters...");
         }
 
-        println("Likert: " + question, ", likert type: " + likert_type);
+        println("Likert: " + question + ", likert type: " + likert_type);
         stage.pushLikert(likert_type, question, nbButtons, from, neutral, to);
       }
 
@@ -374,5 +374,10 @@ static void println(String str) {
   // 2: this function
   // 3: what we want to know
   Diary.println(str, 3);
+}
+
+// catch println of objects, see println(String str) for comments
+static void println(Object o) {
+  Diary.println(o.toString(), 3);
 }
 

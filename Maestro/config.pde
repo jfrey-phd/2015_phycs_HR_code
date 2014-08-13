@@ -14,7 +14,7 @@ final float FPS_WINDOW = 5;
 // set FPS (will induce the running frequency of the whole program -- 0 for default)
 final int FPS_LIMIT = 60;
 
-// add caller name to each "println"
+// add timestamp and caller name to each "println"
 boolean printStack = true;
 // also write stdout to file on disk?
 boolean printToFile = true;

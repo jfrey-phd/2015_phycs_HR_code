@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 // Write output to file if flag is set
 // FIXME: do not get stderr
 // TODO: check that it's flushed. flush in draw() to limit disasters?
+// TODO: do not handle comma separated strings as argument 
 
 // WARNING: may use a greedy method, avoid with lot's of output.
 // TODO: examine SecurityManger solution, see http://stackoverflow.com/questions/421280/how-do-i-find-the-caller-of-a-method-using-stacktrace-or-reflection
@@ -97,17 +98,16 @@ public class Diary {
     println(text, 3);
   }
 
-  // for external use if another indirection is set (for ex. Maestro wrapper adds one layer)
+  // for external use if another indirection is set (for ex. Maestro wrapper adds one layer), will pick the right depth in stack
   public static void println(String text, int stackDepth) {
     if (applet != null) {
-      // empty header by default, will add caller name if printStack is set
+      // empty header by default, will add timestamp and caller name if printStack is set
       String header = "";
       if (printStack) {
-        // 0: getStack
-        // 1: Maersto.println
-        // 2: what we want to know
+        // more human readable to have timestamp in seconds
+        float timestamp = (float)applet.millis()/1000;
         StackTraceElement caller = Thread.currentThread().getStackTrace()[stackDepth];
-        header = caller.getClassName() + "." + caller.getMethodName() + ": ";
+        header = timestamp + ":" + caller.getClassName() + "." + caller.getMethodName() + " -- ";
       }
       // concatenate string
       String mes = header + text;
