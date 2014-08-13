@@ -372,9 +372,18 @@ public class StageXP extends Stage {
     // will write CSV file now if option set
     // TODO: we do not deal with the flag for stim in here, better think of that
     if (exportCSV) {
+      // set default condtion for current sentence
+      int corpus_code = 0;
+      float orig_valence = 0;
+      int valence = 0;
+      // then try to read what has actually been spoken 
+      if (sentence != null) {
+        corpus_code = sentence.corpusCode;
+        orig_valence = sentence.origValence;
+        valence = sentence.valence;
+      }
       // FIXME: only one type of stage right now
-      // FIXME: no valenec
-      Diary.logCSV(0, agent.HRType, questionType, likertNumber, 0, buttonNumber);
+      Diary.logCSV(0, agent.HRType, corpus_code, orig_valence, valence, questionType, likertNumber, buttonNumber);
     }
   }
 

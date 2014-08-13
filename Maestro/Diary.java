@@ -19,7 +19,10 @@ import java.text.SimpleDateFormat;
 
 // CSV will be flushed with each write
 
-// Format: a CSV file, a tabulation separating each field. Elapsed time since start (miliseconds), stage (integer), HR type (string), question type (string, sentence/agent), question coded (float), valence (integer, last sentence spoke for agent), answer (integer)
+// Format: a CSV file, a tabulation separating each field.
+// Elapsed time since start (miliseconds), stage (integer), HR type (string)
+// corpus_type (integer), orig_valence (float), valence (integer) -- info about last sentence spoke for agent
+// question type (string, sentence/agent), question coded (float), answer (integer)
 
 // TODO: one separate class for CSV if not frightened anymore by crowded folder
 
@@ -45,7 +48,7 @@ public class Diary {
 
   // init variables, create output files on disk if flags set (extention will be .txt/.csv), write headers for CSV
   // NB: calling this method twice will have no effect
-  public static void setup(PApplet applet, boolean printStack, boolean printToFile, String stdoutFileBasename, boolean exportCSV, String CSVFileBasename ) {
+  public static void setup(PApplet applet, boolean printStack, boolean printToFile, String stdoutFileBasename, boolean exportCSV, String CSVFileBasename) {
     // job already done
     if (init) {
       return;
@@ -72,7 +75,7 @@ public class Diary {
       outputCSV = applet.createWriter(CSVFileName);
       println("Output file for CSV: " + CSVFileName);
       // write headers
-      String headers = "elapsedTime" + "\t" + "stage" + "\t" + "HR_type" + "\t" + "question_type" + "\t" + "question_code" + "\t" + "valence" + "\t" + "answer";
+      String headers = "elapsedTime\t" + "stage\t" + "HR_type\t" + "corpus_type\t" + "orig_valence\t" + "valence\t" + "question_type\t" + "question_code\t" + "answer";
       outputCSV.println(headers);
       // extra care
       outputCSV.flush();
@@ -121,8 +124,8 @@ public class Diary {
     }
   }
 
-  // record subject's answers and current experimental conditions into CSV file
-  public static void logCSV(int stage, Body.HR condition, String question_type, int question_code, int valence, int answer) {
+  // record current experimental conditions, question info and subject's answers into CSV file
+  public static void logCSV(int stage, Body.HR condition, int corpus_code, float orig_valence, int valence, String question_type, int question_code, int answer) {
     // could be more detailed, but luckily such a problem will be quickly tracked down
     if (outputCSV == null) {
       println("CSV logs: error, logs not initialized or option not set.");
@@ -132,9 +135,9 @@ public class Diary {
     // Compute elapsed time since XP start
     long elapsedTime = new Date().getTime() -  initTime;
 
-    String record = Long.toString(elapsedTime) + "\t" + Integer.toString(stage)
-      + "\t" + condition + "\t" + question_type + "\t" + Integer.toString(question_code)
-        + "\t" + Integer.toString(valence) + "\t" + Integer.toString(answer);
+    String record = Long.toString(elapsedTime) + "\t" + Integer.toString(stage) + "\t" + condition 
+      + "\t" +  Integer.toString(corpus_code) + "\t" + Float.toString(orig_valence) + "\t" + Integer.toString(valence)
+      + "\t" + question_type + "\t" + Integer.toString(question_code) + "\t" + Integer.toString(answer);
 
     // Let's write it!
     println("CSV record: " + record);
