@@ -1,6 +1,11 @@
 
 // coordinates all the different modules
 
+// FIXME: prone to crash if resized (?? even with simple content)
+
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+
 // where the sentences comes from, random type
 Corpus corpus_random;
 // pointer to the currently used corpus
@@ -39,6 +44,11 @@ void setup() {
   Diary.setup(this, printStack, printToFile, sketchPath("")+stdoutFileBasename, exportCSV, sketchPath("")+CSVFileBasename);
   // using 2D backend as we won't venture in 3D realm
   size(WINDOW_X, WINDOW_Y, P2D);
+  // enable resize
+  if (frame != null) {
+    frame.setResizable(true);
+  }
+  // tries to avoid aliasing
   smooth();
   // we don't choose our font but we want smooth text -- should not work with P2P from doc??
   textMode(SHAPE);
@@ -107,8 +117,7 @@ void loadStages() {
       println("label: "+ stage_label);
 
       stages.add(new StageTitle(stimMan, stage_label));
-    }
-    else if (type.equals("xp")) {
+    } else if (type.equals("xp")) {
       println("Create type XP");
 
       // tries to catch the number of sentences per agent
@@ -194,8 +203,7 @@ void loadStages() {
         // push to stage
         stage.pushAgent(HRType, timesAgent);
       }
-    }
-    else {
+    } else {
       println("Error: don't know how to handle stage type \"" + type + "\", set default one.");
     }
   }
@@ -351,19 +359,6 @@ public void dispose () {
   Ess.stop();
 }
 
-public static String getCallerClassName() { 
-  StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
-  for (int i=1; i<stElements.length; i++) {
-    StackTraceElement ste = stElements[i];
-    println(i);
-    println(ste);
-    if (!ste.getClassName().equals(Maestro.class.getName()) && ste.getClassName().indexOf("java.lang.Thread")!=0) {
-      return ste.getClassName();
-    }
-  }
-  return null;
-}
-
 // override println() in order to get Diary facilitation (ie calling class if flag set)
 // WARNING: as long as Diary.applet is not set, will discard every println
 static void println(String str) {
@@ -374,4 +369,5 @@ static void println(String str) {
   // 3: what we want to know
   Diary.println(str, 3);
 }
+
 
