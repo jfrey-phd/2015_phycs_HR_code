@@ -102,19 +102,11 @@ public class StageXP extends Stage {
 
   // push likert for sentences
   // question + how may answers + labels for answers
-  // TODO: factorize with fitScreen() and pushLikertAgent()
+  // NB: likert postion computed in fitScreen()
   private void pushLikertSentence(String question, int nbButtons, String from, String neutral, String to) {
     println("New likert for sentences. Question: " + question + ", [" + nbButtons + "], labels " + from + ", " + neutral + ", " + to);
-    // set width and position, half of the screen in in X, centered
-    float likertSizeX = width/2;
-    float likertX = width/4;
-    // TODO: this one is a bit guessed 
-    float likertSizeY = likertSizeX/2.5;
-    // magic numbers + give room for previous likerts
-    // for likert sentences, agent fills 4/5 of the screen
-    float likertY = height*4/5 +  likertSizeY*likertsSentence.size();
-    // disable on click and fade
-    LikertScale likert = new LikertScale(question, nbButtons, likertX, likertY, likertSizeX, true, 5);
+    // disable on click and fade, dummy positions
+    LikertScale likert = new LikertScale(question, nbButtons, 0, 0, 100, true, 5);
     // set labels
     likert.setLabels(from, neutral, to);
     likertsSentence.add(likert);
@@ -122,19 +114,11 @@ public class StageXP extends Stage {
 
   // push likert for agent
   // question + how may answers + labels for answers
-  // TODO: factorize with fitScreen() and pushLikertSentence()
+  // NB: likert postion computed in fitScreen()
   private void pushLikertAgent(String question, int nbButtons, String from, String neutral, String to) {
     println("New likert for agent. Question: " + question + ", [" + nbButtons + "], labels " + from + ", " + neutral + ", " + to);
-    // set width and position, half of the screen in in X, centered
-    float likertSizeX = width/2;
-    float likertX = width/4;
-    // TODO: this one is a bit guessed 
-    float likertSizeY = likertSizeX/2.5;
-    // magic numbers + give room for previous likerts
-    // for likert agent, agent fills 2/5 of the screen
-    float likertY = height*2/5 +  likertSizeY*likertsAgent.size();
-    // disable on click and fade
-    LikertScale likert = new LikertScale(question, nbButtons, likertX, likertY, likertSizeX, true, 5);
+    // disable on click and fade, dummy positions
+    LikertScale likert = new LikertScale(question, nbButtons, 0, 0, 100, true, 5);
     // set labels
     likert.setLabels(from, neutral, to);
     likertsAgent.add(likert);
@@ -487,26 +471,43 @@ public class StageXP extends Stage {
 
   // call when window size change, update likerts positions
   public void fitScreen() {
-    // set width and position, half of the screen in in X, centered (see pushLikert*)
-    float likertSizeX = width/2;
-    float likertX = width/4;
-    // TODO: this one is a bit guessed 
-    float likertSizeY = likertSizeX/2.5;
+
+    // TODO: the ratio height=width*2.5 for likerts is a bit guessed, could be computed from buttons/likerts
+    float likertWidthHeightRatio = 2.5;
 
     // first set of likerts, posY not the same with "sentence" and "agent"
     for (int i=0; i < likertsSentence.size (); i++) {
-      // magic numbers + give room for previous likerts
       // for likert sentences, agent fills 4/5 of the screen
-      float likertY = height*4/5 +  likertSizeY*i;
+      float agentRatio = 0.8;
+      // how much space left for likert in Y
+      float likertSpaceY = height*(1-agentRatio);
+      // compute how much space il allocated per likert
+      float likertHeight = likertSpaceY/likertsSentence.size ();
+     // compute corresponding width to pass to likert to make it fit the space -- not more than screen width though
+      float likertWidth = min(width, likertHeight * likertWidthHeightRatio);
+      // give room for previous likerts
+      float likertY = height*agentRatio +  likertHeight*i;
+      // center in X
+      float likertX = (width - likertWidth)/2;
       // send positions
-      likertsSentence.get(i).move(likertX, likertY, likertSizeX);
+      likertsSentence.get(i).move(likertX, likertY, likertWidth);
     }
     // second set of likerts
     for (int i=0; i < likertsAgent.size (); i++) {
-      // magic numbers + give room for previous likerts
-      // for likert agent, agent fills 2/5 of the screen
-      float likertY = height*2/5 +  likertSizeY*i;
-      likertsAgent.get(i).move(likertX, likertY, likertSizeX);
+      // for likert sentences, agent fills 4/5 of the screen
+      float agentRatio = 0.4;
+      // how much space left for likert in Y
+      float likertSpaceY = height*(1-agentRatio);
+      // compute how much space il allocated per likert
+      float likertHeight = likertSpaceY/likertsAgent.size ();
+      // compute corresponding width to pass to likert to make it fit the space -- not more than screen width though
+      float likertWidth = min(width, likertHeight * likertWidthHeightRatio);
+      // give room for previous likerts
+      float likertY = height*agentRatio +  likertHeight*i;
+      // center in X
+      float likertX = (width - likertWidth)/2;
+      // send positions
+      likertsAgent.get(i).move(likertX, likertY, likertWidth);
     }
   }
 } 
