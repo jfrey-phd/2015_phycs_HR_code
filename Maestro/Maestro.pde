@@ -156,7 +156,7 @@ void loadStages() {
       println("nbSameValence: "+ nbSameValence);
 
       // finally, we create our xp stage and add it to list
-      StageXP stage = new StageXP(stimMan, hrMan, tts, nbSentences, nbSameValence);
+      StageXP stage = new StageXP(stimMan, hrMan, corpus_current, tts, nbSentences, nbSameValence);
       stages.add(stage);
 
       // time to look for likert scale and to push them to current stage

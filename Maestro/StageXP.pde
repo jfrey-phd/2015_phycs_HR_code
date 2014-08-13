@@ -21,24 +21,30 @@ public class StageXP extends Stage {
   // array list of  likert scale for agent
   private ArrayList<LikertScale> likertsAgent; 
 
-  // current agent and tts system
+  // current agent, corpus and tts system
   private Agent agent;
+  private Corpus corpus;
+  private AgentSpeak tts;
   // we need to pass HR information to agents
   private HeartManager hrMan;
-  private AgentSpeak tts;
   // total number of sentence per agent/same valence in a raw
   private int nbSentences = -1;
   private int nbSameValence = -1;
   // counter for current sentence number/valence
   private int curSentenceNb = 0;
   private int curSameValence = 0;
+  // wich valence we are using right now (chosen in step SPEAK_START)
+  private int curValence = 0;
+  // current sentence, used to hold info between pick and subject answer
+  private Corpus.Sentence sentence;
 
   // for how long we'll put stage on sleep when we have the occasion to (e.g. end of likerts) (in ms)
   final private int TIMER_DURATION = 1000;
 
   // constructor for xp, create new agent, link it against AgentSpeak if available
-  StageXP(Trigger trig, HeartManager hrMan, AgentSpeak tts, int nbSentences, int nbSameValence) {
+  StageXP(Trigger trig, HeartManager hrMan, Corpus corpus, AgentSpeak tts, int nbSentences, int nbSameValence) {
     super(trig);
+    this.corpus = corpus;
     this.hrMan = hrMan;
     // init variables, list for likerts and HRs
     this.nbSentences = nbSentences;
@@ -123,6 +129,14 @@ public class StageXP extends Stage {
     likertsAgent.add(likert);
   }
 
+  // choose new valence for next sentences
+  private void resetValence() {
+    curSameValence = 0;
+    // valence between -1 and 1
+    curValence = floor(random(-1, 2));
+    println("New valence for next " + nbSameValence + " sentences: " + curValence);
+  }
+
   // before draw: update internal states
   // NB: could takes few loop to reach a useful state
   // see StageState for a diagram  of the state
@@ -146,7 +160,8 @@ public class StageXP extends Stage {
         println("State: " + curState);
         // start a new batch
         curSentenceNb = 0;
-        curSameValence = 0;
+        resetValence();
+        sentence = null;
         sendStim("OVTK_StimulationId_TrialStart");
         // we need to be a little more precise than that, pass code of HR type directly to trigger
         sendStim(agent.HRType.code);
@@ -177,7 +192,18 @@ public class StageXP extends Stage {
       // initiate next sentence or next step if no more in valence/agent
       // TODO: select valence, use corpus
     case SPEAK_START:
-      tts.speak("Bonjour tout le monde", agent.genre, agent.voicePitch);
+      // increase the number of same valence we used in a row
+      curSameValence++;
+      // if greater that what we should say, reset counter, draw new valence
+      if (curSameValence > nbSameValence) {
+        resetValence();
+      }
+      // draw a new sentence
+      sentence = corpus.drawText(curValence);
+      // speak it aloud if present
+      if (sentence != null) {
+        tts.speak(sentence.text, agent.genre, agent.voicePitch);
+      }
       curState = StageState.XP.SPEAKING;
       println("State: " + curState);
       sendStim("OVTK_StimulationId_VisualStimulationStart");
