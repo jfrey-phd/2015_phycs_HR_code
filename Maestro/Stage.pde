@@ -1,6 +1,6 @@
 
 // handles info about what's currently going on during the XP
-// This is the main place where draw occurs ; a stage filling the entire screen.
+// This is the main place where draw occurs ; a stage filling the entire screen. Drawing area will update automatically to widow size.
 // Use this class for unknown stages, otherwise StageTitle or StageXP
 
 public abstract class Stage {
@@ -17,14 +17,23 @@ public abstract class Stage {
   // tell the exterior world what's going on
   protected Trigger trig;
 
+  // record screen width/height to fit to screen if needed 
+  private int lastScreenHeight = -1;
+  private int lastScreenWidth = -1;
+
   // child class should call this constructor, we need to set trigger!
   Stage (Trigger trig) {
     this.trig = trig;
   }
 
   // before draw: update internal states
-  // by default: nothing
+  // child class should call this method: check if needed to call fitScreen()
   public void update() {
+    if (lastScreenHeight != height || lastScreenWidth != width) {
+      fitScreen();
+      lastScreenHeight =  height;
+      lastScreenWidth = width;
+    }
   }
 
   // draw on screen, minimum requieremnts for sub-classes 
@@ -89,8 +98,9 @@ public abstract class Stage {
     trig.sendMes(code);
   }
 
-  // to be called upon window resize, does nothing by default
+  // to be called upon window resize, does not much
   public void fitScreen() {
+    println("Resizing stage...");
   }
 }
 

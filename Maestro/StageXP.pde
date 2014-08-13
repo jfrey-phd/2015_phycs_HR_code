@@ -128,6 +128,7 @@ public class StageXP extends Stage {
   // NB: could takes few loop to reach a useful state
   // see StageState for a diagram  of the state
   public void update() {
+    super.update();
     switch(curState) {
       // automatically switch to START...
     case INIT:
@@ -469,37 +470,15 @@ public class StageXP extends Stage {
     }
   }
 
-  // call when window size change, update likerts positions
-  public void fitScreen() {
-
+  // called by fitScreen, resize one of the sets of likerts, leaving agentRatio space for agent display
+  private void resizeLikerts(ArrayList<LikertScale> likerts, float agentRatio) {
     // TODO: the ratio height=width*2.5 for likerts is a bit guessed, could be computed from buttons/likerts
     float likertWidthHeightRatio = 2.5;
-
-    // first set of likerts, posY not the same with "sentence" and "agent"
-    for (int i=0; i < likertsSentence.size (); i++) {
-      // for likert sentences, agent fills 4/5 of the screen
-      float agentRatio = 0.8;
+    for (int i=0; i < likerts.size (); i++) {
       // how much space left for likert in Y
       float likertSpaceY = height*(1-agentRatio);
       // compute how much space il allocated per likert
-      float likertHeight = likertSpaceY/likertsSentence.size ();
-     // compute corresponding width to pass to likert to make it fit the space -- not more than screen width though
-      float likertWidth = min(width, likertHeight * likertWidthHeightRatio);
-      // give room for previous likerts
-      float likertY = height*agentRatio +  likertHeight*i;
-      // center in X
-      float likertX = (width - likertWidth)/2;
-      // send positions
-      likertsSentence.get(i).move(likertX, likertY, likertWidth);
-    }
-    // second set of likerts
-    for (int i=0; i < likertsAgent.size (); i++) {
-      // for likert sentences, agent fills 4/5 of the screen
-      float agentRatio = 0.4;
-      // how much space left for likert in Y
-      float likertSpaceY = height*(1-agentRatio);
-      // compute how much space il allocated per likert
-      float likertHeight = likertSpaceY/likertsAgent.size ();
+      float likertHeight = likertSpaceY/likerts.size ();
       // compute corresponding width to pass to likert to make it fit the space -- not more than screen width though
       float likertWidth = min(width, likertHeight * likertWidthHeightRatio);
       // give room for previous likerts
@@ -507,8 +486,17 @@ public class StageXP extends Stage {
       // center in X
       float likertX = (width - likertWidth)/2;
       // send positions
-      likertsAgent.get(i).move(likertX, likertY, likertWidth);
+      likerts.get(i).move(likertX, likertY, likertWidth);
     }
+  }
+
+  // call when window size change, update likerts positions
+  public void fitScreen() {
+    super.fitScreen();
+    // for likert sentences, agent fills 4/5 of the screen
+    resizeLikerts(likertsSentence, 0.8);
+    // for likert agent, agent fills 2/5 of the screen
+    resizeLikerts(likertsAgent, 0.4);
   }
 } 
 

@@ -47,15 +47,6 @@ void setup() {
   // enable resize
   if (frame != null) {
     frame.setResizable(true);
-    // FIXME: enter weird realm, adding callback for resize event
-    frame.addComponentListener(new ComponentAdapter() {
-      public void componentResized(ComponentEvent e) {
-        if (e.getSource()==frame) {
-          resized();
-        }
-      }
-    }
-    );
   }
   // tries to avoid aliasing
   smooth();
@@ -379,15 +370,4 @@ static void println(String str) {
   Diary.println(str, 3);
 }
 
-// called when window is resized
-void resized() {
-  println("Resizing.");
-  // update current stage layout
-  if (current_stage >= 0 && current_stage < stages.size()) {
-    Stage stage = stages.get(current_stage);
-    if (stage.isActive()) {
-      stage.fitScreen();
-    }
-  }
-}
 
