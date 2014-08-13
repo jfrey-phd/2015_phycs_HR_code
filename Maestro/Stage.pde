@@ -1,6 +1,6 @@
 
 // handles info about what's currently going on during the XP
-// this is the main place where draw occurs...
+// This is the main place where draw occurs ; a stage filling the entire screen.
 // Use this class for unknown stages, otherwise StageTitle or StageXP
 
 public abstract class Stage {
