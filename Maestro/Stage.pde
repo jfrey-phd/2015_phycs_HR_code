@@ -61,10 +61,12 @@ public abstract class Stage {
 
   // tell it to go on-stage
   // creates agent if type XP
-  // child class should call this method -- sends code
+  // child class should call this method -- sends stim code + adapt size to screen
   public void activate() {
     active = true;
     sendStim("OVTK_StimulationId_SegmentStart");
+    // screen size may have changed since creation
+    fitScreen();
   }
 
   // sent click event
@@ -86,9 +88,9 @@ public abstract class Stage {
   final protected void sendStim(String code) {
     trig.sendMes(code);
   }
-  
+
   // to be called upon window resize, does nothing by default
-  public void resize() {
+  public void fitScreen() {
   }
 }
 

@@ -386,7 +386,7 @@ void resized() {
   if (current_stage >= 0 && current_stage < stages.size()) {
     Stage stage = stages.get(current_stage);
     if (stage.isActive()) {
-      stage.resize();
+      stage.fitScreen();
     }
   }
 }

@@ -421,7 +421,7 @@ public class StageXP extends Stage {
       // The real scale of agent is a little less than "agentSpace" because there is space left above and under
       float agentScale = (agentSpace * 18/20) * height / 1000;
       // center by hand on X, on top on Y
-      float agentX = (width - (width*agentScale)) / 2;
+      float agentX = (width - (height*agentScale)) / 2;
       // 1/20 margin
       float agentY = height * (agentScale * 1/20);
 
@@ -486,7 +486,7 @@ public class StageXP extends Stage {
   }
 
   // call when window size change, update likerts positions
-  public void resize() {
+  public void fitScreen() {
     // set width and position, half of the screen in in X, centered (see pushLikert*)
     float likertSizeX = width/2;
     float likertX = width/4;
@@ -497,7 +497,7 @@ public class StageXP extends Stage {
     for (int i=0; i < likertsSentence.size (); i++) {
       // magic numbers + give room for previous likerts
       // for likert sentences, agent fills 4/5 of the screen
-      float likertY = height*4/5 +  likertSizeY*likertsSentence.size();
+      float likertY = height*4/5 +  likertSizeY*i;
       // send positions
       likertsSentence.get(i).move(likertX, likertY, likertSizeX);
     }
@@ -505,7 +505,7 @@ public class StageXP extends Stage {
     for (int i=0; i < likertsAgent.size (); i++) {
       // magic numbers + give room for previous likerts
       // for likert agent, agent fills 2/5 of the screen
-      float likertY = height*2/5 +  likertSizeY*likertsAgent.size();
+      float likertY = height*2/5 +  likertSizeY*i;
       likertsAgent.get(i).move(likertX, likertY, likertSizeX);
     }
   }
