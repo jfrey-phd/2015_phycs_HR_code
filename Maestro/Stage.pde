@@ -86,5 +86,9 @@ public abstract class Stage {
   final protected void sendStim(String code) {
     trig.sendMes(code);
   }
+  
+  // to be called upon window resize, does nothing by default
+  public void resize() {
+  }
 }
 
