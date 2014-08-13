@@ -156,7 +156,7 @@ void loadStages() {
       println("nbSameValence: "+ nbSameValence);
 
       // finally, we create our xp stage and add it to list
-      StageXP stage = new StageXP(stimMan, hrMan, tts, nbSentences, nbSameValence);
+      StageXP stage = new StageXP(stimMan, hrMan, corpus_current, tts, nbSentences, nbSameValence);
       stages.add(stage);
 
       // time to look for likert scale and to push them to current stage
@@ -311,15 +311,24 @@ void keyPressed() {
   }
   // speak sad
   else if (key == '1') {
-    tts.speak(corpus_current.drawText(-1));
+    Corpus.Sentence sentence = corpus_current.drawText(-1);
+    if (sentence != null) {
+      tts.speak(sentence.text);
+    }
   }
   // speak neutral
   else if (key == '2') {
-    tts.speak(corpus_current.drawText(0));
+    Corpus.Sentence sentence = corpus_current.drawText(0);
+    if (sentence != null) {
+      tts.speak(sentence.text);
+    }
   }
   // speak happy
   else if (key == '3') {
-    tts.speak(corpus_current.drawText(1));
+    Corpus.Sentence sentence = corpus_current.drawText(1);
+    if (sentence != null) {
+      tts.speak(sentence.text);
+    }
   }
 }
 

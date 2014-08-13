@@ -2,6 +2,27 @@
 
 public class Corpus {
 
+  // Use inner class to limit tabs
+  // Holds info about a sentence extracted from corpus
+  // TODO: retrieve and use more info for analysis (eg: index, sd)?
+  public class Sentence {
+    // from which corpus it comes from
+    public final int corpusCode;
+    // valence as jugded by originally
+    public final float origValence;
+    // we make different range compared to origValence
+    public final int valence;
+    // the sentence itself
+    public final String text;
+
+    Sentence(int corpusCode, float origValence, int valence, String text) {
+      this.corpusCode = corpusCode;
+      this.origValence = origValence;
+      this.valence = valence;
+      this.text = text;
+    }
+  }
+
   // corpus from Bestgen 2004
   // Careful, headers have to be id/random/valence/sd/text
   private Table soir95;
@@ -20,7 +41,7 @@ public class Corpus {
     soir95_neutral = new IntList();
     soir95_happy = new IntList();
     // FIXME: ugly way to do it, can't simply select values with operators??
-    for (int i = 0; i < soir95.getRowCount(); i++) {
+    for (int i = 0; i < soir95.getRowCount (); i++) {
       TableRow row = soir95.getRow(i);
       float val = row.getFloat("valence");
       // in [-3 ; -1[ sad
@@ -56,10 +77,10 @@ public class Corpus {
     return row;
   }
 
-  // retrieve a random sentence from corpus (returned strings being removed from it)
+  // retrieve a random sentence from corpus (returned strings being removed from it and associated ifo)
   // valence: -1 for negative, 0 for neutral, 1 for positive (see implementation for mapping)
-  // return a sentence corresponding to valence, empty in none found
-  public String drawText(int valence) {
+  // return a sentence corresponding to valence, null in none found
+  public Sentence drawText(int valence) {
     println("Is gonna check for a valence coded as: " + valence);
     // will hold the raw we are gonna draw
     TableRow row = null;
@@ -78,7 +99,7 @@ public class Corpus {
     // if we were too greedy we have nothing to return
     if (row == null) {
       println("Error: empty row");
-      return "";
+      return null;
     }
 
     // Extract the sentence
@@ -89,6 +110,9 @@ public class Corpus {
 
     println("Retrieved a valence of " + rowValence + " (sd=" + rowSd + "): [" + rowText + "]"); 
 
-    return rowText;
+    // create and retern sentence
+    // TODO: more than one corpus...
+    return new Sentence(0, rowValence, valence, rowText);
   }
 }
+

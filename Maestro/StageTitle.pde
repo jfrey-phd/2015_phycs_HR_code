@@ -16,7 +16,7 @@ public class StageTitle extends Stage {
 
   // constructor for a screen
   StageTitle(Trigger trig, String label) {
-    super(trig);
+    super(Maestro.this, trig);
     this.label = label;
   }
 

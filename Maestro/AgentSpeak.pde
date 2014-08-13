@@ -9,7 +9,7 @@ public class AgentSpeak {
   private boolean speaking = false;
 
   // text to be spoken next and associated parameters
-  private String agentText = "Bonjour tout le monde.";
+  private String agentText = "";
   private Body.Genre agentGenre = Body.Genre.FEMALE;
   // default pitch for espeak
   private int agentPitch = 50;
@@ -54,7 +54,7 @@ public class AgentSpeak {
   // Will set TTS parameters and then launch command
   // NB: only one at a time, should check isSpeaking() before calling this method
   synchronized public void speak(String sentence, Body.Genre voice, int pitch) {
-    println("Will say: [" + agentText + "] with voice " + voice + " and pitch " + pitch);
+    println("Will say: [" + sentence + "] with voice " + voice + " and pitch " + pitch);
     // Agent has only one mouth
     if (speaking) {
       println("Already speaking, skip this one.");
