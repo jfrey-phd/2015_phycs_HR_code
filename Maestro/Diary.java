@@ -52,6 +52,8 @@ public class Diary {
       return;
     }
     Diary.applet = applet;
+    // set a point of comparison for CSV logger
+    initTime = new Date().getTime();
     // init println
     Diary.printStack = printStack;
     Diary.printToFile = printToFile;
