@@ -43,7 +43,7 @@ public class StageXP extends Stage {
 
   // constructor for xp, create new agent, link it against AgentSpeak if available
   StageXP(Trigger trig, HeartManager hrMan, Corpus corpus, AgentSpeak tts, int nbSentences, int nbSameValence) {
-    super(trig);
+    super(Maestro.this, trig);
     this.corpus = corpus;
     this.hrMan = hrMan;
     // init variables, list for likerts and HRs
@@ -382,8 +382,7 @@ public class StageXP extends Stage {
         orig_valence = sentence.origValence;
         valence = sentence.valence;
       }
-      // FIXME: only one type of stage right now
-      Diary.logCSV(0, agent.HRType, corpus_code, orig_valence, valence, questionType, likertNumber, buttonNumber);
+      Diary.logCSV(ID, agent.HRType, corpus_code, orig_valence, valence, questionType, likertNumber, buttonNumber);
     }
   }
 
