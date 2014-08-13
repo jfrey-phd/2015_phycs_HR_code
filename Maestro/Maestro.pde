@@ -35,19 +35,34 @@ final String XP_SCRIPT_FILENAME = "xp.xml";
 // we'll send the last stimulation once
 boolean endXPSent = false;
 
-int WINDOW_X = 1000;
-int WINDOW_Y = 1000;
-
+// deals with window properties
+void init() {
+  // if going fullscreen, we do not need decoration
+  if (START_FULLSCREEN) {
+    frame.removeNotify();
+    frame.setUndecorated(true); 
+    frame.addNotify();
+  }
+  // if not fullscreen, enable resize
+  // FIXME: dangerous behavior, will probably crash upon resize
+  else if (ENABLE_RESIZE) {
+    if (frame != null) {
+      frame.setResizable(true);
+    }
+  }
+  super.init();
+}
 
 void setup() {
+  // two possible size if we go fullscreen or not
+  if (START_FULLSCREEN) {
+    // using 2D backend as we won't venture in 3D realm
+    size(displayWidth, displayHeight, P2D);
+  } else {
+    size(WINDOW_X, WINDOW_Y, P2D);
+  }
   // init logs
   Diary.setup(this, printStack, printToFile, sketchPath("")+stdoutFileBasename, exportCSV, sketchPath("")+CSVFileBasename);
-  // using 2D backend as we won't venture in 3D realm
-  size(WINDOW_X, WINDOW_Y, P2D);
-  // enable resize
-  if (frame != null) {
-    frame.setResizable(true);
-  }
   // tries to avoid aliasing
   smooth();
   // we don't choose our font but we want smooth text -- should not work with P2P from doc??
@@ -267,6 +282,7 @@ void draw() {
     //println("No more stages");
     background(0);
     fill(255);
+    textSize(20);
     text("The END", 50, 50);
   }
 
@@ -313,7 +329,7 @@ void keyPressed() {
   else if (key == '3') {
     tts.setText(corpus_current.drawText(1));
     thread("speak");
-  }
+  }  
 
   // debug for agent
   //  else if (key == 'r') {
@@ -369,5 +385,4 @@ static void println(String str) {
   // 3: what we want to know
   Diary.println(str, 3);
 }
-
 
