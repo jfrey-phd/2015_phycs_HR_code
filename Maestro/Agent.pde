@@ -7,7 +7,11 @@ public class Agent {
   // FIXME: public for debug through keyboard
   public BodyPart head, eyes, mouth, heart;
   // what kind of man/female we are!
-  private Body.Genre genre;
+  public final Body.Genre genre;
+  // randomize a bit voice pitch +/- 15 around 50 (espeak parameter)
+  private final int PITCH_BASE = 50;
+  private final int PITCH_RANGE = 15;
+  public final int voicePitch;
   // Every elemet will be connected to it
   private PShape wholeBody;
 
@@ -15,10 +19,10 @@ public class Agent {
   private AgentSpeak tts;
 
   // agent type, our independent variable
-  private Body.HR HRType;
+  public final Body.HR HRType;
 
   // for "human" type agent we want to recover hear rate
-  HeartManager hrMan;
+  private HeartManager hrMan;
 
   // Create the different parts -- by default HR is set to medium and no HeartManager
   Agent() {
@@ -35,6 +39,7 @@ public class Agent {
     this.hrMan = hrMan;
     // FIXME: random male/female    
     this.genre = Body.Genre.MALE;
+    voicePitch = round(random(PITCH_BASE - PITCH_RANGE, PITCH_BASE + PITCH_RANGE));
     // Create and position different parts
     head = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
     head.setPos(0, 0);
@@ -99,14 +104,9 @@ public class Agent {
     return wholeBody;
   }
 
-  // StageXP wants to know type for sending codes and CSV
-  public Body.HR getHRType() {
-    return HRType;
-  }
-
   // will build an indenty from HR type, genre and every body parts details
   public String toString() {
-    return HRType + "_" + genre + "-" + head + "-" + eyes + "-" + mouth + "-" + heart;
+    return HRType + "_" + genre + "-PITCH_" + voicePitch + "-" + head + "-" + eyes + "-" + mouth + "-" + heart;
   }
 }
 

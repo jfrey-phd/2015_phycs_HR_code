@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # $1: sentence to be told
-# $2: voice type. "F" for female, any other value for male (default)
+# $2: voice type. "FEMALE" for female, any other value for male (default)
 # $3: pitch (from 0 to 99, default 50
 PITCH=50
 VOICE_CODE="mb-fr1"
@@ -9,7 +9,7 @@ VOICE_CODE="mb-fr1"
 VOICE_PATH="/usr/share/mbrola/fr1/fr1"
 
 # change voice for french female if flag set
-if [ -n "$2" ] && [ $2 = "F" ];
+if [ -n "$2" ] && [ $2 = "FEMALE" ];
 then
   VOICE_CODE="mb-fr4"
   VOICE_PATH="/usr/share/mbrola/fr4/fr4"
