@@ -5,17 +5,31 @@ Experimental protocol for testing HR feedback hypothesis.
 
 # How
 
-In order to execute the complete protocol, you need to run the following programs:
+## Dependencies
 
-1. ser2sock (in ./utils): read pulse raw data from serial port, broadcast to TCP
-2. openvibe 0.18, "monitor_HR" scenario (in ./openvibe_scenarios)
+* espeak, mborola, mbrola-fr1, mbrola-fr4 (tts)
+* python-scipy (openvibe scenarios)
+* libssl-dev (to compile ser2sock)
+
+## Programs
+
+* openvibe 0.18
+* processing 2.2.1
+* ser2sock (sources include in repository, "utils" folder )
+
+## Script
+
+In order to execute the complete protocol, you need to run the following:
+
+1. ser2sock: read pulse raw data from serial port, broadcast to TCP. See script "utils/ser2sock_launch.sh"
+2. openvibe, "monitor_HR" scenario (in ./openvibe_scenarios)
     * read data from ser2sock, detect heart beats (possible to manipulate threshold in real time)
     * send back an event in TCP at each beat detected
-3. openvibe 0.18, "record_all" scenario (in ./openvibe_scenarios) -- optional but highly recommanded
+3. openvibe, "record_all" scenario (in ./openvibe_scenarios) -- optional but highly recommanded
     * records data from ser2sock
     * records beats from detect_beats
     * record events from Maestro
-4. Maestro with Processing (tested with 2.2.1): handles the experiment. read heartbeats from dectect_beats above, send stimulus to record_all
+4. Maestro with Processing: handles the experiment. read heartbeats from dectect_beats above, send stimulus to record_all
 
 # Where
 
