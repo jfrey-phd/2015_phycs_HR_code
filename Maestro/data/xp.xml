@@ -41,7 +41,7 @@
     <label>break</label>
   </stage>
   <stage type="xp">
-    <corpus>order</corpus>
+    <corpus>sequential</corpus>
     <agent>
       <HR>high</HR>
       <nb>1</nb>
