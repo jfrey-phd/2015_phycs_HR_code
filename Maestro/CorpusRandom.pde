@@ -1,5 +1,5 @@
 
-// A corpus of random type, using "soir95" database
+// A corpus of type RANDOM, using "soir95" database
 
 public class CorpusRandom extends Corpus {
 
@@ -59,7 +59,7 @@ public class CorpusRandom extends Corpus {
     return row;
   }
 
-  // retrieve a random sentence from corpus (returned strings being removed from it and associated ifo)
+  // retrieve a random sentence from corpus (returned strings being removed from it and associated info)
   // valence: -1 for negative, 0 for neutral, 1 for positive (see implementation for mapping)
   // return a sentence corresponding to valence, null in none found
   public Sentence drawText(int valence) {
@@ -94,6 +94,12 @@ public class CorpusRandom extends Corpus {
 
     // create and retern sentence
     return new Sentence(type, rowValence, valence, rowText);
+  }
+  
+  // to please interface -- should not be called within this type!
+  public Sentence drawText() {
+    println("Warning: drawText() called with a Corpus of type " + type + ", will choose valence 0.");
+    return drawText(0);
   }
 }
 

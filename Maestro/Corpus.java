@@ -7,9 +7,9 @@ public abstract class Corpus {
   // The two types of corpus
   public enum Type {
     // possible to choose valence, sentences returned randomely
-    RANDOM,
+    RANDOM, 
     // one sentence after the other (eg: a story)
-    SEQUENTIAL,
+    SEQUENTIAL, 
     // for setting default values outside corpus
     UNKNOWN
   };
@@ -42,11 +42,16 @@ public abstract class Corpus {
   Corpus(Type type) {
     this.type = type;
   }
-  
-  // RANDOM: retrieve a random sentence from corpus (returned strings being removed from it and associated ifo)
+
+  // RANDOM: retrieve a random sentence from corpus (returned strings being removed from it and associated info)
   // valence: -1 for negative, 0 for neutral, 1 for positive (see implementation for mapping)
   // return a sentence corresponding to valence, null in none found
   // SEQUENTIAL: equivalent to drawText()
   public abstract Sentence drawText(int valence);
+
+  // SEQUENTIAL: retrieve next sentence from corpus (returned strings being removed from it and associated info)
+  // return a sentence corresponding to valence, null in none found
+  // RANDOM: equivalent to drawText(0);
+  public abstract Sentence drawText();
 }
 
