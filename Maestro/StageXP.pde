@@ -462,7 +462,7 @@ public class StageXP extends Stage {
       // The real scale of agent is a little less than "agentSpace" because there is space left above and under
       float agentScale = (agentSpace * 18/20) * height / 1000;
       // center by hand on X, on top on Y
-      float agentX = (width - (height*agentScale)) / 2;
+      float agentX = (width - (1000*agentScale)) / 2;
       // 1/20 margin
       float agentY = height * (agentScale * 1/20);
 
