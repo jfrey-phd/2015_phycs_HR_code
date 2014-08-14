@@ -84,18 +84,16 @@ public class CorpusRandom extends Corpus {
       return null;
     }
 
-    // Extract the sentence
+    // Extract the sentence and associated info
     String rowText = row.getString("text");
-    // And few more infos for debug
     float rowValence = row.getFloat("valence");
     float rowSd = row.getFloat("sd");
-
     println("Retrieved a valence of " + rowValence + " (sd=" + rowSd + "): [" + rowText + "]"); 
 
-    // create and retern sentence
+    // create and return sentence
     return new Sentence(type, rowValence, valence, rowText);
   }
-  
+
   // to please interface -- should not be called within this type!
   public Sentence drawText() {
     println("Warning: drawText() called with a Corpus of type " + type + ", will choose valence 0.");
