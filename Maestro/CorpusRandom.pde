@@ -14,9 +14,10 @@ public class CorpusRandom extends Corpus {
   CorpusRandom() {
     // we are the random type
     super(Type.RANDOM);
+    String filename = "soir95_header.csv";
     // load soir95, got headers, fields separated by tabs
-    soir95 = loadTable("soir95_header.csv", "header, tsv");
-    println("Loaded soir95, nb rows: " + soir95.getRowCount());
+    soir95 = loadTable(filename, "header, tsv");
+    println("Loaded soir95 [" + filename + "], nb rows: " + soir95.getRowCount());
 
     // split corpus depending on valence
     soir95_sad = new IntList();

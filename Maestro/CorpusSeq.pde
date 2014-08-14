@@ -10,9 +10,10 @@ public class CorpusSeq extends Corpus {
 
   CorpusSeq() {
     super(Type.SEQUENTIAL);
+    String filename = "testaccord_emotion_contexte.csv";
     // load estaccord_emotion_contexte, got headers, fields separated by tabs
-    testaccord = loadTable("testaccord_emotion_contexte.csv", "header, tsv");
-    println("Loaded testaccord_emotion, nb rows: " + testaccord.getRowCount());
+    testaccord = loadTable(filename, "header, tsv");
+    println("Loaded testaccord_emotion [" + filename + "] nb rows: " + testaccord.getRowCount());
   }
 
   // Draw next sentence from corpus and return it
