@@ -2,7 +2,8 @@
 // A body part will draw and animate a specific element of the agent
 
 // Possible to trigger an audio sound via ESS with each beat
-// WARING: In this case ESS need to be initialized beforehand ; put "Ess.start(this)" in setup()
+// WARNING: In this case ESS need to be initialized beforehand ; put "Ess.start(this)" in setup()
+// WARNING: should call cleanup() when BodyPart not needed anymore in order to free ESS resources
 
 public class BodyPart {
 
@@ -13,6 +14,9 @@ public class BodyPart {
   // use an array of frames for animations, faster to access to part
   private ArrayList<PShape> frames;
   private int current_frame = 0;
+  // once cleanup() is called, will cease to update()
+  // 3 states: 0 (not cleaning), 1 (cleaning), 2 (cleaned)
+  private int cleaning = 0;
 
   // greater than 0, will trigger animations (if any exists)
   // animation will be automatically played BPM times per minutes
@@ -38,8 +42,9 @@ public class BodyPart {
   // use ESS r2 lib to read audio file, using rotating buffer to enable burst
   private AudioChannel[] beats;
   // how may of that buffer we'll use (depends on max BPM and audio file duration)
-  // WARNING: for memory sake, don't go too high with big files! 
-  private final int NB_BUFFERS = 10;
+  // WARNING: for memory sake, don't go too high with big files!
+  // FIXME: if number too high, will prevent other parts to beat --  "32 AudioChannels and AudioStreams (combined) per sketch", will crash the whole sound system in fact. Centralize sound engine to prevent that.
+  private final int NB_BUFFERS = 6;
   // for cycling, which buffer is currently played
   private int curBuffer;
 
@@ -127,8 +132,8 @@ public class BodyPart {
   // update frame if needed, changing visibility of the right layer
   // returns true if has been updated
   public boolean update() {
-    // quit immidiatly if there's nothing to show
-    if (frames.size() == 0) {
+    // quit immidiatly if there's nothing to show or cleanup() has been called
+    if (cleaning > 0 || frames.size() == 0) {
       return false;
     }
 
@@ -229,8 +234,8 @@ public class BodyPart {
   // Plays the heartbeat sound if option set. If all audio buffer are already playing, returns silentely.
   // (does not interrupt program)
   private void beat() {
-    // don't go further if no audio file has been set
-    if (beats == null) {
+    // don't go further if no audio file has been set or cleaning
+    if (beats == null || cleaning > 0) {
       return;
     }
 
@@ -252,6 +257,41 @@ public class BodyPart {
     curBuffer = i;
     // make some noise!
     beats[curBuffer].play();
+  }
+
+  // will free ESS resources, if any. Return true when done (have to wait that all sound are played)
+  // TODO: not a nice way to clean asynchronously -- trying to work with a playing audiochannel make the program freeze :\ 
+  public boolean cleanup() {
+    // already clean, don't wait to return
+    if (cleaning == 2)
+      return true;
+    println("Cleaning " + this);
+    // put a halt on everything
+    cleaning = 1;
+    if (beats != null) {
+      println("got to clean");
+      for (int i=0; i<beats.length; i++) {
+        // once a left audiostream is stopped
+        if (beats[i]!= null) {
+          if (beats[i].state == Ess.STOPPED) {
+            println("i: " + i + ", state: " + beats[i].state);
+            // destroy it
+            //  beats[i].cue( beats[i].size);
+            //beats[i].in( beats[i].size);
+            beats[i].destroy();
+            // remove from array
+            beats[i] = null;
+          } else {
+            // one is pending: return false
+            return false;
+          }
+        }
+        // here nothing more in beat[i], can skip it
+      }
+    }
+    // all clear
+    cleaning = 2;
+    return true;
   }
 }
 

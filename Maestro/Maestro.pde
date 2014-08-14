@@ -84,7 +84,7 @@ void setup() {
   println("Loaded " + CSV_BODY_FILENAME + ", nb rows: " + body_parts.getRowCount());
   Body.setTableParts(body_parts);
 
-  // start up Ess for AgentSpeak and heartbeat
+  // start up Ess for BodyPart (heartbeat)
   Ess.start(this);
   // init for TTS
   tts = new AgentSpeak();

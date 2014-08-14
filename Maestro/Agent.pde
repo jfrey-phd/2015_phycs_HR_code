@@ -2,10 +2,13 @@
 // will create an "agent" from different body parts
 // NB: the screen space is believed to be 1000x1000
 // NB: call Body.setTableParts() beforehand fore randomness
+// WARNING: should call cleanup() when the agent is not needed
 public class Agent {
 
   // FIXME: public for debug through keyboard
   public BodyPart head, eyes, mouth, heart;
+  // is agent currently cleaning?
+  private boolean cleaning = false;
   // what kind of man/female we are!
   public final Body.Genre genre;
   // randomize a bit voice pitch +/- 15 around 50 (espeak parameter)
@@ -81,8 +84,12 @@ public class Agent {
   }
 
   // will call recursively body parts + make mouth animate if speaking
+  // halt if cleaning
   public void update() {
-
+    // useless to update parts if cleanup() has been called: they won't do anything anymore
+    if (cleaning) {
+      return;
+    }
     // animate mouth
     if (tts != null && tts.isSpeaking()) {
       mouth.animate();
@@ -107,6 +114,15 @@ public class Agent {
   // will build an indenty from HR type, genre and every body parts details
   public String toString() {
     return HRType + "_" + genre + "-PITCH_" + voicePitch + "-" + head + "-" + eyes + "-" + mouth + "-" + heart;
+  }
+
+  // cleanup every body parts -- needed for audio stream. Return true when all parts are cleaned.
+  // once called, will freeze agent (no more updates)
+  public boolean cleanup() {
+    println("Cleaning agent " + this);
+    cleaning = true;
+    // every part has to come clean
+    return head.cleanup() && eyes.cleanup() && mouth.cleanup() && heart.cleanup();
   }
 }
 
