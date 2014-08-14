@@ -111,7 +111,7 @@ public abstract class Stage {
 
   // to be called upon window resize, does not much
   public void fitScreen() {
-    applet.println("Resizing stage...");
+    Diary.println("Resizing stage...");
   }
 }
 
