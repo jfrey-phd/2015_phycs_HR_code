@@ -35,10 +35,16 @@ public class BodyPart {
   // which part ID we are
   private int part_number;
 
-  // use ESS r2 lib to read audio file
-  AudioChannel beat;  
+  // use ESS r2 lib to read audio file, using rotating buffer to enable burst
+  private AudioChannel[] beats;
+  // how may of that buffer we'll use (depends on max BPM and audio file duration)
+  // WARNING: for memory sake, don't go too high with big files! 
+  private final int NB_BUFFERS = 10;
+  // for cycling, which buffer is currently played
+  private int curBuffer;
+
   // send stim code for heart
-  Trigger trig;
+  private Trigger trig;
 
   // set type and load model (randomize part if loadParts() has been called)
   BodyPart(Body.Type type, Body.Genre genre) {
@@ -77,9 +83,13 @@ public class BodyPart {
 
     // if option is set, will use audio
     if (beatAudioFile != null && !beatAudioFile.equals("")) {
-      println("Will use audio file for beats: " + beatAudioFile);
-      // load audio beat
-      beat = new AudioChannel(beatAudioFile);
+      // let's try an array of buffer
+      beats = new AudioChannel[NB_BUFFERS];
+      // load audio beat into buffers
+      for (int i = 0; i < beats.length; i++) {
+        beats[i] = new AudioChannel(beatAudioFile);
+      }
+      curBuffer = 0;
     }
   }
 
@@ -168,7 +178,7 @@ public class BodyPart {
   // set coordinates in screen space: translates every frame
   // (careful, it's absolute, reset matrix before that)
   public void setPos(float x, float y) {
-    for (int i = 0; i < frames.size(); i++) {
+    for (int i = 0; i < frames.size (); i++) {
       frames.get(i).resetMatrix();
       frames.get(i).translate(x, y);
     }
@@ -216,18 +226,32 @@ public class BodyPart {
     return bodyPart;
   }
 
-  // plays the heartbeat sound if option set
+  // Plays the heartbeat sound if option set. If all audio buffer are already playing, returns silentely.
   // (does not interrupt program)
   private void beat() {
     // don't go further if no audio file has been set
-    if (beat == null) {
+    if (beats == null) {
       return;
     }
-    //reset beat -- with 3ms we avoid noise when play() too close??
-    // FIXE: little chance it's the same fore every audio file
-    beat.cue(beat.frames(3));
-    // got the beat !
-    beat.play();
+
+    int i = curBuffer;
+    // look for next available buffer
+    while (beats[i].state != Ess.STOPPED) {
+      i++;
+      // reset counter if gone too far
+      if (i == beats.length) {
+        i = 0;
+      }
+      // if we have done one complete loop: we pass
+      if (i == curBuffer) {
+        println("No available buffer.");
+        return;
+      }
+    }
+    // at this point we have an available buffer
+    curBuffer = i;
+    // make some noise!
+    beats[curBuffer].play();
   }
 }
 
