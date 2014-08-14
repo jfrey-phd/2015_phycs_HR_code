@@ -90,7 +90,7 @@ void setup() {
   tts = new AgentSpeak();
 
   // load sententes
-  Corpus corpus_random = new Corpus();
+  Corpus corpus_random = new CorpusRandom();
   corpus_current = corpus_random;
 
   // xp starts (loadStages launches a stage, so for clarity have to put it before)

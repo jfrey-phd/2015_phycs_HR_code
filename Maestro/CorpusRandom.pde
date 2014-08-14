@@ -1,27 +1,7 @@
 
+// A corpus of random type, using "soir95" database
 
-public class Corpus {
-
-  // Use inner class to limit tabs
-  // Holds info about a sentence extracted from corpus
-  // TODO: retrieve and use more info for analysis (eg: index, sd)?
-  public class Sentence {
-    // from which corpus it comes from
-    public final int corpusCode;
-    // valence as jugded by originally
-    public final float origValence;
-    // we make different range compared to origValence
-    public final int valence;
-    // the sentence itself
-    public final String text;
-
-    Sentence(int corpusCode, float origValence, int valence, String text) {
-      this.corpusCode = corpusCode;
-      this.origValence = origValence;
-      this.valence = valence;
-      this.text = text;
-    }
-  }
+public class CorpusRandom extends Corpus {
 
   // corpus from Bestgen 2004
   // Careful, headers have to be id/random/valence/sd/text
@@ -31,7 +11,9 @@ public class Corpus {
   private IntList soir95_neutral;
   private IntList soir95_happy;
 
-  Corpus() {
+  CorpusRandom() {
+    // we are the random type
+    super(Type.RANDOM);
     // load soir95, got headers, fields separated by tabs
     soir95 = loadTable("soir95_header.csv", "header, tsv");
     println("Loaded soir95, nb rows: " + soir95.getRowCount());
@@ -111,8 +93,7 @@ public class Corpus {
     println("Retrieved a valence of " + rowValence + " (sd=" + rowSd + "): [" + rowText + "]"); 
 
     // create and retern sentence
-    // TODO: more than one corpus...
-    return new Sentence(0, rowValence, valence, rowText);
+    return new Sentence(type, rowValence, valence, rowText);
   }
 }
 

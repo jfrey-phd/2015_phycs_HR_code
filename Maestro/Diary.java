@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 
 // Format: a CSV file, a tabulation separating each field.
 // Elapsed time since start (miliseconds), stage (integer), HR type (string)
-// corpus_type (integer), orig_valence (float), valence (integer) -- info about last sentence spoke for agent
+// corpus_type (string), orig_valence (float), valence (integer) -- info about last sentence spoke for agent
 // question type (string, sentence/agent), question coded (float), answer (integer)
 
 // TODO: one separate class for CSV if not frightened anymore by crowded folder
@@ -125,7 +125,7 @@ public class Diary {
   }
 
   // record current experimental conditions, question info and subject's answers into CSV file
-  public static void logCSV(int stage, Body.HR condition, int corpus_code, float orig_valence, int valence, String question_type, int question_code, int answer) {
+  public static void logCSV(int stage, Body.HR condition, Corpus.Type corpus_type, float orig_valence, int valence, String question_type, int question_code, int answer) {
     // could be more detailed, but luckily such a problem will be quickly tracked down
     if (outputCSV == null) {
       println("CSV logs: error, logs not initialized or option not set.");
@@ -136,7 +136,7 @@ public class Diary {
     long elapsedTime = new Date().getTime() -  initTime;
 
     String record = Long.toString(elapsedTime) + "\t" + Integer.toString(stage) + "\t" + condition 
-      + "\t" +  Integer.toString(corpus_code) + "\t" + Float.toString(orig_valence) + "\t" + Integer.toString(valence)
+      + "\t" +  corpus_type + "\t" + Float.toString(orig_valence) + "\t" + Integer.toString(valence)
       + "\t" + question_type + "\t" + Integer.toString(question_code) + "\t" + Integer.toString(answer);
 
     // Let's write it!
