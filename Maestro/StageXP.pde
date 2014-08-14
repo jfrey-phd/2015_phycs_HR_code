@@ -38,8 +38,8 @@ public class StageXP extends Stage {
   // current sentence, used to hold info between pick and subject answer
   private Corpus.Sentence sentence;
 
-  // for how long we'll put stage on sleep when we have the occasion to (e.g. end of likerts) (in ms)
-  final private int TIMER_DURATION = 1000;
+  // for how long we'll put stage on sleep when we have the occasion to (e.g. end of likerts + end of sentences) (in ms)
+  final private int TIMER_DURATION = 500;
 
   // constructor for xp, create new agent, link it against AgentSpeak if available
   StageXP(Trigger trig, HeartManager hrMan, Corpus corpus, AgentSpeak tts, int nbSentences, int nbSameValence) {
@@ -57,7 +57,23 @@ public class StageXP extends Stage {
     this.tts = tts;
   }
 
-  // will create/reset agent
+  // polling while current agent, if any, is cleaning up
+  // to be called before createAgent()!
+  private boolean agentClean() {
+    if (agent != null) {
+      // if agent is clean, remove reference
+      if (agent.cleanup()) {
+        agent = null;
+        return true;
+      }
+      // at this point, agent is present, but *not* clan
+      return false;
+    }
+    // no more agent
+    return true;
+  }
+
+  // will create a new agent. Call agentClean() first -- and wait for it to return true! 
   // new agent, randomely selected among HR conditions left, removing from stack
   private void createAgent() {
     if (HRs.size() > 0) {
@@ -148,45 +164,50 @@ public class StageXP extends Stage {
       curState = StageState.XP.START;
       println("State: " + curState);
       break;
-      // will ask for the creation of a new agent, reset sentences counters
+      // will ask for the creation of a new agent, eventually wait for the previous one to cleanup, reset sentences counters
       // if no more agents: END of xp
     case START:
       if (HRs.size() == 0) {
         curState = StageState.XP.STOP;
         println("State: " + curState);
       } else {
-        createAgent();
-        curState = StageState.XP.AGENT_START;
-        println("State: " + curState);
-        // start a new batch
-        curSentenceNb = 0;
-        resetValence();
-        sentence = null;
-        sendStim("OVTK_StimulationId_TrialStart");
-        // we need to be a little more precise than that, pass code of HR type directly to trigger
-        sendStim(agent.HRType.code);
+        // only go with new agent if the previous one as clean
+        if (agentClean()) {
+          createAgent();
+          curState = StageState.XP.AGENT_START;
+          println("State: " + curState);
+          // start a new batch
+          curSentenceNb = 0;
+          resetValence();
+          sentence = null;
+          sendStim("OVTK_StimulationId_TrialStart");
+          // we need to be a little more precise than that, pass code of HR type directly to trigger
+          sendStim(agent.HRType.code);
+        }
       }
       break;
     case AGENT_START:
-      // still at least one sentence to be told
-      if (curSentenceNb < nbSentences) {
-        curSentenceNb++;
-        curState = StageState.XP.SPEAK_START;
-        println("State: " + curState);
-        println("Will play sentence " + curSentenceNb  + "/" + nbSentences );
-      }
-      // last sentence has been spoken, check for likert agent
-      else if (likertsAgent.size() > 0) {
-        println("There is " + likertsAgent.size() + " likerts for agents");
-        curState = StageState.XP.LIKERT_AGENT_START;
-        println("State: " + curState);
-        sendStim("OVTK_GDF_Flashing_Light");
-      }
-      // no sentence and no likert: stop agent
-      // TODO: back to start when agent list
-      else {
-        curState = StageState.XP.STOP;
-        println("State: " + curState);
+      // may have a break between sentences set by SPEAK_STOP
+      if (isTimeOver()) {
+        // still at least one sentence to be told
+        if (curSentenceNb < nbSentences) {
+          curSentenceNb++;
+          curState = StageState.XP.SPEAK_START;
+          println("State: " + curState);
+          println("Will play sentence " + curSentenceNb  + "/" + nbSentences );
+        }
+        // last sentence has been spoken, check for likert agent
+        else if (likertsAgent.size() > 0) {
+          println("There is " + likertsAgent.size() + " likerts for agents");
+          curState = StageState.XP.LIKERT_AGENT_START;
+          println("State: " + curState);
+          sendStim("OVTK_GDF_Flashing_Light");
+        }
+        // no sentence and no likert: back to begining
+        else {
+          curState = StageState.XP.START;
+          println("State: " + curState);
+        }
       }
       break;
       // initiate next sentence or next step if no more in valence/agent
@@ -231,6 +252,8 @@ public class StageXP extends Stage {
       else {
         curState = StageState.XP.AGENT_START;
         println("State: " + curState);
+        // small pause between sentences, welcome break even if no likerts
+        startTimer(TIMER_DURATION);
       }
       break;
       // init wait for click
@@ -439,7 +462,7 @@ public class StageXP extends Stage {
       // The real scale of agent is a little less than "agentSpace" because there is space left above and under
       float agentScale = (agentSpace * 18/20) * height / 1000;
       // center by hand on X, on top on Y
-      float agentX = (width - (height*agentScale)) / 2;
+      float agentX = (width - (1000*agentScale)) / 2;
       // 1/20 margin
       float agentY = height * (agentScale * 1/20);
 
@@ -531,5 +554,5 @@ public class StageXP extends Stage {
     // for likert agent, agent fills 2/5 of the screen
     resizeLikerts(likertsAgent, 0.4);
   }
-} 
+}
 
