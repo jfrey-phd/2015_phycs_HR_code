@@ -8,9 +8,9 @@ import java.awt.event.ComponentEvent;
 
 // where the sentences comes from, random type
 Corpus corpus_random;
-// pointer to the currently used corpus
+// where the sentences comes from, sequential type
 // (we load only once the corpus because we follow a sequential order or avoid duplicates)
-Corpus corpus_current;
+Corpus corpus_seq;
 // TTS engine
 AgentSpeak tts;
 // Beat reader from TCP
@@ -90,8 +90,8 @@ void setup() {
   tts = new AgentSpeak();
 
   // load sententes
-  Corpus corpus_random = new Corpus();
-  corpus_current = corpus_random;
+  corpus_random = new CorpusRandom();
+  corpus_seq = new CorpusSeq();
 
   // xp starts (loadStages launches a stage, so for clarity have to put it before)
   stimMan.sendMes("OVTK_StimulationId_ExperimentStart");
@@ -155,8 +155,33 @@ void loadStages() {
       }
       println("nbSameValence: "+ nbSameValence);
 
+      // last but not least: the type of the corpus -- will be random by default
+      Corpus corpus_stage = corpus_random;
+      String corpus_type;
+      try {
+        corpus_type = child.getChild("corpus").getContent();
+        // we know of two types only
+        if ("random".equals(corpus_type)) {
+          // already set, double check in case we change something around here
+          corpus_stage = corpus_random;
+        }
+        // set to SEQUENTIAL corpus
+        else if ("sequential".equals(corpus_type)) {
+          corpus_stage = corpus_seq;
+        }
+        // unknown, leave default
+        else {
+          println("Can't match a corpus of type [" + corpus_type + "], set to default.");
+        }
+      }
+      // error while reading XML tag, leave default
+      catch(Exception e) {
+        println("Can't find corpus, set to default.");
+      }
+      println("Chosen corpus type: " + corpus_stage.type);
+
       // finally, we create our xp stage and add it to list
-      StageXP stage = new StageXP(stimMan, hrMan, corpus_current, tts, nbSentences, nbSameValence);
+      StageXP stage = new StageXP(stimMan, hrMan, corpus_stage, tts, nbSentences, nbSameValence);
       stages.add(stage);
 
       // time to look for likert scale and to push them to current stage
@@ -311,21 +336,28 @@ void keyPressed() {
   }
   // speak sad
   else if (key == '1') {
-    Corpus.Sentence sentence = corpus_current.drawText(-1);
+    Corpus.Sentence sentence = corpus_random.drawText(-1);
     if (sentence != null) {
       tts.speak(sentence.text);
     }
   }
   // speak neutral
   else if (key == '2') {
-    Corpus.Sentence sentence = corpus_current.drawText(0);
+    Corpus.Sentence sentence = corpus_random.drawText(0);
     if (sentence != null) {
       tts.speak(sentence.text);
     }
   }
   // speak happy
   else if (key == '3') {
-    Corpus.Sentence sentence = corpus_current.drawText(1);
+    Corpus.Sentence sentence = corpus_random.drawText(1);
+    if (sentence != null) {
+      tts.speak(sentence.text);
+    }
+  }
+  // speak a story
+  else if (key == '4') {
+    Corpus.Sentence sentence = corpus_seq.drawText();
     if (sentence != null) {
       tts.speak(sentence.text);
     }

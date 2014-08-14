@@ -373,16 +373,16 @@ public class StageXP extends Stage {
     // TODO: we do not deal with the flag for stim in here, better think of that
     if (exportCSV) {
       // set default condtion for current sentence
-      int corpus_code = 0;
+      Corpus.Type corpus_type = Corpus.Type.UNKNOWN;
       float orig_valence = 0;
       int valence = 0;
       // then try to read what has actually been spoken 
       if (sentence != null) {
-        corpus_code = sentence.corpusCode;
+        corpus_type = sentence.corpusType;
         orig_valence = sentence.origValence;
         valence = sentence.valence;
       }
-      Diary.logCSV(ID, agent.HRType, corpus_code, orig_valence, valence, questionType, likertNumber, buttonNumber);
+      Diary.logCSV(ID, agent.HRType, corpus_type, orig_valence, valence, questionType, likertNumber, buttonNumber);
     }
   }
 
