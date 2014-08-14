@@ -184,10 +184,9 @@ public class StageXP extends Stage {
           println("State: " + curState);
           sendStim("OVTK_GDF_Flashing_Light");
         }
-        // no sentence and no likert: stop agent
-        // TODO: back to start when agent list
+        // no sentence and no likert: back to begining
         else {
-          curState = StageState.XP.STOP;
+          curState = StageState.XP.START;
           println("State: " + curState);
         }
       }
