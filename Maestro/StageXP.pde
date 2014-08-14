@@ -183,8 +183,6 @@ public class StageXP extends Stage {
           sendStim("OVTK_StimulationId_TrialStart");
           // we need to be a little more precise than that, pass code of HR type directly to trigger
           sendStim(agent.HRType.code);
-        } else {
-          println("Waiting for agent to clean...");
         }
       }
       break;

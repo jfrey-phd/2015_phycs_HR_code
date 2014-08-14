@@ -269,15 +269,11 @@ public class BodyPart {
     // put a halt on everything
     cleaning = 1;
     if (beats != null) {
-      println("got to clean");
       for (int i=0; i<beats.length; i++) {
         // once a left audiostream is stopped
         if (beats[i]!= null) {
           if (beats[i].state == Ess.STOPPED) {
-            println("i: " + i + ", state: " + beats[i].state);
             // destroy it
-            //  beats[i].cue( beats[i].size);
-            //beats[i].in( beats[i].size);
             beats[i].destroy();
             // remove from array
             beats[i] = null;
