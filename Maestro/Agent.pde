@@ -14,8 +14,8 @@ public class Agent {
   // which voice is selected?
   public final int voiceNumber;
   // randomize a bit voice pitch +/- 15 around 50 (espeak parameter)
-  private final int PITCH_BASE = 50;
-  private final int PITCH_RANGE = 15;
+  private final int PITCH_BASE = 75;
+  private final int PITCH_RANGE = 10;
   public final int voicePitch;
   // Every elemet will be connected to it
   private PShape wholeBody;
