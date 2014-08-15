@@ -223,7 +223,7 @@ public class StageXP extends Stage {
       sentence = corpus.drawText(curValence);
       // speak it aloud if present
       if (sentence != null) {
-        tts.speak(sentence.text, agent.genre, agent.voicePitch);
+        tts.speak(sentence.text, agent.genre, agent.voiceNumber, agent.voicePitch);
       }
       curState = StageState.XP.SPEAKING;
       println("State: " + curState);

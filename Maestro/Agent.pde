@@ -11,6 +11,8 @@ public class Agent {
   private boolean cleaning = false;
   // what kind of man/female we are!
   public final Body.Genre genre;
+  // which voice is selected?
+  public final int voiceNumber;
   // randomize a bit voice pitch +/- 15 around 50 (espeak parameter)
   private final int PITCH_BASE = 50;
   private final int PITCH_RANGE = 15;
@@ -42,6 +44,8 @@ public class Agent {
     this.hrMan = hrMan;
     // FIXME: random male/female    
     this.genre = Body.Genre.MALE;
+    // select one of the available voices
+    voiceNumber = floor(random(TTS_NB_VOICES));
     voicePitch = floor(random(PITCH_BASE - PITCH_RANGE, PITCH_BASE + PITCH_RANGE + 1));
     // Create and position different parts
     head = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
@@ -113,7 +117,7 @@ public class Agent {
 
   // will build an indenty from HR type, genre and every body parts details
   public String toString() {
-    return HRType + "_" + genre + "-PITCH_" + voicePitch + "-" + head + "-" + eyes + "-" + mouth + "-" + heart;
+    return HRType + "_" + genre + "-VOICE_" + voiceNumber + "-PITCH_" + voicePitch + "-" + head + "-" + eyes + "-" + mouth + "-" + heart;
   }
 
   // cleanup every body parts -- needed for audio stream. Return true when all parts are cleaned.

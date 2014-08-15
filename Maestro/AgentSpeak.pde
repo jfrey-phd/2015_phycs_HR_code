@@ -11,6 +11,7 @@ public class AgentSpeak {
   // text to be spoken next and associated parameters
   private String agentText = "";
   private Body.Genre agentGenre = Body.Genre.FEMALE;
+  private int agentVoiceNumber = 0;
   // default pitch for espeak
   private int agentPitch = 50;
 
@@ -33,7 +34,8 @@ public class AgentSpeak {
     String[] cmd = {
       TTS_script_cmd, 
       agentText, 
-      agentGenre.toString(), 
+      agentGenre.toString(),
+      Integer.toString(agentVoiceNumber),
       Integer.toString(agentPitch)
       };
 
@@ -53,8 +55,8 @@ public class AgentSpeak {
 
   // Will set TTS parameters and then launch command
   // NB: only one at a time, should check isSpeaking() before calling this method
-  synchronized public void speak(String sentence, Body.Genre voice, int pitch) {
-    println("Will say: [" + sentence + "] with voice " + voice + " and pitch " + pitch);
+  synchronized public void speak(String sentence, Body.Genre voiceGender, int voiceNumber, int pitch) {
+    println("Will say: [" + sentence + "] with voice " + voiceGender + " number " + voiceNumber + " and pitch " + pitch);
     // Agent has only one mouth
     if (speaking) {
       println("Already speaking, skip this one.");
@@ -64,7 +66,8 @@ public class AgentSpeak {
     speaking = true;
     // set parameters
     agentText = sentence;
-    agentGenre = voice;
+    agentVoiceNumber = voiceNumber;
+    agentGenre = voiceGender;
     agentPitch = pitch;
     // launch sentence thanks to mamma
     thread("threadSpeak");
@@ -73,7 +76,7 @@ public class AgentSpeak {
   // short version for debug, change only sentence, leave current genre/pitch untouched
   // TODO: remove
   public void speak(String sentence) {
-    speak(sentence, agentGenre, agentPitch);
+    speak(sentence, agentGenre, agentVoiceNumber, agentPitch);
   }
 
   // is the TTS script currently executing? should be called before a new speak()

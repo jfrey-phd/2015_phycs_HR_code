@@ -1,6 +1,9 @@
 
 // various config for the experiment
 
+// how many different voices mbrola got for each gender?
+public final static int TTS_NB_VOICES=2;
+  
 // start experiment in fullscreen or not
 final boolean START_FULLSCREEN = false;
 // in window mode, let resize magic happen
@@ -10,7 +13,7 @@ final boolean ENABLE_RESIZE = true;
 final int WINDOW_X = 1000;
 final int WINDOW_Y = 700;
 // how often do we compute FPS (in seconds, 0 to disable)
-final float FPS_WINDOW = 5;
+final float FPS_WINDOW = 0;
 // set FPS (will induce the running frequency of the whole program -- 0 for default)
 final int FPS_LIMIT = 60;
 
