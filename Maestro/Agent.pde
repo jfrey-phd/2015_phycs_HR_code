@@ -53,19 +53,21 @@ public class Agent {
     voicePitch = floor(random(PITCH_BASE - PITCH_RANGE, PITCH_BASE + PITCH_RANGE + 1));
     // Create and position different parts
     head = new BodyPart(Body.Type.HEAD, this.genre);
-    head.setPos(0, 0);
+    head.setPos(0,0);
     // For eyes we got also some variability
     eyes = new BodyPart(Body.Type.EYES, this.genre);
-    eyes.setPos(0, 0);
+    eyes.setPos(0,0);
     eyes.setBPM(10);
     eyes.setBPMVariability(5);
 
     mouth = new BodyPart(Body.Type.MOUTH, this.genre);
-    mouth.setPos(150, 475);
+    mouth.setPos(0,0);
+    // more complexe aminatiom for mouth, speed-up a bit
+    mouth.setAnimationSpeed(50);
 
     // Special case for heart: will play a sound with each beat -- pass "hrMan" as a Trigger, *not* "trig", because in-between we want to compute fakeHR 
     heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH, "beat.wav", hrMan); 
-    heart.setPos(600, 600);
+    heart.setPos(230, 570);
 
     // deals with heart rate ; special case if human type and got HRManager
     if (HRType == Body.HR.HUMAN && hrMan != null) {
