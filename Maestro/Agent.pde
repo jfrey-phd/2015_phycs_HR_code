@@ -1,9 +1,13 @@
 
 // will create an "agent" from different body parts
-// NB: the screen space is believed to be 1000x1000
 // NB: call Body.setTableParts() beforehand fore randomness
+// NB: see AGENT_WIDTH and AGENT_HEIGHT for suppored image size
 // WARNING: should call cleanup() when the agent is not needed
 public class Agent {
+  
+  // The screen space occupied by agents is believed to be a certain size (in pixels).
+  public static final int AGENT_WIDTH = 800;
+  public static final int AGENT_HEIGHT = 850;
 
   // FIXME: public for debug through keyboard
   public BodyPart head, eyes, mouth, heart;
