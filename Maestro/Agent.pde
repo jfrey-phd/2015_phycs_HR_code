@@ -52,7 +52,7 @@ public class Agent {
     head.setPos(0, 0);
     // For eyes we got also some variability
     eyes = new BodyPart(Body.Type.EYES, Body.Genre.MALE);
-    eyes.setPos(200, 75);
+    eyes.setPos(0, 0);
     eyes.setBPM(10);
     eyes.setBPMVariability(5);
 
