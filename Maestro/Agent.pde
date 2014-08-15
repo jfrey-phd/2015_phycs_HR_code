@@ -41,22 +41,26 @@ public class Agent {
   // TODO: could set to null if fot human type ; but not pretty. new constructor or  class instead.
   Agent(Body.HR HRType, HeartManager hrMan, Trigger trig) {
     this.HRType = HRType;
-    this.hrMan = hrMan;
-    // FIXME: random male/female    
-    this.genre = Body.Genre.MALE;
+    this.hrMan = hrMan;  
+    // Random 1 or 0 to get random male or female
+    if (floor(random(2)) == 1) {
+      this.genre = Body.Genre.MALE;
+    } else {
+      this.genre = Body.Genre.FEMALE;
+    }
     // select one of the available voices
     voiceNumber = floor(random(TTS_NB_VOICES));
     voicePitch = floor(random(PITCH_BASE - PITCH_RANGE, PITCH_BASE + PITCH_RANGE + 1));
     // Create and position different parts
-    head = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
+    head = new BodyPart(Body.Type.HEAD, this.genre);
     head.setPos(0, 0);
     // For eyes we got also some variability
-    eyes = new BodyPart(Body.Type.EYES, Body.Genre.MALE);
+    eyes = new BodyPart(Body.Type.EYES, this.genre);
     eyes.setPos(0, 0);
     eyes.setBPM(10);
     eyes.setBPMVariability(5);
 
-    mouth = new BodyPart(Body.Type.MOUTH, Body.Genre.MALE);
+    mouth = new BodyPart(Body.Type.MOUTH, this.genre);
     mouth.setPos(150, 475);
 
     // Special case for heart: will play a sound with each beat -- pass "hrMan" as a Trigger, *not* "trig", because in-between we want to compute fakeHR 
