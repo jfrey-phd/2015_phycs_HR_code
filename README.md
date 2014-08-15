@@ -10,6 +10,7 @@ Experimental protocol for testing HR feedback hypothesis.
 * espeak, mborola, mbrola-fr1, mbrola-fr4 (tts)
 * python-scipy (openvibe scenarios)
 * libssl-dev (to compile ser2sock)
+* alsa-utils (for "aplay")
 
 ## Programs
 
