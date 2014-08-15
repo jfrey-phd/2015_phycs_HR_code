@@ -83,6 +83,7 @@ public class Agent {
     // will be constant otherwise
     else {
       heart.setBPM(HRType.BPM);
+      heart.setBPMVariability(HRType.variability);
     }
     // sharp beat
     heart.setAnimationSpeed(45);

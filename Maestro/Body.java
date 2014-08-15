@@ -21,21 +21,24 @@ public class Body {
   };
 
   // HR type
-  // Give two information: BPM and stimulation code
+  // Give three information: BPM, variability and stimulation code
   public enum HR {
-    LOW(20, "OVTK_GDF_Stage_1"), 
-    MEDIUM(60, "OVTK_GDF_Stage_2"), 
-    HIGH(120, "OVTK_GDF_Stage_3"), 
-    // default BPM value (almost dead!) but should read input from physio
-    HUMAN(5, "OVTK_GDF_Stage_4");
+    LOW(20, 2, "OVTK_GDF_Stage_1"), 
+    MEDIUM(70, 4, "OVTK_GDF_Stage_2"), 
+    HIGH(120, 8, "OVTK_GDF_Stage_3"), 
+    // default BPM value as medium but should read input from physio
+    HUMAN(70, 4, "OVTK_GDF_Stage_4");
 
     // BPM for body part
     public final int BPM;
+    // variability (but you've guessed that already)
+    public final int variability;
     // stimulation code for openvibe
     public final String code;
 
-    HR(int BPM, String code) {
+    HR(int BPM, int variability, String code) {
       this.BPM = BPM;
+      this.variability = variability;
       this.code = code;
     }
   };
