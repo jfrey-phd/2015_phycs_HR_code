@@ -1,9 +1,13 @@
 
 // will create an "agent" from different body parts
-// NB: the screen space is believed to be 1000x1000
 // NB: call Body.setTableParts() beforehand fore randomness
+// NB: see AGENT_WIDTH and AGENT_HEIGHT for suppored image size
 // WARNING: should call cleanup() when the agent is not needed
 public class Agent {
+  
+  // The screen space occupied by agents is believed to be a certain size (in pixels).
+  public static final int AGENT_WIDTH = 800;
+  public static final int AGENT_HEIGHT = 850;
 
   // FIXME: public for debug through keyboard
   public BodyPart head, eyes, mouth, heart;
@@ -14,8 +18,8 @@ public class Agent {
   // which voice is selected?
   public final int voiceNumber;
   // randomize a bit voice pitch +/- 15 around 50 (espeak parameter)
-  private final int PITCH_BASE = 50;
-  private final int PITCH_RANGE = 15;
+  private final int PITCH_BASE = 75;
+  private final int PITCH_RANGE = 10;
   public final int voicePitch;
   // Every elemet will be connected to it
   private PShape wholeBody;
@@ -41,27 +45,36 @@ public class Agent {
   // TODO: could set to null if fot human type ; but not pretty. new constructor or  class instead.
   Agent(Body.HR HRType, HeartManager hrMan, Trigger trig) {
     this.HRType = HRType;
-    this.hrMan = hrMan;
-    // FIXME: random male/female    
-    this.genre = Body.Genre.MALE;
+    this.hrMan = hrMan;  
+    // Random 1 or 0 to get random male or female
+    if (floor(random(2)) == 1) {
+      this.genre = Body.Genre.MALE;
+    } else {
+      this.genre = Body.Genre.FEMALE;
+    }
     // select one of the available voices
     voiceNumber = floor(random(TTS_NB_VOICES));
     voicePitch = floor(random(PITCH_BASE - PITCH_RANGE, PITCH_BASE + PITCH_RANGE + 1));
     // Create and position different parts
-    head = new BodyPart(Body.Type.HEAD, Body.Genre.MALE);
+    head = new BodyPart(Body.Type.HEAD, this.genre);
     head.setPos(0, 0);
     // For eyes we got also some variability
-    eyes = new BodyPart(Body.Type.EYES, Body.Genre.MALE);
-    eyes.setPos(200, 75);
+    eyes = new BodyPart(Body.Type.EYES, this.genre);
+    eyes.setPos(0, 0);
     eyes.setBPM(10);
     eyes.setBPMVariability(5);
 
-    mouth = new BodyPart(Body.Type.MOUTH, Body.Genre.MALE);
-    mouth.setPos(150, 475);
+    mouth = new BodyPart(Body.Type.MOUTH, this.genre);
+    mouth.setPos(0, 0);
+    // more complexe aminatiom for mouth, speed-up a bit
+    mouth.setAnimationSpeed(50);
 
     // Special case for heart: will play a sound with each beat -- pass "hrMan" as a Trigger, *not* "trig", because in-between we want to compute fakeHR 
-    heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH, "beat.wav", hrMan); 
-    heart.setPos(600, 600);
+    heart = new BodyPart(Body.Type.HEART, Body.Genre.BOTH, "beat.wav", hrMan);
+    // the original SVG is a bit too big
+    // TODO: tune svg instead...
+    heart.getPShape().scale(0.66);
+    heart.setPos(500, 900);
 
     // deals with heart rate ; special case if human type and got HRManager
     if (HRType == Body.HR.HUMAN && hrMan != null) {
@@ -71,8 +84,9 @@ public class Agent {
     else {
       heart.setBPM(HRType.BPM);
     }
-
+    // sharp beat
     heart.setAnimationSpeed(45);
+
 
     // time to add every part to the agent
     wholeBody = new PShape();

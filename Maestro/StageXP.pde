@@ -458,11 +458,11 @@ public class StageXP extends Stage {
     // if the current state don't prevent agent diplay, show the beautiful baby
     if (showAgent && agent != null) {
 
-      // original agent size is 1000x1000 (see Agent). Center on X, scale on Y.
+      // original agent size is fixed (see Agent). Center on X, scale on Y.
       // The real scale of agent is a little less than "agentSpace" because there is space left above and under
-      float agentScale = (agentSpace * 18/20) * height / 1000;
+      float agentScale = (agentSpace * 18/20) * height / Agent.AGENT_HEIGHT;
       // center by hand on X, on top on Y
-      float agentX = (width - (1000*agentScale)) / 2;
+      float agentX = (width - (Agent.AGENT_WIDTH*agentScale)) / 2;
       // 1/20 margin
       float agentY = height * (agentScale * 1/20);
 
