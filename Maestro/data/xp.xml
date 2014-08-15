@@ -23,18 +23,25 @@
       <to>très agréable</to>
     </likert>
     <likert type="agent">
-      <question>Good looking?</question>
+      <question>Jugez-vous l'agent agréable ?</question>
       <nb>7</nb>
-      <from>not at all</from>
-      <middle>neutral</middle>
-      <to>very</to>
+      <from>très désagréable</from>
+      <middle>neutre</middle>
+      <to>très agréable</to>
     </likert>
     <likert type="agent">
-      <question>Empathy?</question>
+      <question>Le trouvez-vous chaleureux ?</question>
       <nb>7</nb>
-      <from>not at all</from>
-      <middle>neutral</middle>
-      <to>very</to>
+      <from>pas du tout</from>
+      <middle>neutre</middle>
+      <to>très chaleureux</to>
+    </likert>
+    <likert type="agent">
+      <question>Vous a-t-il semblé "vivant" ?</question>
+      <nb>7</nb>
+      <from>pas du tout</from>
+      <middle>neutre</middle>
+      <to>très vivant</to>
     </likert>
   </stage>
   <stage type="title">
