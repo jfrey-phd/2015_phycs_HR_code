@@ -90,15 +90,26 @@ void setup() {
   Ess.start(this);
   // init for TTS
   tts = new AgentSpeak();
+}
 
-  // load sententes
-  corpus_random = new CorpusRandom();
-  corpus_seq = new CorpusSeq();
+// when selection is done, load right corpus for XP or training session
+// training: true to load corpus of training session, false for XP session
+// TODO: put dedicated section in XML file with filename
+void loadCorpus(boolean training) {
+  println("Loading corpus...");
+  if (training) {
+    // load sententes
+    corpus_random = new CorpusRandom(TRAIN_RANDOM_CORPUS);
+    corpus_seq = new CorpusSeq(TRAIN_SEQUENTIAL_CORPUS);
+  } else {
+    corpus_random = new CorpusRandom(XP_RANDOM_CORPUS);
+    corpus_seq = new CorpusSeq(XP_SEQUENTIAL_CORPUS);
+  }
 }
 
 // load stages for XP from scriptFilename
 void loadStages(String scriptFilename) {
-  // xp starts
+  // xp starts... very soon
   stimMan.sendMes("OVTK_StimulationId_ExperimentStart");
 
   stages = new ArrayList<Stage>();
@@ -341,6 +352,7 @@ void keyPressed() {
   else if (key == 't' || key == 'T') {
     if (waitForSelection) {
       println("Training session selected");
+      loadCorpus(true);
       loadStages(TRAIN_SCRIPT_FILENAME);
       waitForSelection = false;
       println("Next draw will start session");
@@ -349,6 +361,7 @@ void keyPressed() {
   // real session
   else if (key == 'x' || key == 'X') {
     if (waitForSelection) {
+      loadCorpus(false);
       loadStages(XP_SCRIPT_FILENAME);
       waitForSelection = false;
       println("Next draw will start session");
