@@ -16,11 +16,11 @@
     <nbSentences>4</nbSentences>
     <nbSameValence>2</nbSameValence>
     <likert type="sentence">
-      <question>Valence question?</question>
+      <question>Intensité affective</question>
       <nb>7</nb>
-      <from>negative</from>
-      <middle>neutral</middle>
-      <to>positive</to>
+      <from>très désagréable</from>
+      <middle>neutre</middle>
+      <to>très agréable</to>
     </likert>
     <likert type="agent">
       <question>Good looking?</question>
