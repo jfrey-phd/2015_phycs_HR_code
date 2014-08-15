@@ -1,6 +1,10 @@
 
 // various config for the experiment
 
+// filename of training/xp session
+final String TRAIN_SCRIPT_FILENAME = "train.xml";
+final String XP_SCRIPT_FILENAME = "xp.xml";
+
 // how many different voices mbrola got for each gender?
 public final static int TTS_NB_VOICES=2;
   
