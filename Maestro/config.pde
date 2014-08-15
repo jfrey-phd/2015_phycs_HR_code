@@ -4,6 +4,12 @@
 // filename of training/xp session
 final String TRAIN_SCRIPT_FILENAME = "train.xml";
 final String XP_SCRIPT_FILENAME = "xp.xml";
+// corpus for training session
+final String TRAIN_RANDOM_CORPUS = "soir95_header_training.csv";
+final String TRAIN_SEQUENTIAL_CORPUS = "fairy_training.csv";
+// corpus for XP session
+final String XP_RANDOM_CORPUS = "soir95_header.csv";
+final String XP_SEQUENTIAL_CORPUS = "testaccord_emotion_contexte.csv";
 
 // how many different voices mbrola got for each gender?
 public final static int TTS_NB_VOICES=2;
