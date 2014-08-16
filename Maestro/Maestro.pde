@@ -323,7 +323,7 @@ void draw() {
       stimMan.sendMes("OVTK_StimulationId_ExperimentStop");
       endXPSent = true;
     }
-    println("No more stages");
+    //println("No more stages");
     background(0);
     fill(255);
     textSize(20);
