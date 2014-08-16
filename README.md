@@ -8,7 +8,7 @@ Experimental protocol for testing HR feedback hypothesis.
 ## Dependencies
 
 * espeak, mborola, mbrola-fr1, mbrola-fr4 (tts)
-* python-scipy (openvibe scenarios)
+* python-scipy, python-tk (openvibe scenarios)
 * libssl-dev (to compile ser2sock)
 * alsa-utils (for "aplay")
 
