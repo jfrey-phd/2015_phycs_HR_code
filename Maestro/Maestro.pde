@@ -30,7 +30,9 @@ final String CSV_BODY_FILENAME = "body_parts.csv";
 ArrayList<Stage> stages;
 // pointer to current step
 int current_stage = -1;
-final String XP_SCRIPT_FILENAME = "xp.xml";
+
+// Upon start, we wait for user to select train/xp session
+boolean waitForSelection = true;
 
 // we'll send the last stimulation once
 boolean endXPSent = false;
@@ -88,25 +90,32 @@ void setup() {
   Ess.start(this);
   // init for TTS
   tts = new AgentSpeak();
-
-  // load sententes
-  corpus_random = new CorpusRandom();
-  corpus_seq = new CorpusSeq();
-
-  // xp starts (loadStages launches a stage, so for clarity have to put it before)
-  stimMan.sendMes("OVTK_StimulationId_ExperimentStart");
-
-  // load stages
-  loadStages();
 }
 
-// load stages for XP
-void loadStages() {
+// when selection is done, load right corpus for XP or training session
+// training: true to load corpus of training session, false for XP session
+// TODO: put dedicated section in XML file with filename
+void loadCorpus(boolean training) {
+  println("Loading corpus...");
+  if (training) {
+    // load sententes
+    corpus_random = new CorpusRandom(TRAIN_RANDOM_CORPUS);
+    corpus_seq = new CorpusSeq(TRAIN_SEQUENTIAL_CORPUS);
+  } else {
+    corpus_random = new CorpusRandom(XP_RANDOM_CORPUS);
+    corpus_seq = new CorpusSeq(XP_SEQUENTIAL_CORPUS);
+  }
+}
+
+// load stages for XP from scriptFilename
+void loadStages(String scriptFilename) {
+  // xp starts... very soon
+  stimMan.sendMes("OVTK_StimulationId_ExperimentStart");
 
   stages = new ArrayList<Stage>();
   // load file
-  println("Loading script file " + XP_SCRIPT_FILENAME);
-  XML xp_script = loadXML(XP_SCRIPT_FILENAME);
+  println("Loading script file " + scriptFilename);
+  XML xp_script = loadXML(scriptFilename);
   // get stages and loop to populate them
   XML[] xml_stages = xp_script.getChildren("stage");
   println("Found " + xml_stages.length + " stages");
@@ -272,8 +281,18 @@ void monitorFPS () {
   }
 }
 
-// draw... and update recursively a lot of stuf
+// draw... and update recursively a lot of stuf once XP started
 void draw() {
+  // put everything on a hold while XP not started (wait for correct keypress)
+  if (waitForSelection) {
+    // give key code for starting XP or training
+    background(0);
+    fill(255);
+    textSize(20);
+    text("t: training\nx: experiment", 10, 30);
+    return;
+  }
+
   // update Beats reading from TCP if option is set
   if (enableBeatTCP) {
     hrMan.update();
@@ -304,11 +323,11 @@ void draw() {
       stimMan.sendMes("OVTK_StimulationId_ExperimentStop");
       endXPSent = true;
     }
-    //println("No more stages");
+    println("No more stages");
     background(0);
     fill(255);
     textSize(20);
-    text("The END", 50, 50);
+    text("The END.", 50, 50);
   }
 
   // let's have a look at how FPS are going if asked to
@@ -329,39 +348,59 @@ void keyPressed() {
     // if key variable not modified, "esc" event will be capture anyway
     key = 0;
   }
-  // debug TTS
-  else if (key == 's') {
-    String mes = "Bonjour tout le monde et bonjour et bonjour !";
-    tts.speak(mes);
-  }
-  // speak sad
-  else if (key == '1') {
-    Corpus.Sentence sentence = corpus_random.drawText(-1);
-    if (sentence != null) {
-      tts.speak(sentence.text);
+  // training session start
+  else if (key == 't' || key == 'T') {
+    if (waitForSelection) {
+      println("Training session selected");
+      loadCorpus(true);
+      loadStages(TRAIN_SCRIPT_FILENAME);
+      waitForSelection = false;
+      println("Next draw will start session");
     }
   }
-  // speak neutral
-  else if (key == '2') {
-    Corpus.Sentence sentence = corpus_random.drawText(0);
-    if (sentence != null) {
-      tts.speak(sentence.text);
+  // real session
+  else if (key == 'x' || key == 'X') {
+    if (waitForSelection) {
+      loadCorpus(false);
+      loadStages(XP_SCRIPT_FILENAME);
+      waitForSelection = false;
+      println("Next draw will start session");
     }
   }
-  // speak happy
-  else if (key == '3') {
-    Corpus.Sentence sentence = corpus_random.drawText(1);
-    if (sentence != null) {
-      tts.speak(sentence.text);
-    }
-  }
-  // speak a story
-  else if (key == '4') {
-    Corpus.Sentence sentence = corpus_seq.drawText();
-    if (sentence != null) {
-      tts.speak(sentence.text);
-    }
-  }
+
+  //  // debug TTS
+  //  else if (key == 's') {
+  //    String mes = "Bonjour tout le monde et bonjour et bonjour !";
+  //    tts.speak(mes);
+  //  }
+  //  // speak sad
+  //  else if (key == '1') {
+  //    Corpus.Sentence sentence = corpus_random.drawText(-1);
+  //    if (sentence != null) {
+  //      tts.speak(sentence.text);
+  //    }
+  //  }
+  //  // speak neutral
+  //  else if (key == '2') {
+  //    Corpus.Sentence sentence = corpus_random.drawText(0);
+  //    if (sentence != null) {
+  //      tts.speak(sentence.text);
+  //    }
+  //  }
+  //  // speak happy
+  //  else if (key == '3') {
+  //    Corpus.Sentence sentence = corpus_random.drawText(1);
+  //    if (sentence != null) {
+  //      tts.speak(sentence.text);
+  //    }
+  //  }
+  //  // speak a story
+  //  else if (key == '4') {
+  //    Corpus.Sentence sentence = corpus_seq.drawText();
+  //    if (sentence != null) {
+  //      tts.speak(sentence.text);
+  //    }
+  //  }
 }
 
 // tell current stage a click occurred
