@@ -1,17 +1,21 @@
 <?xml version="1.0"?>
 <XP>
   <stage type="title">
-    <label>start</label>
+    <label>Cliquez pour continuer.</label>
+  </stage>
+  <stage type="title">
+    <label>Première partie.</label>
   </stage>
   <stage type="xp">
     <corpus>random</corpus>
     <!-- each agent is added "nb" times in the end -->
     <agent>
-      <HR>medium</HR>
+      <HR>low</HR>
       <nb>2</nb>
     </agent>
     <agent>
-      <HR>human</HR>
+      <HR>high</HR>
+      <nb>2</nb>
     </agent>
     <nbSentences>4</nbSentences>
     <nbSameValence>2</nbSameValence>
@@ -45,18 +49,49 @@
     </likert>
   </stage>
   <stage type="title">
-    <label>break</label>
+    <label>Fin première partie.</label>
+  </stage>
+  <stage type="title">
+    <label>Seconde partie.</label>
   </stage>
   <stage type="xp">
     <corpus>sequential</corpus>
     <agent>
-      <HR>high</HR>
-      <nb>1</nb>
+      <HR>low</HR>
+      <nb>2</nb>
     </agent>
-    <nbSentences>2</nbSentences>
-    <nbSameValence>2</nbSameValence>
+    <agent>
+      <HR>high</HR>
+      <nb>2</nb>
+    </agent>
+    <nbSentences>5</nbSentences>
+    <nbSameValence>0</nbSameValence>
+    <likert type="agent">
+      <question>Jugez-vous l'agent agréable ?</question>
+      <nb>7</nb>
+      <from>très désagréable</from>
+      <middle>neutre</middle>
+      <to>très agréable</to>
+    </likert>
+    <likert type="agent">
+      <question>Le trouvez-vous chaleureux ?</question>
+      <nb>7</nb>
+      <from>pas du tout</from>
+      <middle>neutre</middle>
+      <to>très chaleureux</to>
+    </likert>
+    <likert type="agent">
+      <question>Vous a-t-il semblé "vivant" ?</question>
+      <nb>7</nb>
+      <from>pas du tout</from>
+      <middle>neutre</middle>
+      <to>très vivant</to>
+    </likert>
   </stage>
   <stage type="title">
-    <label>end</label>
+    <label>Fin seconde partie.</label>
+  </stage>
+  <stage type="title">
+    <label>Terminé</label>
   </stage>
 </XP>

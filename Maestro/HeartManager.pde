@@ -1,7 +1,7 @@
 
 // if enableBeatTCP == false, will just serve as a relay between BodyPart and stimulations for fake beats.
 
-// will compute HR -- no more than 10% variations beatween beats, min and max values set, fallback smoothly to "medium" HR if timeout
+// will compute HR -- no more than 10% variations beatween beats, min and max values set, fallback smoothly to default human HR if timeout
 // FIXME: check HR algo, evolution if noise or deco not equally smooth (harmonize update() and trueBeat())
 
 // does the same for the feedback given to user for debug
@@ -12,14 +12,14 @@
 class HeartManager implements Trigger {
 
   // current HR
-  private int HR = Body.HR.MEDIUM.BPM;
+  private int HR = Body.HR.HUMAN.BPM;
   // current "fake" (feeback) HR
-  private int fakeHR = Body.HR.MEDIUM.BPM;
+  private int fakeHR = Body.HR.HUMAN.BPM;
 
   // set min and max values in case HR computation goes wrong
   private final int MIN_HR = 30;
   private final int MAX_HR = 200;
-  // if no pulse is receive during this delay (in ms), will set HR to medium 
+  // if no pulse is receive during this delay (in ms), will set HR to default human HR
   private final int HR_TIMEOUT = 3000;
   // keep record of current timeout situation to avoid useless updates
   private boolean timeout = false;
@@ -60,8 +60,8 @@ class HeartManager implements Trigger {
       }
 
       // if timedout and not reached default pulse yet, go back there step by step
-      if (timeout && HR != Body.HR.MEDIUM.BPM && lastTimeoutBeat + REFRACTORY_DELAY < millis()) {
-        int new_HR = Body.HR.MEDIUM.BPM;
+      if (timeout && HR != Body.HR.HUMAN.BPM && lastTimeoutBeat + REFRACTORY_DELAY < millis()) {
+        int new_HR = Body.HR.HUMAN.BPM;
         // to smooth a bit transition, clamp around last real HR +/- 10%
         new_HR=round(min(new_HR, HR+0.1*HR));
         new_HR=round(max(new_HR, HR-0.1*HR));

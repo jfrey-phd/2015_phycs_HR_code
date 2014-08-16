@@ -37,8 +37,9 @@ then
     PITCH=$4
 fi
 
-# -s 120: 120 words per minute, seems more natural (default: 160 ; results sounds better than playing with "-s" parameter in mborola)
-# -p : pitch variation. 50 is equivalent to "-t 1" for mbrola
-# Force .au format for aplay to detect automatically frequency associated with voice (could be 16000hz for male or 22050hz for female)
-espeak -s 120 -p $PITCH -v $VOICE_CODE -q --pho  "$1" | mbrola -e $VOICE_PATH - -.au | aplay
+# espeak, -s 120: 120 words per minute, seems more natural (default: 160 ; results sounds better than playing with "-s" parameter in mborola)
+# espeak, -p xx: pitch variation. 50 is equivalent to "-t 1" for mbrola
+# mbrola, -v 0.2: reduce volume of the voice for louder heartbeat
+# mbrola, force .au format for aplay to detect automatically frequency associated with voice (could be 16000hz for male or 22050hz for female)
+espeak -s 120 -p $PITCH -v $VOICE_CODE -q --pho  "$1" | mbrola -v 0.2 -e $VOICE_PATH - -.au | aplay
 
