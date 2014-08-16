@@ -15,7 +15,7 @@ final String XP_SEQUENTIAL_CORPUS = "testaccord_emotion_contexte.csv";
 public final static int TTS_NB_VOICES=2;
   
 // start experiment in fullscreen or not
-final boolean START_FULLSCREEN = false;
+final boolean START_FULLSCREEN = true;
 // in window mode, let resize magic happen
 // WARNING: dangerous behavior, will probably crash quickly while resizing
 final boolean ENABLE_RESIZE = true;
@@ -41,14 +41,14 @@ String CSVFileBasename = "../recordings/subject";
 /* config for beat detection */
 // true for reading beats from TCP, false for a default value
 final boolean enableBeatTCP = true; 
-String beatIP = "127.0.0.1";
+String beatIP = "192.168.5.2";
 int beatPort = 11000;
 
 /* config for sending stimulations (see  README for more explainations on code used) */
 // true for sending codes to TCP, false will print them to stdout
 // TODO: behavior not consitant accross program if false (StageXP will send stim to std out while elsewhere does not)
 final boolean enableStimTCP = true; 
-String stimIP = "127.0.0.1";
+String stimIP = "192.168.5.2";
 int stimPort = 11001;
 
 /* for debug only -- every option should be "false" for real run */
