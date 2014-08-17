@@ -6,10 +6,9 @@ import java.text.SimpleDateFormat;
 
 /* Handles stdout */
 
-// Enable println() outside Processing, and print caller name if flag is set
+// Enable println() outside Processing, and print caller name if flag is set. Flush (file) with every call.
 // Write output to file if flag is set
 // TODO: do not get stderr
-// TODO: check that it's flushed. flush in draw() to limit disasters?
 // TODO: do not handle comma separated strings as argument 
 
 // WARNING: may use a greedy method, avoid with lot's of output.
@@ -120,6 +119,7 @@ public class Diary {
       // and to file if set and dispose() not called yet
       if (printToFile && output != null) {
         output.println(mes);
+        output.flush();
       }
     }
   }
