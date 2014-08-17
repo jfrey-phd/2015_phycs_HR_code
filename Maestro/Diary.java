@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 
 // Enable println() outside Processing, and print caller name if flag is set
 // Write output to file if flag is set
-// FIXME: do not get stderr
+// TODO: do not get stderr
 // TODO: check that it's flushed. flush in draw() to limit disasters?
 // TODO: do not handle comma separated strings as argument 
 

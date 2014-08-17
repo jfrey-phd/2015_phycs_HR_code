@@ -1,7 +1,7 @@
 
 // coordinates all the different modules
 
-// FIXME: prone to crash if resized (?? even with simple content)
+// TODO: prone to crash if resized (?? even with simple content)
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -46,7 +46,7 @@ void init() {
     frame.addNotify();
   }
   // if not fullscreen, enable resize
-  // FIXME: dangerous behavior, will probably crash upon resize
+  // WARNING: dangerous behavior, will probably crash upon resize (dppend on graphic card/driver it seems)
   else if (ENABLE_RESIZE) {
     if (frame != null) {
       frame.setResizable(true);
@@ -432,12 +432,12 @@ void threadSpeak() {
 
 // close ESS on exit
 // TODO: cleanup other things...
-// FIXME: should use handler...
+// TODO: should use handler...
 public void dispose () {
   println("Exiting...");
   // beyond this point, no println should be called (will not be written to disk if flag get)
   Diary.dispose();
-  // FIXME: this one seems to freeze regurarely app :\
+  // TODO: this one seems to freeze regurarely app :\
   Ess.stop();
 }
 

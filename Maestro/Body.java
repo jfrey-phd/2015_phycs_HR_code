@@ -127,7 +127,7 @@ public class Body {
         Diary.println("Randomly selected: " + part_number);
       }
       // really not a good time to be here
-      // FIXME: will probably crash after that when will try to load an invalid file
+      // TODO: will probably crash after that when will try to load an invalid file
       else {
         Diary.println("Number of parts not found, or lesser than 1");
       }

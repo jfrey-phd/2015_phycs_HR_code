@@ -65,7 +65,7 @@ public class TCPClientRead {
   public void update() 
   {
     // if connection is inactive, try to reco after TCPRetryDelay has been reached
-    // FIXME: another way than creating a client? No reco in processing?
+    // TODO: another way than creating a client? No reco in processing?
     if ( 
     (ov_TCPclient == null  || !ov_TCPclient.active()) // object not created or deco happend
     && millis() - TCPlastAttempt > TCP_RETRY_DELAY // and times up

@@ -43,7 +43,7 @@ public class BodyPart {
   private AudioChannel[] beats;
   // how may of that buffer we'll use (depends on max BPM and audio file duration)
   // WARNING: for memory sake, don't go too high with big files!
-  // FIXME: if number too high, will prevent other parts to beat --  "32 AudioChannels and AudioStreams (combined) per sketch", will crash the whole sound system in fact. Centralize sound engine to prevent that.
+  // TODO: if number too high, will prevent other parts to beat --  "32 AudioChannels and AudioStreams (combined) per sketch", will crash the whole sound system in fact. Centralize sound engine to prevent that.
   private final int NB_BUFFERS = 6;
   // for cycling, which buffer is currently played
   private int curBuffer;
