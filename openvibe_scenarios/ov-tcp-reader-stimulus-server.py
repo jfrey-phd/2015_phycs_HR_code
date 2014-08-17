@@ -164,16 +164,19 @@ class MyOVBox(OVBox):
   def send_stim(self, label):
     # don't bother with empty value (split does that)
     if label != '':
-      print "Got label: ", label
+      if self.debug:
+        print "Got label: ", label
       # we get the corresponding code using the OpenViBE_stimulation dictionnary
       try:
         stimCode = OpenViBE_stimulation[label]
       # an exception means lookup failed in dict label:code
       except:
-        print "Cannot get corresponding code, ignoring"
+	if self.debug:
+          print "Cannot get corresponding code, ignoring"
       # at this point we got a stimulation
       else:
-        print "Corresponding code: ", stimCode
+	if self.debug:
+          print "Corresponding code: ", stimCode
         # A stimulation set is a chunk which starts at current time and end time is the time step between two calls
         stimSet = OVStimulationSet(self.getCurrentTime(), self.getCurrentTime()+1./self.getClock())
         # the date of the stimulation is simply the current openvibe time when calling the box process
