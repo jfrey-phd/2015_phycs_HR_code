@@ -211,7 +211,6 @@ public class StageXP extends Stage {
       }
       break;
       // initiate next sentence or next step if no more in valence/agent
-      // TODO: select valence, use corpus
     case SPEAK_START:
       // increase the number of same valence we used in a row
       curSameValence++;
@@ -429,7 +428,6 @@ public class StageXP extends Stage {
 
   // draw for xp type
   // may show likert if in correct state
-  // TODO: size depending on window
   // TODO: size depeding on number of questions
   public void draw() {
     // reset display
