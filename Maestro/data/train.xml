@@ -4,20 +4,20 @@
     <label>Cliquez pour continuer.</label>
   </stage>
   <stage type="title">
-    <label>Première partie.</label>
+    <label>Première partie (entraînement).</label>
   </stage>
   <stage type="xp">
     <corpus>random</corpus>
     <!-- each agent is added "nb" times in the end -->
     <agent>
       <HR>low</HR>
-      <nb>2</nb>
+      <nb>1</nb>
     </agent>
     <agent>
       <HR>high</HR>
-      <nb>2</nb>
+      <nb>1</nb>
     </agent>
-    <nbSentences>4</nbSentences>
+    <nbSentences>2</nbSentences>
     <nbSameValence>2</nbSameValence>
     <likert type="sentence">
       <question>Intensité affective</question>
@@ -52,19 +52,19 @@
     <label>Fin première partie.</label>
   </stage>
   <stage type="title">
-    <label>Seconde partie.</label>
+    <label>Seconde partie (entraînement).</label>
   </stage>
   <stage type="xp">
     <corpus>sequential</corpus>
     <agent>
       <HR>low</HR>
-      <nb>2</nb>
+      <nb>1</nb>
     </agent>
     <agent>
       <HR>high</HR>
-      <nb>2</nb>
+      <nb>1</nb>
     </agent>
-    <nbSentences>5</nbSentences>
+    <nbSentences>3</nbSentences>
     <nbSameValence>0</nbSameValence>
     <likert type="agent">
       <question>Jugez-vous l'agent agréable ?</question>
