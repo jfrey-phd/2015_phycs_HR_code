@@ -2,7 +2,6 @@
 // if enableBeatTCP == false, will just serve as a relay between BodyPart and stimulations for fake beats.
 
 // will compute HR -- no more than 10% variations beatween beats, min and max values set, fallback smoothly to default human HR if timeout
-// FIXME: check HR algo, evolution if noise or deco not equally smooth (harmonize update() and trueBeat())
 
 // does the same for the feedback given to user for debug
 // WARNING: when agent changes, the first value of fakeHR will probably be wrong (we don't have a hint about current agent type, may be fixed)
