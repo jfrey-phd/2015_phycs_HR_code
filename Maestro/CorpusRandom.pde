@@ -24,7 +24,7 @@ public class CorpusRandom extends Corpus {
     soir95_sad = new IntList();
     soir95_neutral = new IntList();
     soir95_happy = new IntList();
-    // FIXME: ugly way to do it, can't simply select values with operators??
+    // TODO: ugly way to do it, can't simply select values with operators??
     for (int i = 0; i < soir95.getRowCount (); i++) {
       TableRow row = soir95.getRow(i);
       float val = row.getFloat("valence");

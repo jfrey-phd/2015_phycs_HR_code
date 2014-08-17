@@ -56,7 +56,7 @@ class LikertScale {
     float button_size = (size/nbButtons) * 4/5;
     // populate list of buttons
     for (int i=0; i<nbButtons; i++) {
-      // FIXME: better labels...
+      // TODO: better labels...
       String button_label = Integer.toString(i);
       println("Create button: " + button_label);
       // X position depends on button number, Y position makes room for the question
@@ -75,7 +75,7 @@ class LikertScale {
   }
 
   // replace default labels of buttons with values
-  // FIXME: results could be weird with an even number of buttons or if < 3
+  // TODO: results could be weird with an even number of buttons or if < 3
   void setLabels(String from, String neutral, String to) {
     // first pass: empty everything exept begining and end
     for (int i=1; i<buttons.size ()-1; i++) {

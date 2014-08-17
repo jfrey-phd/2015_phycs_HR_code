@@ -9,8 +9,8 @@ public class Agent {
   public static final int AGENT_WIDTH = 800;
   public static final int AGENT_HEIGHT = 850;
 
-  // FIXME: public for debug through keyboard
-  public BodyPart head, eyes, mouth, heart;
+  // we need some spare parts to make a functional body
+  private BodyPart head, eyes, mouth, heart;
   // is agent currently cleaning?
   private boolean cleaning = false;
   // what kind of man/female we are!

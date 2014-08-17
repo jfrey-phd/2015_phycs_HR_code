@@ -5,7 +5,7 @@
 
 // WARNING: contrary to Client, calling constsructor (PApplet, String, int) may fail return a null object (the same as (PApplet, Socket), though
 
-// FIXME: could be hard to maintain with new versions of processing. Here Client.java of 2.1.2 was examined. Good idea to look into https://github.com/processing/processing/blob/master/java/libraries/net/src/processing/net/Client.java
+// TODO: could be hard to maintain with new versions of processing. Here Client.java of 2.1.2 was examined. Good idea to look into https://github.com/processing/processing/blob/master/java/libraries/net/src/processing/net/Client.java
 
 import java.net.Socket;
 import processing.core.PApplet;
