@@ -17,7 +17,6 @@ public abstract class Stage {
   // will wait signal before going to work and will disable by itself when job's done
   private boolean active = false;
 
-  // FIXME: leftovers
   // a timer since activation
   private int startTime = 0;
   // how many time in ms should the timer be set

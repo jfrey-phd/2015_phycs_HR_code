@@ -211,7 +211,6 @@ public class StageXP extends Stage {
       }
       break;
       // initiate next sentence or next step if no more in valence/agent
-      // TODO: select valence, use corpus
     case SPEAK_START:
       // increase the number of same valence we used in a row
       curSameValence++;
@@ -228,8 +227,17 @@ public class StageXP extends Stage {
       curState = StageState.XP.SPEAKING;
       println("State: " + curState);
       sendStim("OVTK_StimulationId_VisualStimulationStart");
-      // FIXME: valence
-      sendStim("OVTK_GDF_Foot");
+      // send correct stim depending on correct valence
+      // TODO: another place where I hould use enum instead of int
+      if (curValence < 0) {
+        sendStim("OVTK_GDF_Left");
+      } else if (curValence > 0) {
+        sendStim("OVTK_GDF_Foot");
+      }
+      // == 0, neutral
+      else {
+        sendStim("OVTK_GDF_Right");
+      }
       break;
       // wait untill tts is done
     case SPEAKING:
@@ -358,9 +366,18 @@ public class StageXP extends Stage {
     super.activate();
     curState = StageState.XP.START;
     println("State: " + curState);
-    // Tell them what we are !
-    // FIXME: handle other corpus
-    sendStim("OVTK_GDF_Artifact_Sweat");
+    // Tell them what corpus we are!
+    // TODO: use special stim if type not handled, here back to "RANDOM"
+    switch (corpus.type) {
+    case SEQUENTIAL:
+      sendStim("OVTK_GDF_Artifact_Movement");
+      break;
+    case UNKNOWN:
+      println("Type of corpus " + corpus.type + "not handled for sending right stim, default to RANDOM");
+    case RANDOM:
+      sendStim("OVTK_GDF_Artifact_Sweat");
+      break;
+    }
   }
 
   // will send the correct stim and export to CSV once a quesiton has been answerd
@@ -411,7 +428,6 @@ public class StageXP extends Stage {
 
   // draw for xp type
   // may show likert if in correct state
-  // TODO: size depending on window
   // TODO: size depeding on number of questions
   public void draw() {
     // reset display
