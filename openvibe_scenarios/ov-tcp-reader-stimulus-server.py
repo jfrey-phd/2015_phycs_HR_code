@@ -52,8 +52,13 @@ class MyOVBox(OVBox):
     self.output[0].append(OVStimulationHeader(0., 0.))
 
   def process(self):
+      # A stimulation set is a chunk which starts at current time and end time is the time step between two calls
+      # init here and filled within send_stim()
+      self.stimSet = OVStimulationSet(self.getCurrentTime(), self.getCurrentTime()+1./self.getClock())
       # we just listen at the moment
       self.listen_net()
+      # even if it's empty we have to send stim list to keep the rest in sync
+      self.output[0].append(self.stimSet)
 
   # listen and response to network
   def listen_net(self):
@@ -177,10 +182,7 @@ class MyOVBox(OVBox):
       else:
 	if self.debug:
           print "Corresponding code: ", stimCode
-        # A stimulation set is a chunk which starts at current time and end time is the time step between two calls
-        stimSet = OVStimulationSet(self.getCurrentTime(), self.getCurrentTime()+1./self.getClock())
         # the date of the stimulation is simply the current openvibe time when calling the box process
-        stimSet.append(OVStimulation(stimCode, self.getCurrentTime(), 0.))
-        self.output[0].append(stimSet)
+        self.stimSet.append(OVStimulation(stimCode, self.getCurrentTime(), 0.))
 
 box = MyOVBox()
