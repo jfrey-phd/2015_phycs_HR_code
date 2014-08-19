@@ -47,6 +47,9 @@ class MyOVBox(OVBox):
     
   # The process method will be called by openvibe on every clock tick
   def process(self):
+    # A stimulation set is a chunk which starts at current time and end time is the time step between two calls
+    # init here and filled within triger()
+    self.stimSet = OVStimulationSet(self.getCurrentTime(), self.getCurrentTime()+1./self.getClock())
     # if not connected, may try reco
     if not(self.connected):
       if self.getCurrentTime() - self.last_attempt > WAITTIME_BEFORE_RECO:
@@ -70,6 +73,8 @@ class MyOVBox(OVBox):
             print "data: [" + data + "]"
           # at this point we got data, let's check it
           self.process_data(data)
+    # even if it's empty we have to send stim list to keep the rest in sync
+    self.output[0].append(self.stimSet)
 
   # copied from processing sketch, check message consistency, produce data
   def process_data(self, data):
@@ -133,11 +138,8 @@ class MyOVBox(OVBox):
       else:
 	if self.debug:
           print "Corresponding code: ", stimCode
-        # A stimulation set is a chunk which starts at current time and end time is the time step between two calls
-        stimSet = OVStimulationSet(self.getCurrentTime(), self.getCurrentTime()+1./self.getClock())
         # the date of the stimulation is simply the current openvibe time when calling the box process
-        stimSet.append(OVStimulation(stimCode, self.getCurrentTime(), 0.))
-        self.output[0].append(stimSet)
+        self.stimSet.append(OVStimulation(stimCode, self.getCurrentTime(), 0.))
 
   def uninitialize(self):
     # close client socket

@@ -33,7 +33,7 @@ public class StageXP extends Stage {
   // counter for current sentence number/valence
   private int curSentenceNb = 0;
   private int curSameValence = 0;
-  // wich valence we are using right now (chosen in step SPEAK_START)
+  // wich valence we are using right now (chosen in step SPEAK_START, not used with corpus of type SEQUENTIAL)
   private int curValence = 0;
   // current sentence, used to hold info between pick and subject answer
   private Corpus.Sentence sentence;
@@ -145,7 +145,7 @@ public class StageXP extends Stage {
     likertsAgent.add(likert);
   }
 
-  // choose new valence for next sentences
+  // choose new valence for next sentences (called with RANDOM corpus)
   private void resetValence() {
     curSameValence = 0;
     // valence between -1 and 1
@@ -212,14 +212,21 @@ public class StageXP extends Stage {
       break;
       // initiate next sentence or next step if no more in valence/agent
     case SPEAK_START:
-      // increase the number of same valence we used in a row
-      curSameValence++;
-      // if greater that what we should say, reset counter, draw new valence
-      if (curSameValence > nbSameValence) {
-        resetValence();
+      // if the corpus is of type sequential, just draw sentence
+      if (corpus.type == Corpus.Type.SEQUENTIAL) {
+        sentence = corpus.drawText();
       }
-      // draw a new sentence
-      sentence = corpus.drawText(curValence);
+      // otherwise (ie: RANDOM or by default), will use valence
+      else {
+        // increase the number of same valence we used in a row
+        curSameValence++;
+        // if greater that what we should say, reset counter, draw new valence
+        if (curSameValence > nbSameValence) {
+          resetValence();
+        }
+        // draw a new sentence
+        sentence = corpus.drawText(curValence);
+      }
       // speak it aloud if present
       if (sentence != null) {
         tts.speak(sentence.text, agent.genre, agent.voiceNumber, agent.voicePitch);
