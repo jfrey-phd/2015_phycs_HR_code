@@ -7,10 +7,12 @@ Experimental protocol for testing HR feedback hypothesis.
 
 ## Dependencies
 
-* espeak, mborola, mbrola-fr1, mbrola-fr4 (tts)
+* espeak, mborola (tts)
+    * voices for mbrola: mbrola-fr1 and mbrola-fr4 are usually included in distribution (eg: ubuntu), retrieve fr2 and fr3 from mbrola server (http://tcts.fpms.ac.be/synthesis/mbrola.html) and place those files in the right place in the system.
 * python-scipy, python-tk (openvibe scenarios)
 * libssl-dev (to compile ser2sock)
 * alsa-utils (for "aplay")
+
 
 ## Programs
 
