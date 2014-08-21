@@ -1,7 +1,9 @@
 
+# Will study subjects' responses to likert scales
+# Data for each subject should lie in a folder name sN, where N is subjet's number. Two subfolder inside, "train" and "xp", each with csv file corresponding to the session training or "real" session.
+
 # fetch data from there
 working_path <- "~/HR/data" 
-
 
 # log output there
 #output_file <- paste(sep="", working_path, "questionnaires_results.txt")
@@ -56,22 +58,39 @@ study_response <- function(dat) {
   print(res)
 }
 
+# compare each one of the agent question
+study_agent <- function(dat) {
+  # First compare across all codes
+  cat("Studying across all questions\n")
+  allCodes_data <- aggregate(answer~HR_type+subject, data=dat, mean)
+  study_response(allCodes_data)
+  # Then each question on its own
+  codes <- unique(dat$question_code)
+  # loop on each code
+  for (i in 1:length(codes)) {
+    cat("-- Studying question code: ", codes[i], "--\n")
+    # get only a spetific code, a subset of a subset...
+    code_data <- aggregate(answer~HR_type+subject, data=subset(dat, question_code==codes[i]), mean)
+    study_response(code_data)
+  }
+}
+
 # now, work with data
 
 # agent answers, group stages together
-cat("\nAgent overall\n")
-agent_overall <- aggregate(answer~HR_type+subject, data=subset(data, question_type=="agent"), mean)
-study_response(agent_overall)
+cat("\n== Agent overall ==\n")
+agent_overall <- aggregate(answer~HR_type+subject+question_code, data=subset(data, question_type=="agent"), mean)
+study_agent(agent_overall)
 
-cat("\nAgent random\n")
-agent_random <- aggregate(answer~HR_type+subject, data=subset(data, question_type=="agent" & corpus_type=="RANDOM"), mean)
-study_response(agent_random)
+cat("\n== Agent random ==\n")
+agent_random <- aggregate(answer~HR_type+subject+question_code, data=subset(data, question_type=="agent" & corpus_type=="RANDOM"), mean)
+study_agent(agent_random)
 
-cat("\nAgent sequential\n")
-agent_sequential <- aggregate(answer~HR_type+subject, data=subset(data, question_type=="agent" & corpus_type=="SEQUENTIAL"), mean)
-study_response(agent_sequential)
+cat("\n== Agent sequential ==\n")
+agent_sequential <- aggregate(answer~HR_type+subject+question_code, data=subset(data, question_type=="agent" & corpus_type=="SEQUENTIAL"), mean)
+study_agent(agent_sequential)
 
-cat("\nSentence random\n")
+# only one likert for sentece, use directly study_response
+cat("\n== Sentence random ==\n")
 sentence_random <- aggregate(answer~HR_type+subject, data=subset(data, question_type=="sentence" & corpus_type=="RANDOM"), mean)
 study_response(sentence_random)
-
