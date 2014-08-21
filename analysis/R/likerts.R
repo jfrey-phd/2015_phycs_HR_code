@@ -2,14 +2,15 @@
 # Will study subjects' responses to likert scales
 # Data for each subject should lie in a folder name sN, where N is subjet's number. Two subfolder inside, "train" and "xp", each with csv file corresponding to the session training or "real" session.
 
+# for ties correction with wilcoxsign_test
+library(coin)
+
 # fetch data from there
 working_path <- "~/HR/data" 
 
 # log output there
-#output_file <- paste(sep="", working_path, "questionnaires_results.txt")
-#sink(output_file, split=TRUE)
-# end logs
-#sink()
+output_file <- paste(sep="", working_path, "/likerts_results.txt")
+sink(output_file, split=TRUE)
 
 # in data path, there should be for each subject a folder named s1, then s2, ...
 subjects_list <- dir(working_path, pattern = "s[0-9]", ignore.case = TRUE)
@@ -51,24 +52,32 @@ study_response <- function(dat) {
   print(c1)
   cat("Mean", mean(c1), "\n")
   c2 = subset(dat, HR_type=="MEDIUM")$answer
-  cat("MEDIUM: ")
+  cat("\nMEDIUM: ")
   print(c2)
-  cat("Mean", mean(c2), "\n")
-  res <- wilcox.test(c1, c2, paired=TRUE)
-  print(res)
+  cat("Mean", mean(c2), "\n\n")
+  # I may have different hypothesis depending on the data study_response is called with, compute each test
+  cat("'Two-sided' hypothesis\n")
+  #print(wilcox.test(c1, c2, paired=TRUE, alternative="two.sided"))
+  print(wilcoxsign_test(c1 ~ c2, distribution="exact", zero.method="Pratt"))
+  cat("'Greater' hypothesis\n") 
+  #print(wilcox.test(c1, c2, paired=TRUE, alternative="greater"))
+  print(wilcoxsign_test(c1 ~ c2, distribution="exact", zero.method="Pratt", alternative="greater"))
+  cat("'Less' hypothesis\n")
+  #print(wilcox.test(c1, c2, paired=TRUE, alternative="less"))
+  print(wilcoxsign_test(c1 ~ c2, distribution="exact", zero.method="Pratt", alternative="less"))
 }
 
 # compare each one of the agent question
 study_agent <- function(dat) {
   # First compare across all codes
-  cat("Studying across all questions\n")
+  cat("Studying across all questions\n\n")
   allCodes_data <- aggregate(answer~HR_type+subject, data=dat, mean)
   study_response(allCodes_data)
   # Then each question on its own
   codes <- unique(dat$question_code)
   # loop on each code
   for (i in 1:length(codes)) {
-    cat("-- Studying question code: ", codes[i], "--\n")
+    cat("-- Studying question code: ", codes[i], "--\n\n")
     # get only a spetific code, a subset of a subset...
     code_data <- aggregate(answer~HR_type+subject, data=subset(dat, question_code==codes[i]), mean)
     study_response(code_data)
@@ -78,19 +87,23 @@ study_agent <- function(dat) {
 # now, work with data
 
 # agent answers, group stages together
-cat("\n== Agent overall ==\n")
+cat("\n== Agent overall ==\n\n")
 agent_overall <- aggregate(answer~HR_type+subject+question_code, data=subset(data, question_type=="agent"), mean)
 study_agent(agent_overall)
 
-cat("\n== Agent random ==\n")
+cat("\n== Agent random ==\n\n")
 agent_random <- aggregate(answer~HR_type+subject+question_code, data=subset(data, question_type=="agent" & corpus_type=="RANDOM"), mean)
 study_agent(agent_random)
 
-cat("\n== Agent sequential ==\n")
+cat("\n== Agent sequential ==\n\n")
 agent_sequential <- aggregate(answer~HR_type+subject+question_code, data=subset(data, question_type=="agent" & corpus_type=="SEQUENTIAL"), mean)
 study_agent(agent_sequential)
 
 # only one likert for sentece, use directly study_response
-cat("\n== Sentence random ==\n")
+cat("\n== Sentence random ==\n\n")
 sentence_random <- aggregate(answer~HR_type+subject, data=subset(data, question_type=="sentence" & corpus_type=="RANDOM"), mean)
 study_response(sentence_random)
+
+# end logs
+sink()
+
