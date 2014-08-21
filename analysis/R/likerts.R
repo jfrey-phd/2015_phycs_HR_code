@@ -42,4 +42,36 @@ for (i in 1:length(subjects_list)) {
   }
 }
 
+# compare HUMAN and MEDIUM condition in data frame dat
+study_response <- function(dat) {
+  c1 = subset(dat, HR_type=="HUMAN")$answer
+  cat("HUMAN: ")
+  print(c1)
+  cat("Mean", mean(c1), "\n")
+  c2 = subset(dat, HR_type=="MEDIUM")$answer
+  cat("MEDIUM: ")
+  print(c2)
+  cat("Mean", mean(c2), "\n")
+  res <- wilcox.test(c1, c2, paired=TRUE)
+  print(res)
+}
+
 # now, work with data
+
+# agent answers, group stages together
+cat("\nAgent overall\n")
+agent_overall <- aggregate(answer~HR_type+subject, data=subset(data, question_type=="agent"), mean)
+study_response(agent_overall)
+
+cat("\nAgent random\n")
+agent_random <- aggregate(answer~HR_type+subject, data=subset(data, question_type=="agent" & corpus_type=="RANDOM"), mean)
+study_response(agent_random)
+
+cat("\nAgent sequential\n")
+agent_sequential <- aggregate(answer~HR_type+subject, data=subset(data, question_type=="agent" & corpus_type=="SEQUENTIAL"), mean)
+study_response(agent_sequential)
+
+cat("\nSentence random\n")
+sentence_random <- aggregate(answer~HR_type+subject, data=subset(data, question_type=="sentence" & corpus_type=="RANDOM"), mean)
+study_response(sentence_random)
+
